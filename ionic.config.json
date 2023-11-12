@@ -1,0 +1,7 @@
+{
+  "name": "globetrotting",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

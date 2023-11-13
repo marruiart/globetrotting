@@ -1,20 +1,33 @@
-import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
+  private renderer: Renderer2;
+  private themeLink: HTMLLinkElement;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document) { }
+    private rendererFactory: RendererFactory2
+  ) {
+    this.renderer = this.rendererFactory.createRenderer(null, null);
+    // Encuentra o crea un nuevo elemento <link> para los estilos del tema
+    const linkElement = document.getElementById('app-theme') as HTMLLinkElement;
+    if (linkElement) {
+      this.themeLink = linkElement;
+      console.log(this.themeLink);
+    } else {
+      this.themeLink = this.renderer.createElement('link');
+      this.themeLink.id = 'app-theme';
+      this.themeLink.rel = 'stylesheet';
+      this.themeLink.type = 'text/css';
+      this.renderer.appendChild(document.head, this.themeLink);
+    }
+  }
 
   switchTheme(theme: string) {
-    let themeLink = this.document.getElementById('app-theme') as HTMLLinkElement;
-
-    if (themeLink) {
-      themeLink.href = `${theme}.css`
-    }
+    this.themeLink.href = `${theme}.css`;
+    console.log(this.themeLink);
   }
 
 }

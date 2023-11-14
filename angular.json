@@ -33,18 +33,7 @@
             ],
             "styles": [
               "src/theme/variables.scss",
-              "src/global.scss",
-              "node_modules/primeng/resources/primeng.min.css",
-              {
-                "input": "src/themes/bootstrap4-dark-blue.css",
-                "bundleName": "bootstrap4-dark-blue",
-                "inject": false
-              },
-              {
-                "input": "src/themes/lara-light-blue.css",
-                "bundleName": "lara-light-blue",
-                "inject": false
-              }
+              "src/global.scss"
             ],
             "scripts": []
           },

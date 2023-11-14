@@ -1,19 +1,18 @@
 import { NgModule } from '@angular/core';
-import { HomePage } from './home.page';
+import { DestinationsPage } from './destinations.page';
 
-import { HomePageRoutingModule } from './home-routing.module';
+import { DestinationsPageRoutingModule } from './destinations-routing.module';
 import { PrimengModule } from 'src/app/shared/primeng.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 
-
 @NgModule({
   imports: [
-    HomePageRoutingModule,
+    DestinationsPageRoutingModule,
     PrimengModule,
     SharedModule
   ],
   declarations: [
-    HomePage
+    DestinationsPage
   ]
 })
-export class HomePageModule { }
+export class DestinationsPageModule { }

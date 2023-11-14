@@ -1,0 +1,27 @@
+<form>
+  <div class="p-inputgroup">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-user"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="username" />
+      <label htmlFor="username">Usuario</label>
+    </span>
+  </div>
+
+  <div class="password">
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
+    </div>
+    <span class="p-float-label">
+      <p-password [feedback]="false"></p-password>
+      <label for="password">Password</label>
+    </span>
+  </div>
+
+  <p-button label="Submit" [link]="true"></p-button>
+
+  <p-button label="Entrar"></p-button>
+</form>

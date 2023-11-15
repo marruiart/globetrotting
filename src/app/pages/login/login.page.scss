@@ -25,7 +25,8 @@ form {
       border-bottom-left-radius: 0;
   }
 
-  span.p-inputgroup-addon {
+  .p-inputgroup-addon:last-child {
+    border-right: none;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }

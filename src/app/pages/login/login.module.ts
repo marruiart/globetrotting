@@ -10,8 +10,7 @@ import { LoginPage } from './login.page';
 
 // PrimeNg
 import { PrimengModule } from 'src/app/shared/primeng.module';
-import { ButtonModule } from 'primeng/button';
-
+import { SharedModule } from 'primeng/api';
 
 @NgModule({
   imports: [
@@ -19,8 +18,8 @@ import { ButtonModule } from 'primeng/button';
     FormsModule,
     IonicModule,
     LoginPageRoutingModule,
-    PrimengModule,
-    ButtonModule
+    SharedModule,
+    PrimengModule
   ],
   declarations: [LoginPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

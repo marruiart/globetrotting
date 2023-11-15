@@ -1,13 +1,45 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>register</ion-title>
-  </ion-toolbar>
-</ion-header>
+<form>
+  <h2>Registro</h2>
+  <div class="p-inputgroup">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-user"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="username" />
+      <label htmlFor="username">Usuario</label>
+    </span>
+  </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">register</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
+  <div class="password">
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
+    </div>
+    <span class="p-float-label">
+      <p-password
+        [feedback]="false"
+        id="password"
+        [toggleMask]="true"
+      ></p-password>
+      <label for="password">Contraseña</label>
+    </span>
+  </div>
+
+  <div class="password">
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
+    </div>
+    <span class="p-float-label">
+      <p-password
+        [feedback]="false"
+        id="password-repeat"
+        [toggleMask]="true"
+      ></p-password>
+      <label for="password-repeat">Repetir contraseña</label>
+    </span>
+  </div>
+  <p-button label="Registrarme"></p-button>
+</form>

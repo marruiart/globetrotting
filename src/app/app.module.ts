@@ -7,8 +7,6 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { SharedModule } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 
 @NgModule({
   declarations: [
@@ -18,8 +16,7 @@ import { ButtonModule } from 'primeng/button';
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),
-    AppRoutingModule,
-    ButtonModule
+    AppRoutingModule
   ],
   providers: [
     {

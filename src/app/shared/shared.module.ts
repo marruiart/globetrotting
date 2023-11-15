@@ -16,13 +16,12 @@ import { FooterComponent } from './components/footer/footer.component';
     CommonModule,
     IonicModule,
     RouterLink,
-    // PrimeNg
+    PrimengModule
   ],
   exports: [
     CommonModule,
     IonicModule,
     RouterLink,
-    // PrimeNg
     // Components
     HeaderComponent,
     FooterComponent

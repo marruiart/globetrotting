@@ -1,4 +1,5 @@
 <form>
+  <h2>Inicio de sesión</h2>
   <div class="p-inputgroup">
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
@@ -16,12 +17,20 @@
       </span>
     </div>
     <span class="p-float-label">
-      <p-password [feedback]="false"></p-password>
-      <label for="password">Password</label>
+      <p-password
+        [feedback]="false"
+        id="password"
+        [toggleMask]="true"
+      ></p-password>
+      <label for="password">Contraseña</label>
     </span>
   </div>
 
-  <p-button label="Submit" [link]="true"></p-button>
+  <p-button
+    label="No tengo cuenta"
+    styleClass="p-button-link"
+    [routerLink]="['/register']"
+  ></p-button>
 
   <p-button label="Entrar"></p-button>
 </form>

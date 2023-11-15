@@ -1,9 +1,11 @@
 <app-header></app-header>
-<p-dropdown
-  [options]="themes"
-  [(ngModel)]="selectedTheme"
-  optionLabel="name"
-  placeholder="Selecciona el tema"
-  (onChange)="changeTheme(selectedTheme.code)"
-></p-dropdown>
+<main>
+  <p-dropdown
+    [options]="themes"
+    [(ngModel)]="selectedTheme"
+    optionLabel="name"
+    placeholder="Selecciona el tema"
+    (onChange)="changeTheme(selectedTheme.code)"
+  ></p-dropdown>
+</main>
 <app-footer></app-footer>

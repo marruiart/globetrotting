@@ -5,7 +5,7 @@
       <i class="pi pi-user"></i>
     </span>
     <span class="p-float-label">
-      <input pInputText id="username" />
+      <input pInputText id="username" formControlName="identifier" />
       <label htmlFor="username">Usuario</label>
     </span>
   </div>
@@ -21,16 +21,13 @@
         [feedback]="false"
         id="password"
         [toggleMask]="true"
+        formControlName="password"
       ></p-password>
       <label for="password">Contraseña</label>
     </span>
   </div>
 
-  <p-button
-    label="No tengo cuenta"
-    styleClass="p-button-link"
-    [routerLink]="['/register']"
-  ></p-button>
+  <p-button label="No tengo cuenta" styleClass="p-button-link" (click)="onCreateAccount()"></p-button>
 
-  <p-button type="submit" label="Entrar" [ngSubmit]="onLogin()"></p-button>
+  <p-button type="submit" label="Entrar"></p-button>
 </form>

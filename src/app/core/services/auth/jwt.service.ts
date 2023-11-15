@@ -15,7 +15,7 @@ export class JwtService {
     private storageSvc: StorageService
   ) { }
 
-  public saveToken(jwt: string): Observable<string> {
+  public saveToken(jwt: string): Observable<Auth> {
     return this.storageSvc.add(jwt).pipe(tap({
       next: _ => {
         this._jwt = jwt;

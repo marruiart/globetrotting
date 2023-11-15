@@ -7,13 +7,13 @@ import { Auth } from '../models/auth.interface';
 })
 export class StorageService {
 
-  add(token: string): Observable<string> {
-    return new Observable<string>(observer => {
+  add(token: string): Observable<Auth> {
+    return new Observable<Auth>(observer => {
       Preferences.set({
         key: 'jwtToken',
         value: JSON.stringify(token)
       }).then((_) => {
-        observer.next(token);
+        observer.next({ jwt: token });
         observer.complete();
       }).catch((error: any) => {
         observer.error(error);
@@ -26,7 +26,7 @@ export class StorageService {
       Preferences.get({ key: 'jwtToken' })
         .then((token: any) => {
           if (token != null && token['value']) {
-            observer.next({jwt: JSON.parse(token.value)});
+            observer.next({ jwt: JSON.parse(token.value) });
           }
           observer.complete();
         }).catch((error: any) => {

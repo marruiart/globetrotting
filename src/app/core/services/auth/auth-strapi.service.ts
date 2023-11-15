@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api.service';
 import { JwtService } from './jwt.service';
@@ -8,15 +8,17 @@ import { Auth } from '../../models/auth.interface';
 import { NewUser } from '../../models/user.interface';
 import { StrapiLoginPayload, StrapiRegisterPayload, StrapiRegisterResponse } from '../../models/strapi.interfaces';
 import { UserRegisterInfo } from '../../models/user-register-info.interface';
+import { UsersService } from '../users.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthStrapiService extends AuthProvider {
+  private userSvc = inject(UsersService);
 
   constructor(
     private apiSvc: ApiService,
-    private jwtSvc: JwtService,
+    private jwtSvc: JwtService
   ) {
     super();
     this.init();
@@ -75,6 +77,10 @@ export class AuthStrapiService extends AuthProvider {
             }
             this._isLogged.next(true);
 
+            await lastValueFrom(this.userSvc.addUser(user))
+            .catch(err => {
+              observer.error(err)
+            });
             observer.next();
             observer.complete();
           },

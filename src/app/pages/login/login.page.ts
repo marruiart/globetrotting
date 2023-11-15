@@ -22,7 +22,7 @@ export class LoginPage implements OnDestroy {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      identifier: ['', [
+      username: ['', [
         Validators.required,
         Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
       ]],
@@ -32,7 +32,7 @@ export class LoginPage implements OnDestroy {
 
   public onLogin() {
     const credentials: UserCredentials = {
-      username: this.loginForm.value.identifier,
+      username: this.loginForm.value.username,
       password: this.loginForm.value.password
     }
     let sub = this.authSvc.login(credentials).subscribe({

@@ -6,9 +6,10 @@ import { AuthProvider } from './auth.provider';
 import { lastValueFrom } from 'rxjs';
 import { Auth } from '../../models/auth.interface';
 import { NewUser } from '../../models/user.interface';
-import { StrapiLoginPayload, StrapiRegisterPayload, StrapiRegisterResponse } from '../../models/strapi.interfaces';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse } from '../../models/strapi.interfaces';
 import { UserRegisterInfo } from '../../models/user-register-info.interface';
 import { UsersService } from '../users.service';
+import { UserCredentials } from '../../models/user-credentials.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,13 +31,13 @@ export class AuthStrapiService extends AuthProvider {
     });
   }
 
-  public login(credentials: StrapiLoginPayload): Observable<void> {
-    const body: any = {
-      "identifier": credentials.identifier,
+  public login(credentials: UserCredentials): Observable<void> {
+    const body: StrapiLoginPayload = {
+      "identifier": credentials.username,
       "password": credentials.password
     }
     return new Observable<void>(observer => {
-      this.apiSvc.post<Auth>("/api/auth/local", body)
+      this.apiSvc.post<StrapiLoginResponse>("/api/auth/local", body)
         .subscribe({
           next: async auth => {
             await lastValueFrom(this.jwtSvc.saveToken(auth.jwt))

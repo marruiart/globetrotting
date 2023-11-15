@@ -4,8 +4,10 @@ import { ApiService } from '../api.service';
 import { JwtService } from './jwt.service';
 import { AuthProvider } from './auth.provider';
 import { lastValueFrom } from 'rxjs';
-import { UserCredentials } from '../../models/user-credentials.interface';
 import { Auth } from '../../models/auth.interface';
+import { NewUser } from '../../models/user.interface';
+import { StrapiLoginPayload, StrapiRegisterPayload, StrapiRegisterResponse } from '../../models/strapi.interfaces';
+import { UserRegisterInfo } from '../../models/user-register-info.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -26,9 +28,9 @@ export class AuthStrapiService extends AuthProvider {
     });
   }
 
-  public login(credentials: UserCredentials): Observable<void> {
+  public login(credentials: StrapiLoginPayload): Observable<void> {
     const body: any = {
-      "identifier": credentials.username,
+      "identifier": credentials.identifier,
       "password": credentials.password
     }
     return new Observable<void>(observer => {
@@ -50,8 +52,37 @@ export class AuthStrapiService extends AuthProvider {
     });
   }
 
-  public register(info: Object): Observable<any> {
-    throw new Error('Method not implemented.');
+  public register(info: UserRegisterInfo): Observable<void> {
+    const body: StrapiRegisterPayload = {
+      "username": info.username,
+      "email": info.email,
+      "password": info.password
+    }
+
+    return new Observable<void>(observer => {
+      this.apiSvc.post<StrapiRegisterResponse>("/api/auth/local/register", body)
+        .subscribe({
+          next: async response => {
+            // Save token in local storage
+            await lastValueFrom(this.jwtSvc.saveToken(response.jwt))
+              .catch(err => {
+                observer.error(err)
+              });
+            const nickname = response.user.username.slice(0, response.user.username.indexOf("@"));
+            const user: NewUser = {
+              "user_id": response.user.id,
+              "nickname": nickname
+            }
+            this._isLogged.next(true);
+
+            observer.next();
+            observer.complete();
+          },
+          error: err => {
+            observer.error(err);
+          }
+        });
+    });
   }
 
   public logout(): void {

@@ -1,11 +1,11 @@
-<form>
+<form [formGroup]="registerForm" (ngSubmit)="onRegister()">
   <h2>Registro</h2>
   <div class="p-inputgroup">
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
     </span>
     <span class="p-float-label">
-      <input pInputText id="username" />
+      <input pInputText id="username" formControlName="username" />
       <label htmlFor="username">Usuario</label>
     </span>
   </div>
@@ -21,6 +21,7 @@
         [feedback]="false"
         id="password"
         [toggleMask]="true"
+        formControlName="password"
       ></p-password>
       <label for="password">Contraseña</label>
     </span>
@@ -37,9 +38,10 @@
         [feedback]="false"
         id="password-repeat"
         [toggleMask]="true"
+        formControlName="passwordRepeat"
       ></p-password>
       <label for="password-repeat">Repetir contraseña</label>
     </span>
   </div>
-  <p-button label="Registrarme"></p-button>
+  <p-button label="Registrarme" (click)="onRegister()"></p-button>
 </form>

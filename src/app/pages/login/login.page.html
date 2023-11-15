@@ -1,4 +1,4 @@
-<form>
+<form [formGroup]="loginForm" (ngSubmit)="onLogin()">
   <h2>Inicio de sesión</h2>
   <div class="p-inputgroup">
     <span class="p-inputgroup-addon">
@@ -32,5 +32,5 @@
     [routerLink]="['/register']"
   ></p-button>
 
-  <p-button label="Entrar"></p-button>
+  <p-button type="submit" label="Entrar" [ngSubmit]="onLogin()"></p-button>
 </form>

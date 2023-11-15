@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { PrimengModule } from './primeng.module';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -16,12 +17,16 @@ import { FooterComponent } from './components/footer/footer.component';
     CommonModule,
     IonicModule,
     RouterLink,
-    PrimengModule
+    PrimengModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   exports: [
     CommonModule,
     IonicModule,
     RouterLink,
+    FormsModule,
+    ReactiveFormsModule,
     // Components
     HeaderComponent,
     FooterComponent

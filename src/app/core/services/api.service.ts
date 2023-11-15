@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { JwtService } from './auth/jwt.service';
 import { HttpProvider } from './http/http.provider';
 @Injectable(
   { providedIn: 'root' }
 )
 export abstract class ApiService {
   protected http = inject(HttpProvider)
+  protected jwtSvc = inject(JwtService)
 
   constructor() { }
 
@@ -19,7 +21,7 @@ export abstract class ApiService {
       header['Content-Type'] = contentType;
     }
     if (!url.includes('auth')) {
-      header['Authorization'] = `Bearer abc`; // TODO insert token 
+      header['Authorization'] = `Bearer ${this.jwtSvc.getToken()}`;
     }
     return header;
   }

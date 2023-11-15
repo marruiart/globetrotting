@@ -13,6 +13,7 @@ import { AuthProvider } from './core/services/auth/auth.provider';
 import { JwtService } from './core/services/auth/jwt.service';
 import { AuthProviderFactory } from './core/factories/auth-provider.factory';
 import { HttpProvider } from './core/services/http/http.provider';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { HttpProvider } from './core/services/http/http.provider';
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [
     {
@@ -31,7 +33,7 @@ import { HttpProvider } from './core/services/http/http.provider';
     },
     {
       provide: HttpProvider,
-      deps: [ApiService],
+      deps: [HttpClient],
       useFactory: httpProviderFactory
     },
     {

@@ -7,16 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { RegisterPageRoutingModule } from './register-routing.module';
 
 import { RegisterPage } from './register.page';
-import { SharedModule } from 'primeng/api';
 import { PrimengModule } from 'src/app/shared/primeng.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RegisterPageRoutingModule,
     SharedModule,
+    RegisterPageRoutingModule,
     PrimengModule
   ],
   declarations: [RegisterPage],

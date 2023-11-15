@@ -7,9 +7,12 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { HttpProvider as HttpProvider } from './core/services/http/http.provider';
 import { ApiService } from './core/services/api.service';
 import { httpProviderFactory } from './core/factories/http-provider.factory';
+import { AuthProvider } from './core/services/auth/auth.provider';
+import { JwtService } from './core/services/auth/jwt.service';
+import { AuthProviderFactory } from './core/factories/auth-provider.factory';
+import { HttpProvider } from './core/services/http/http.provider';
 
 @NgModule({
   declarations: [
@@ -26,11 +29,16 @@ import { httpProviderFactory } from './core/factories/http-provider.factory';
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy
     },
-     {
+    {
       provide: HttpProvider,
       deps: [ApiService],
       useFactory: httpProviderFactory
-     }
+    },
+    {
+      provide: AuthProvider,
+      deps: [ApiService, JwtService],
+      useFactory: AuthProviderFactory
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

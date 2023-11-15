@@ -7,6 +7,9 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { HttpProvider as HttpProvider } from './core/services/http/http.provider';
+import { ApiService } from './core/services/api.service';
+import { httpProviderFactory } from './core/factories/http-provider.factory';
 
 @NgModule({
   declarations: [
@@ -22,7 +25,12 @@ import { AppRoutingModule } from './app-routing.module';
     {
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy
-    }
+    },
+     {
+      provide: HttpProvider,
+      deps: [ApiService],
+      useFactory: httpProviderFactory
+     }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

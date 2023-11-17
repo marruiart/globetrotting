@@ -32,7 +32,9 @@ export class JwtService {
         this._jwt = token.jwt;
       },
       error: err => {
-        console.error(err)
+        if (err != 'No token') {
+          console.error(err)
+        }
       }
     }));
   }

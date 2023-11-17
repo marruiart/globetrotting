@@ -1,13 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { JwtService } from './auth/jwt.service';
-import { HttpProvider } from './http/http.provider';
+import { JwtService } from '../auth/jwt.service';
+import { HttpService } from '../http/http.service';
+
 @Injectable(
   { providedIn: 'root' }
 )
 export abstract class ApiService {
-  protected http = inject(HttpProvider)
+  protected http = inject(HttpService)
   protected jwtSvc = inject(JwtService)
 
   constructor() { }

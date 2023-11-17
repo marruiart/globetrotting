@@ -1,8 +1,13 @@
+import { StrapiMedia } from "./strapi-media";
+import { StrapiResponse } from "./strapi-data";
+
 export interface StrapiUser {
     id: number,
     username: string,
     email: string
 }
+
+export type StrapiMe = StrapiUser;
 
 export interface StrapiLoginPayload {
     identifier: string,
@@ -20,14 +25,13 @@ export interface StrapiLoginResponse {
     user: StrapiUser
 }
 
-export interface StrapiRegisterResponse {
-    jwt: string,
-    user: StrapiUser
-}
+export type StrapiRegisterResponse = StrapiLoginResponse;
 
 export interface StrapiExtendedUser {
+    nickname: string,
     name: string,
     surname: string,
+    age: string,
     user_id: number,
-    picture?: string
+    avatar?: StrapiResponse<StrapiMedia>
 }

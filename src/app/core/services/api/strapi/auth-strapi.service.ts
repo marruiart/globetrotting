@@ -1,20 +1,14 @@
-import { inject, Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api.service';
-import { JwtService } from './jwt.service';
-import { AuthProvider } from './auth.provider';
+import { JwtService } from '../../auth/jwt.service';
+import { AuthService } from '../../auth/auth.service';
 import { lastValueFrom } from 'rxjs';
-import { Auth } from '../../models/auth.interface';
-import { NewUser } from '../../models/user.interface';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse } from '../../models/strapi.interfaces';
-import { UserRegisterInfo } from '../../models/user-register-info.interface';
+import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/user.interface';
 import { UsersService } from '../users.service';
-import { UserCredentials } from '../../models/user-credentials.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthStrapiService extends AuthProvider {
+export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
 
   constructor(
@@ -32,12 +26,12 @@ export class AuthStrapiService extends AuthProvider {
   }
 
   public login(credentials: UserCredentials): Observable<void> {
-    const body: StrapiLoginPayload = {
-      "identifier": credentials.username,
-      "password": credentials.password
+    let _credentials: StrapiLoginPayload = {
+      identifier: credentials.username,
+      password: credentials.password
     }
     return new Observable<void>(observer => {
-      this.apiSvc.post<StrapiLoginResponse>("/api/auth/local", body)
+      this.apiSvc.post<StrapiLoginResponse>("/api/auth/local", _credentials)
         .subscribe({
           next: async auth => {
             await lastValueFrom(this.jwtSvc.saveToken(auth.jwt))
@@ -55,15 +49,14 @@ export class AuthStrapiService extends AuthProvider {
     });
   }
 
-  public register(info: UserRegisterInfo): Observable<void> {
-    const body: StrapiRegisterPayload = {
-      "username": info.username,
-      "email": info.email,
-      "password": info.password
+  public register(registerInfo: UserRegisterInfo): Observable<void> {
+    let _registerInfo: StrapiRegisterPayload = {
+      username: registerInfo.username,
+      email: registerInfo.email,
+      password: registerInfo.password
     }
-
     return new Observable<void>(observer => {
-      this.apiSvc.post<StrapiRegisterResponse>("/api/auth/local/register", body)
+      this.apiSvc.post<StrapiRegisterResponse>("/api/auth/local/register", _registerInfo)
         .subscribe({
           next: async response => {
             // Save token in local storage

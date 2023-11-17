@@ -8,3 +8,13 @@ export interface Location {
     url: string,
     created: string
 }
+
+export interface LocationPage {
+    info: {
+        count:number,
+        pages: number,
+        next: string | null,
+        prev: string | null
+    },
+    results: Location[]
+}

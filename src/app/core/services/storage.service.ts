@@ -9,15 +9,19 @@ export class StorageService {
 
   add(token: string): Observable<Auth> {
     return new Observable<Auth>(observer => {
-      Preferences.set({
-        key: 'jwtToken',
-        value: JSON.stringify(token)
-      }).then((_) => {
-        observer.next({ jwt: token });
-        observer.complete();
-      }).catch((error: any) => {
-        observer.error(error);
-      });
+      if (token) {
+        Preferences.set({
+          key: 'jwtToken',
+          value: JSON.stringify(token)
+        }).then((_) => {
+          observer.next({ jwt: token });
+          observer.complete();
+        }).catch((error: any) => {
+          observer.error(error);
+        });
+      } else {
+        observer.error('No token');
+      }
     });
   }
 
@@ -27,6 +31,8 @@ export class StorageService {
         .then((token: any) => {
           if (token != null && token['value']) {
             observer.next({ jwt: JSON.parse(token.value) });
+          } else {
+            observer.error('No token')
           }
           observer.complete();
         }).catch((error: any) => {

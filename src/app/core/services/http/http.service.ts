@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/internal/Observable';
 @Injectable({
   providedIn: 'root'
 })
-export abstract class HttpProvider {
+export abstract class HttpService {
 
   /**
    * get

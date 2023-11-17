@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserRegisterInfo } from 'src/app/core/models/user-register-info.interface';
-import { AuthProvider } from 'src/app/core/services/auth/auth.provider';
+import { UserRegisterInfo } from 'src/app/core/models/user.interface';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -14,11 +14,11 @@ export class RegisterPage {
 
   constructor(
     private fb: FormBuilder,
-    private authSvc: AuthProvider,
+    private authSvc: AuthService,
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-      username: ['', [
+      email: ['', [
         Validators.required,
         Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
       ]],
@@ -29,8 +29,8 @@ export class RegisterPage {
 
   public onRegister() {
     const credentials: UserRegisterInfo = {
-      username: this.registerForm.value.username,
-      email: this.registerForm.value.username,
+      username: this.registerForm.value.email,
+      email: this.registerForm.value.email,
       password: this.registerForm.value.password
     }
     this.authSvc.register(credentials).subscribe({

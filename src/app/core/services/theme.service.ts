@@ -15,7 +15,6 @@ export class ThemeService {
     const linkElement = document.getElementById('app-theme') as HTMLLinkElement;
     if (linkElement) {
       this.themeLink = linkElement;
-      console.log(this.themeLink);
     } else {
       this.themeLink = this.renderer.createElement('link');
       this.themeLink.id = 'app-theme';
@@ -27,7 +26,6 @@ export class ThemeService {
 
   switchTheme(theme: string) {
     this.themeLink.href = `${theme}.css`;
-    console.log(this.themeLink);
   }
 
 }

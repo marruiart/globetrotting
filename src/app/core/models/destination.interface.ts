@@ -1,3 +1,5 @@
+import { Media } from "./media";
+
 export interface Destination extends NewDestination {
     id: number,
     price?: number,
@@ -8,5 +10,5 @@ export interface NewDestination {
     name: string,
     type?: string,
     dimension?: string,
-    image?: Blob,
+    image?: Media,
 }

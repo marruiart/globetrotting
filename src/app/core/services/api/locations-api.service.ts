@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, map, Observable, onErrorResumeNext, tap } from 'rxjs';
+import { finalize, map, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LocationPage } from '../models/LocationPage';
-import { Location } from '../models/Location';
-import { HttpProvider } from './http/http.provider';
+import { Location, LocationPage } from '../../models/rick-morty-api/location.interface';
+import { HttpService } from '../http/http.service';
 import { DestinationsService } from './destinations.service';
-import { Destination, NewDestination } from '../models/destination.interface';
+import { Destination, NewDestination } from '../../models/destination.interface';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocationsApiService {
-  private _locations: BehaviorSubject<Location[]> = new BehaviorSubject<Location[]>([]);
-  public locations$: Observable<Location[]> = this._locations.asObservable();
 
   constructor(
-    private http: HttpProvider,
+    private http: HttpService,
     private destinationsSvc: DestinationsService
   ) { }
 
@@ -65,7 +62,6 @@ export class LocationsApiService {
         });
       }
     }
-
   }
 
   private mapNewLocation(location: Location): NewDestination {

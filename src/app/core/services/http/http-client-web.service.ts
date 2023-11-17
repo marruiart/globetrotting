@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpProvider } from './http.provider';
+import { HttpService } from './http.service';
 
-export class HttpClientWebService extends HttpProvider {
+export class HttpClientWebService extends HttpService {
 
   constructor(
     private httpClient: HttpClient

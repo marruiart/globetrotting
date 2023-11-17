@@ -2,9 +2,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { UserCredentials } from 'src/app/core/models/user-credentials.interface';
-
-import { AuthProvider } from 'src/app/core/services/auth/auth.provider';
+import { UserCredentials } from 'src/app/core/models/user.interface';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +17,7 @@ export class LoginPage implements OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private authSvc: AuthProvider,
+    private authSvc: AuthService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({

@@ -7,13 +7,15 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ApiService } from './core/services/api.service';
-import { httpProviderFactory } from './core/factories/http-provider.factory';
-import { AuthProvider } from './core/services/auth/auth.provider';
+import { ApiService } from './core/services/api/api.service';
+import { httpServiceFactory } from './core/factories/http-service.factory';
 import { JwtService } from './core/services/auth/jwt.service';
-import { AuthProviderFactory } from './core/factories/auth-provider.factory';
-import { HttpProvider } from './core/services/http/http.provider';
+import { AuthServiceFactory } from './core/factories/auth-service.factory';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { MapService } from './core/services/api/map.service';
+import { HttpService } from './core/services/http/http.service';
+import { AuthService } from './core/services/auth/auth.service';
+import { MapServiceFactory } from './core/factories/map-service.factory';
 
 @NgModule({
   declarations: [
@@ -32,14 +34,19 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
       useClass: IonicRouteStrategy
     },
     {
-      provide: HttpProvider,
-      deps: [HttpClient],
-      useFactory: httpProviderFactory
+      provide: MapService,
+      deps: [],
+      useFactory: MapServiceFactory
     },
     {
-      provide: AuthProvider,
+      provide: HttpService,
+      deps: [HttpClient],
+      useFactory: httpServiceFactory
+    },
+    {
+      provide: AuthService,
       deps: [ApiService, JwtService],
-      useFactory: AuthProviderFactory
+      useFactory: AuthServiceFactory
     }
   ],
   bootstrap: [AppComponent],

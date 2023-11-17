@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { LocationsApiService } from './core/services/locations-api.service';
+import { LocationsApiService } from './core/services/api/locations-api.service';
+import { AuthService } from './core/services/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,8 @@ import { LocationsApiService } from './core/services/locations-api.service';
 export class AppComponent {
 
   constructor(
-    private locationsApiSvc: LocationsApiService
+    private locationsApiSvc: LocationsApiService,
+    private authStrapiSvc: AuthService
   ) {
     if (environment.apiUpdate) {
       this.locationsApiSvc.getAllFromApi().subscribe({

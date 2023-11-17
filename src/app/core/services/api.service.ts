@@ -27,7 +27,7 @@ export abstract class ApiService {
   }
 
   protected getUrl(path: string, id: number | null = null) {
-    return `${environment.API_URL}${path}${id ? `/${id}` : ''}`;
+    return `${environment.STRAPI_URL}${path}${id ? `/${id}` : ''}`;
   }
 
   // CRUD methods

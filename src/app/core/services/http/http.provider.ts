@@ -17,8 +17,8 @@ export abstract class HttpProvider {
    */
   public abstract get<T>(
     url: string,
-    params: any,
-    headers: any,
+    params?: any,
+    headers?: any,
     urlEncoded?: boolean
   ): Observable<T>;
 

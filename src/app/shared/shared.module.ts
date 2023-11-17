@@ -5,12 +5,14 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimengModule } from './primeng.module';
+import { DestinationCardComponent } from './components/destination-card/destination-card.component';
 
 @NgModule({
   declarations: [
     // Components
     HeaderComponent,
     FooterComponent,
+    DestinationCardComponent
   ],
   imports: [
     CommonModule,
@@ -26,7 +28,8 @@ import { PrimengModule } from './primeng.module';
     ReactiveFormsModule,
     // Components
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    DestinationCardComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

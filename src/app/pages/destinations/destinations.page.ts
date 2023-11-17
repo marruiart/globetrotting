@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { DestinationsService } from 'src/app/core/services/destinations.service';
+import { LocationsApiService } from 'src/app/core/services/locations-api.service';
 
 @Component({
   selector: 'app-destinations',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DestinationsPage implements OnInit {
 
-  constructor() { }
+  constructor(
+    public destinationsSvc: DestinationsService
+  ) { }
 
   ngOnInit() {
+    this.destinationsSvc.getAllDestinations().subscribe({
+      error: err => {
+        console.error(err);
+      }
+    });
   }
 
 }

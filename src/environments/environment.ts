@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  API_URL: "http://localhost:1337"
+  STRAPI_URL: "http://localhost:1337",
+  API_URL: "https://rickandmortyapi.com/api",
+  apiUpdate: false
 };
 
 /*

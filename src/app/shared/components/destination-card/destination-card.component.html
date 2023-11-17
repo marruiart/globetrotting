@@ -1,0 +1,18 @@
+<p-card
+  [header]="destination.name"
+  [subheader]="destination.type"
+  [style]="{ width: '360px' }"
+>
+  <ng-template pTemplate="header">
+    <img [alt]="" [src]="destination.image ?? 'assets/default_card.jpg'" />
+  </ng-template>
+  <p>
+    {{ destination.description }}
+  </p>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Reservar"
+      styleClass="p-button-raised p-button-text p-button-secondary"
+    ></p-button>
+  </ng-template>
+</p-card>

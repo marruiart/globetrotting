@@ -6,7 +6,7 @@ export interface StrapiData<T> {
 export interface StrapiArrayResponse<T> {
   data: StrapiData<T>[],
   meta: {
-    pagination?: {
+    pagination: {
       page: number,
       pageSize: number,
       pageCount: number,
@@ -17,4 +17,8 @@ export interface StrapiArrayResponse<T> {
 
 export interface StrapiResponse<T> {
   data: StrapiData<T>
+}
+
+export interface StrapiPayload<T> {
+  data: T
 }

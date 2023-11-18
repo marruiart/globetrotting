@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Observable } from 'rxjs';
-import { Auth } from '../models/auth.interface';
+import { Auth } from '../models/globetrotting/auth.interface';
 @Injectable({
   providedIn: 'root'
 })

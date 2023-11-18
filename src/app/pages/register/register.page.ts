@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserRegisterInfo } from 'src/app/core/models/user.interface';
+import { UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({

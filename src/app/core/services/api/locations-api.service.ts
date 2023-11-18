@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { Location, LocationPage } from '../../models/rick-morty-api/location.interface';
 import { HttpService } from '../http/http.service';
 import { DestinationsService } from './destinations.service';
-import { Destination, NewDestination } from '../../models/destination.interface';
+import { Destination, NewDestination } from '../../models/globetrotting/destination.interface';
 
 
 @Injectable({

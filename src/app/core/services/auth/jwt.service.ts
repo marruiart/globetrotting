@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/internal/operators/tap';
-import { Auth } from '../../models/auth.interface';
+import { Auth } from '../../models/globetrotting/auth.interface';
 import { StorageService } from '../storage.service';
 
 @Injectable({

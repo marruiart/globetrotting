@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
-import { LocationsApiService } from 'src/app/core/services/api/locations-api.service';
 
 @Component({
   selector: 'app-destinations',

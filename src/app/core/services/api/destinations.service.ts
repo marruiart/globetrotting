@@ -1,32 +1,21 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { Destination, NewDestination } from '../../models/destination.interface';
+import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { ApiService } from './api.service';
 import { MapService } from './map.service';
+import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
+  private _pagination = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
+  public pagination$ = this._pagination.asObservable();
   private _destinations = new BehaviorSubject<Destination[]>([]);
   public destinations$ = this._destinations.asObservable();
-  public jwt: string = "";
-  private queries: { [query: string]: string } = {}
-
-  private body: any = (destination: Destination) => {
-    return {
-      data: {
-        id: destination.id,
-        name: destination.name,
-        type: destination.type,
-        dimension: destination.dimension,
-        price: destination.price,
-        image: destination.image,
-        description: destination.description
-      }
-    }
-  }
+  private queries: { [query: string]: string } = { "populate": "image" }
+  private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
 
   constructor(
     private mapSvc: MapService
@@ -34,9 +23,10 @@ export class DestinationsService extends ApiService {
     super();
   }
 
-  public getAllDestinations(): Observable<Destination[]> {
-    return this.getAll<Destination[]>(this.path, this.queries, this.mapSvc.mapDestinations).pipe(tap(res => {
-      this._destinations.next(res);
+  public getAllDestinations(): Observable<PaginatedDestination> {
+    return this.getAll<PaginatedDestination>(this.path, this.queries, this.mapSvc.mapDestinations).pipe(tap(res => {
+      this._destinations.next(res.data);
+      this._pagination.next(res);
     }));
   }
 
@@ -44,7 +34,7 @@ export class DestinationsService extends ApiService {
     return this.get<Destination>(this.path, id, this.mapSvc.mapDestination, this.queries);
   }
 
-  public addDestination(destination: Destination | NewDestination, updateLocationObs: boolean = true): Observable<Destination> {
+  public addDestination(destination: NewDestination, updateLocationObs: boolean = true): Observable<Destination> {
     return this.add<Destination>(this.path, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
       if (updateLocationObs) {
         this.getAllDestinations().subscribe();

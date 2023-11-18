@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { NewUser, User } from '../../models/user.interface';
+import { NewUser, User } from '../../models/globetrotting/user.interface';
 import { ApiService } from './api.service';
 import { MapService } from './map.service';
 

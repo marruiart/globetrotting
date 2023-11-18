@@ -1,10 +1,11 @@
-import { Destination } from 'src/app/core/models/destination.interface';
-import { User } from 'src/app/core/models/user.interface';
 import { MapService } from '../map.service';
-import { StrapiArrayResponse, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data';
+import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media';
 import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user';
+import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { Media } from 'src/app/core/models/globetrotting/media';
 
 export class MapStrapiService extends MapService {
 
@@ -12,47 +13,35 @@ export class MapStrapiService extends MapService {
     super();
   }
 
-  private mapImage = (image: StrapiResponse<StrapiMedia> | undefined) => {
-    if (image?.data) {
-      return {
-        id: image.data.id,
-        url_small: image.data.attributes.formats.small.url,
-        url_medium: image.data.attributes.formats.medium.url,
-        url_large: image.data.attributes.formats.large.url,
-        url_thumbnail: image.data.attributes.formats.thumbnail.url
-      }
-    } else {
-      return undefined
-    }
-  }
-
-  public mapDestination(res: StrapiResponse<StrapiDestination>): Destination {
+  private mapDestinationData(data: StrapiData<StrapiDestination>): Destination {
     return {
-      id: res.data.id,
-      name: res.data.attributes.name,
-      type: res.data.attributes.type,
-      dimension: res.data.attributes.dimension,
-      price: res.data.attributes.price,
-      image: this.mapImage(res.data.attributes.image),
-      description: res.data.attributes.description
+      id: data.id,
+      name: data.attributes.name,
+      type: data.attributes.type,
+      dimension: data.attributes.dimension,
+      price: data.attributes.price,
+      image: data.attributes.image ? this.mapImage(data.attributes.image) : undefined,
+      description: data.attributes.description
     }
   }
 
-  public mapDestinations(res: StrapiArrayResponse<StrapiDestination>): Destination[] {
-    return Array.from(res.data)
-      .reduce((prev: Destination[], data: { attributes: StrapiDestination, id: number }): Destination[] => {
-        let _destination: Destination = {
-          id: data.id,
-          name: data.attributes.name,
-          type: data.attributes.type,
-          dimension: data.attributes.dimension,
-          price: data.attributes.price,
-          image: data.attributes.image ? this.mapImage(data.attributes.image) : undefined,
-          description: data.attributes.description
-        }
-        prev.push(_destination);
-        return prev;
-      }, []);
+  public override mapDestination = (res: StrapiResponse<StrapiDestination>): Destination => this.mapDestinationData(res.data);
+
+  public override mapDestinations = (res: StrapiArrayResponse<StrapiDestination>): PaginatedDestination => {
+    return {
+      data: JSON.parse(JSON.stringify(res.data))
+        .reduce((prev: Destination[], data: StrapiData<StrapiDestination>): Destination[] => {
+          let _destination = this.mapDestinationData(data);
+          prev.push(_destination);
+          return prev;
+        }, []),
+      pagination: {
+        page: res.meta.pagination.page,
+        pageSize: res.meta.pagination.pageSize,
+        pageCount: res.meta.pagination.pageCount,
+        total: res.meta.pagination.total
+      }
+    }
   }
 
   public mapUser(res: StrapiResponse<StrapiExtendedUser>): User {
@@ -84,5 +73,34 @@ export class MapStrapiService extends MapService {
       }, []);
   }
 
+  protected mapImage(res: StrapiResponse<StrapiMedia> | undefined): Media | undefined {
+    if (res?.data) {
+      return {
+        id: res.data.id,
+        url_small: res.data.attributes.formats.small.url,
+        url_medium: res.data.attributes.formats.medium.url,
+        url_large: res.data.attributes.formats.large.url,
+        url_thumbnail: res.data.attributes.formats.thumbnail.url
+      }
+    } else {
+      return undefined
+    }
+  }
+
+  // Map to API
+
+  public mapDestinationPayload(destination: NewDestination): StrapiPayload<StrapiDestination> {
+    let strapiDestination: StrapiPayload<StrapiDestination> = {
+      data: {
+        name: destination.name,
+        type: destination.type,
+        dimension: destination.dimension,
+        price: destination.price,
+        image: undefined,
+        description: destination.description
+      }
+    }
+    return strapiDestination;
+  }
 
 }

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Destination } from '../../models/destination.interface';
-import { StrapiDestination } from '../../models/strapi-interfaces/strapi-destination';
-import { User } from '../../models/user.interface';
+import { Destination, NewDestination, PaginatedDestination, emptyDestination } from '../../models/globetrotting/destination.interface';
+import { User } from '../../models/globetrotting/user.interface';
+import { Media } from '../../models/globetrotting/media';
+import { PaginatedData, emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +11,20 @@ export abstract class MapService {
 
   constructor() { }
 
-  public abstract mapDestination(res: any): Destination
+  // Map to app
 
-  public abstract mapDestinations(res: any): Destination[]
+  public mapDestination = (res: any): Destination => emptyDestination
+
+  public mapDestinations = (res: any): PaginatedDestination => emptyPaginatedData
 
   public abstract mapUser(res: any): User
 
   public abstract mapUsers(res: any): User[]
+
+  protected abstract mapImage(res: any): Media | undefined;
+
+  // Map to API
+
+  public abstract mapDestinationPayload(destination: NewDestination): any;
 
 }

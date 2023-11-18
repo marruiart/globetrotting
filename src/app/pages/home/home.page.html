@@ -1,11 +1,16 @@
 <app-header></app-header>
 <main>
-  <p-dropdown
-    [options]="themes"
-    [(ngModel)]="selectedTheme"
-    optionLabel="name"
-    placeholder="Selecciona el tema"
-    (onChange)="changeTheme(selectedTheme.code)"
-  ></p-dropdown>
+  <section class="content full hero-section">
+    hello world
+  </section>
+  <section class="content">
+    <p-dropdown
+      [options]="themes"
+      [(ngModel)]="selectedTheme"
+      optionLabel="name"
+      placeholder="Selecciona el tema"
+      (onChange)="changeTheme(selectedTheme.code)"
+    ></p-dropdown>
+  </section>
 </main>
 <app-footer></app-footer>

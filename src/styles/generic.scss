@@ -1,0 +1,36 @@
+app-home,
+app-destinations {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+app-header,
+app-footer {
+  width: 100%;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  width: 100%;
+
+  > .content {
+    padding: 3rem 5%;
+    width: 100%;
+    max-width: 1600px;
+
+    &.full {
+      padding: 0;
+      max-width: 100%;
+    }
+  }
+}
+
+main.full {
+  padding: 0;
+}

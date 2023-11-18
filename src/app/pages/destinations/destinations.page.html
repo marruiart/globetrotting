@@ -1,6 +1,6 @@
 <app-header></app-header>
 <main>
-  <section class="destinations">
+  <section class="content destinations">
     <app-destination-card
       *ngFor="let destination of destinationsSvc.destinations$ | async"
       [destination]="destination"

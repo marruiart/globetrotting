@@ -7,7 +7,7 @@ import { PaginatedData, emptyPaginatedData } from '../../models/globetrotting/pa
 @Injectable({
   providedIn: 'root'
 })
-export abstract class MapService {
+export abstract class MappingService {
 
   constructor() { }
 

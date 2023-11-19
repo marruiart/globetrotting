@@ -8,14 +8,14 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiService } from './core/services/api/api.service';
-import { httpServiceFactory } from './core/factories/http-service.factory';
-import { JwtService } from './core/services/auth/jwt.service';
 import { AuthServiceFactory } from './core/factories/auth-service.factory';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { MapService as MappingService } from './core/services/api/map.service';
-import { HttpService } from './core/services/http/http.service';
 import { AuthService } from './core/services/auth/auth.service';
-import { MapServiceFactory as MappingServiceFactory } from './core/factories/map-service.factory';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { httpServiceFactory } from './core/factories/http-service.factory';
+import { HttpService } from './core/services/http/http.service';
+import { JwtService } from './core/services/auth/jwt.service';
+import { MappingServiceFactory } from './core/factories/mapping-service.factory';
+import { MappingService } from './core/services/api/mapping.service';
 
 @NgModule({
   declarations: [

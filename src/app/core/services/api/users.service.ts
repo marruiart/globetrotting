@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { NewUser, User } from '../../models/globetrotting/user.interface';
 import { ApiService } from './api.service';
-import { MapService } from './map.service';
+import { MappingService } from './mapping.service';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
@@ -31,7 +31,7 @@ export class UsersService extends ApiService {
   }
 
   constructor(
-    private mapSvc: MapService
+    private mapSvc: MappingService
   ) {
     super();
   }
@@ -46,15 +46,19 @@ export class UsersService extends ApiService {
     return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
   }
 
-  public addUser(user: User | NewUser): Observable<User> {
+  public addUser(user: User | NewUser, updateObs: boolean = true): Observable<User> {
     return this.add<User>(this.path, this.body(user), this.mapSvc.mapUser).pipe(tap(_ => {
-      this.getAllUsers().subscribe();
+      if (updateObs) {
+        this.getAllUsers().subscribe();
+      }
     }));
   }
 
-  public updateUser(user: User): Observable<User> {
+  public updateUser(user: User, updateObs: boolean = true): Observable<User> {
     return this.update<User>(this.path, user.id, this.body(user), this.mapSvc.mapUser).pipe(tap(_ => {
-      this.getAllUsers().subscribe();
+      if (updateObs) {
+        this.getAllUsers().subscribe();
+      }
     }));
   }
 

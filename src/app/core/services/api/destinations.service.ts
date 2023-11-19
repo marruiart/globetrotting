@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { ApiService } from './api.service';
-import { MapService } from './map.service';
+import { MappingService } from './mapping.service';
 import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class DestinationsService extends ApiService {
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
 
   constructor(
-    private mapSvc: MapService
+    private mapSvc: MappingService
   ) {
     super();
   }
@@ -63,17 +63,17 @@ export class DestinationsService extends ApiService {
     return this.get<Destination>(this.path, id, this.mapSvc.mapDestination, this.queries);
   }
 
-  public addDestination(destination: NewDestination, updateLocationObs: boolean = true): Observable<Destination> {
+  public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
     return this.add<Destination>(this.path, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
-      if (updateLocationObs) {
+      if (updateObs) {
         this.getAllDestinations().subscribe();
       }
     }));
   }
 
-  public updateDestination(destination: Destination, updateLocationObs: boolean = true): Observable<Destination> {
+  public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
     return this.update<Destination>(this.path, destination.id, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
-      if (updateLocationObs) {
+      if (updateObs) {
         this.getAllDestinations().subscribe();
       }
     }));

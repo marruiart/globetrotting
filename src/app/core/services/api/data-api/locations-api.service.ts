@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { finalize, map, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Location, LocationPage } from '../../models/rick-morty-api/location.interface';
-import { HttpService } from '../http/http.service';
-import { DestinationsService } from './destinations.service';
-import { Destination, NewDestination } from '../../models/globetrotting/destination.interface';
+import { Location } from '../../../models/rick-morty-api/location.interface';
+import { HttpService } from '../../http/http.service';
+import { DestinationsService } from '../destinations.service';
+import { Destination, NewDestination } from '../../../models/globetrotting/destination.interface';
+import { Page } from 'src/app/core/models/rick-morty-api/pagination';
 
 
 @Injectable({
@@ -17,8 +18,12 @@ export class LocationsApiService {
     private destinationsSvc: DestinationsService
   ) { }
 
-  public getAllFromApi(allPages: LocationPage[] = [], url: string = `${environment.API_URL}/location`): Observable<LocationPage[]> {
-    return this.http.get<LocationPage>(url).pipe(map(res => {
+  public getAllFromApi(
+    allPages: Page<Location>[] = [],
+    url: string = `${environment.API_URL}/location`)
+    : Observable<Page<Location>[]> {
+
+    return this.http.get<Page<Location>>(url).pipe(map(res => {
       if (res.info.next) {
         this.getAllFromApi(allPages, res.info.next).subscribe();
       }
@@ -30,28 +35,28 @@ export class LocationsApiService {
     }));
   }
 
-  private addLocationsToLocalDb(allPages: LocationPage[]) {
+  private addLocationsToLocalDb(allPages: Page<Location>[]) {
     let sources: Location[] = [];
     for (let page of allPages) {
       for (let location of page.results) {
         sources.push(location);
       }
     }
-    this.addOneLocation(sources);
+    this.addAsDestinationToDb(sources);
   }
 
-  private addOneLocation(sources: Location[]) {
+  private addAsDestinationToDb(sources: Location[]) {
     if (sources && sources.length > 0) {
       let loc: Location | undefined = sources.pop();
       if (loc) {
         this.addLocation(loc, false).subscribe({
           next: _ => {
-            this.addOneLocation(sources);
+            this.addAsDestinationToDb(sources);
           },
           error: _ => {
             if (loc != undefined)
               this.updateLocation(loc, false).pipe(finalize(() => {
-                this.addOneLocation(sources);
+                this.addAsDestinationToDb(sources);
                 console.log("Finalized");
               })).subscribe({
                 error: err => {

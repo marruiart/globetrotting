@@ -12,10 +12,10 @@ import { httpServiceFactory } from './core/factories/http-service.factory';
 import { JwtService } from './core/services/auth/jwt.service';
 import { AuthServiceFactory } from './core/factories/auth-service.factory';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { MapService } from './core/services/api/map.service';
+import { MapService as MappingService } from './core/services/api/map.service';
 import { HttpService } from './core/services/http/http.service';
 import { AuthService } from './core/services/auth/auth.service';
-import { MapServiceFactory } from './core/factories/map-service.factory';
+import { MapServiceFactory as MappingServiceFactory } from './core/factories/map-service.factory';
 
 @NgModule({
   declarations: [
@@ -30,13 +30,17 @@ import { MapServiceFactory } from './core/factories/map-service.factory';
   ],
   providers: [
     {
+      provide: 'backend',
+      useValue:'Strapi'
+    },
+    {
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy
     },
     {
-      provide: MapService,
-      deps: [],
-      useFactory: MapServiceFactory
+      provide: MappingService,
+      deps: ['backend'],
+      useFactory: MappingServiceFactory
     },
     {
       provide: HttpService,
@@ -45,7 +49,7 @@ import { MapServiceFactory } from './core/factories/map-service.factory';
     },
     {
       provide: AuthService,
-      deps: [ApiService, JwtService],
+      deps: ['backend', ApiService, JwtService],
       useFactory: AuthServiceFactory
     }
   ],

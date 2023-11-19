@@ -6,13 +6,16 @@ import { FooterComponent } from './components/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimengModule } from './primeng.module';
 import { DestinationCardComponent } from './components/destination-card/destination-card.component';
+import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
 
 @NgModule({
   declarations: [
     // Components
     HeaderComponent,
     FooterComponent,
-    DestinationCardComponent
+    DestinationCardComponent,
+    // Pipes
+    VirtualItemsPipe
   ],
   imports: [
     CommonModule,
@@ -29,7 +32,9 @@ import { DestinationCardComponent } from './components/destination-card/destinat
     // Components
     HeaderComponent,
     FooterComponent,
-    DestinationCardComponent
+    DestinationCardComponent,
+    // Pipes
+    VirtualItemsPipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

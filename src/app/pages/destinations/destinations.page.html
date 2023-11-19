@@ -1,10 +1,21 @@
 <app-header></app-header>
 <main>
-  <section class="content destinations">
-    <app-destination-card
-      *ngFor="let destination of destinationsSvc.destinations$ | async"
-      [destination]="destination"
-    />
-  </section>
+  <p-virtualScroller
+    class="content"
+    [value]="(((destinationsSvc.destinations$ | async) ?? []) | virtualItems | async) ?? []"
+    [itemSize]="itemSize"
+    [lazy]="true"
+    (onLazyLoad)="loadDestinations($event)"
+    [options]="{showLoader:true}"
+  >
+    <ng-template let-destination pTemplate="item">
+      <app-destination-card [destination]="destination" class="flex-item" />
+    </ng-template>
+    <ng-template let-destination pTemplate="loadingItem">
+      <div class="loading-item">
+        <p-skeleton width="100%" height="50px"></p-skeleton>
+      </div>
+    </ng-template>
+  </p-virtualScroller>
 </main>
 <app-footer></app-footer>

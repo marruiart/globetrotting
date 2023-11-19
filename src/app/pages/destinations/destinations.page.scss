@@ -4,3 +4,20 @@
   gap: 2.5rem;
   justify-content: space-evenly;
 }
+
+::ng-deep {
+  .p-virtualscroller,
+  .p-virtualscroller-content {
+    height: 100%;
+  }
+
+  .p-virtualscroller-list::-webkit-scrollbar {
+    display: none;
+  }
+
+/*   .p-scroller-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }  */
+}

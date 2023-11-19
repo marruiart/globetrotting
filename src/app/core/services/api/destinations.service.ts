@@ -10,10 +10,14 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 })
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
+  private endOfData = false;
+
   private _pagination = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
   public pagination$ = this._pagination.asObservable();
   private _destinations = new BehaviorSubject<Destination[]>([]);
-  public destinations$ = this._destinations.asObservable();
+  public destinations$: Observable<Destination[]> = this._destinations.asObservable();
+  public itemsCount: number = 0;
+
   private queries: { [query: string]: string } = { "populate": "image" }
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
 
@@ -23,11 +27,36 @@ export class DestinationsService extends ApiService {
     super();
   }
 
-  public getAllDestinations(): Observable<PaginatedDestination> {
+  public getAllDestinations(page?: number): Observable<PaginatedDestination> {
+    if (page) {
+      this.queries["pagination[page]"] = `${page}`;
+    }
     return this.getAll<PaginatedDestination>(this.path, this.queries, this.mapSvc.mapDestinations).pipe(tap(res => {
-      this._destinations.next(res.data);
-      this._pagination.next(res);
+      if (res.data.length > 0) {
+        this.endOfData = false;
+        let _destinations: Destination[] = [...res.data].reduce((
+          prev: Destination[], data: Destination): Destination[] => {
+          // Check if each of the new elements already existed, if not, push them into _destinations
+          if (!this._destinations.value.includes(data)) {
+            prev.push(data);
+          }
+          return prev;
+        }, [...this._destinations.value]);
+        this.itemsCount = _destinations.length;
+        let _pagination = {
+          data: _destinations,
+          pagination: res.pagination
+        }
+        this._destinations.next(_destinations);
+        this._pagination.next(_pagination);
+      } else {
+        this.endOfData = true;
+      }
     }));
+  }
+
+  public getNextDestinationsPage() {
+    return this.getAllDestinations(this._pagination.value.pagination.page + 1);
   }
 
   public getDestination(id: number): Observable<Destination> {

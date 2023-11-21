@@ -1,6 +1,6 @@
 import { MapStrapiService } from "../services/api/strapi/map-strapi.service";
 
-export function MapServiceFactory(
+export function MappingServiceFactory(
   backend: string
 ) {
   switch (backend) {

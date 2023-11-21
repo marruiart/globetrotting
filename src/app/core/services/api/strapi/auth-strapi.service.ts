@@ -6,7 +6,8 @@ import { AuthService } from '../../auth/auth.service';
 import { lastValueFrom } from 'rxjs';
 import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user';
+import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
@@ -72,9 +73,9 @@ export class AuthStrapiService extends AuthService {
             this._isLogged.next(true);
 
             await lastValueFrom(this.userSvc.addUser(user))
-            .catch(err => {
-              observer.error(err)
-            });
+              .catch(err => {
+                observer.error(err)
+              });
             observer.next();
             observer.complete();
           },
@@ -95,8 +96,21 @@ export class AuthStrapiService extends AuthService {
       });
   }
 
-  public me<T>(): Observable<T> {
-    throw new Error('Method not implemented.');
+  public me(): Observable<AuthUser> {
+    return new Observable<AuthUser>(observer => {
+      this.apiSvc.getMe<StrapiMe>("/api/users/me?populate=role").subscribe({
+        next: (res: StrapiMe) => {
+          let authUser: AuthUser = {
+            user_id: res.id,
+            role: res.role.type.toUpperCase()
+          }
+          observer.next(authUser);
+        },
+        error: err => {
+          observer.error(err);
+        }
+      });
+    })
   }
 
 }

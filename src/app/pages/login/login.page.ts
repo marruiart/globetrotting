@@ -1,9 +1,9 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
-import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,7 @@ export class LoginPage implements OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private authSvc: AuthService,
+    private auth: AuthFacade,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -29,12 +29,22 @@ export class LoginPage implements OnDestroy {
     });
   }
 
+/*   ngOnInit() {
+    this.auth.role$.subscribe(role => {
+      console.log(role);
+    });
+  } */
+
+
   public onLogin() {
     const credentials: UserCredentials = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     }
-    let sub = this.authSvc.login(credentials).subscribe({
+
+    this.auth.login(credentials);
+
+/*     let sub = this.authSvc.login(credentials).subscribe({
       next: _ => {
         this.router.navigate(['/home']);
       },
@@ -42,7 +52,7 @@ export class LoginPage implements OnDestroy {
         console.error(err);
       }
     });
-    this._subs.push(sub);
+    this._subs.push(sub); */
   }
 
   public onCreateAccount() {

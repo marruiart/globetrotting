@@ -64,6 +64,21 @@ export abstract class ApiService {
       }));
   }
 
+  public getMe<T>(
+    path: string,
+    queries: { [query: string]: string } = {},
+  ): Observable<T> {
+
+    const url = this.getUrl(path);
+    return this.http.get<T>(url, queries, this.getHeader(url))
+      .pipe(catchError(error => {
+        console.log("ERROR get");
+        console.error(error);
+        return of(error);
+      }));
+  }
+
+
   public post<T>(
     path: string,
     body: any,

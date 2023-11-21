@@ -1,4 +1,4 @@
-import { MapService } from '../map.service';
+import { MappingService } from '../map.service';
 import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media';
@@ -7,7 +7,7 @@ import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/
 import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media';
 
-export class MapStrapiService extends MapService {
+export class MapStrapiService extends MappingService {
 
   constructor() {
     super();

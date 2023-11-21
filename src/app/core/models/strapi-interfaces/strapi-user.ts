@@ -7,7 +7,11 @@ export interface StrapiUser {
     email: string
 }
 
-export type StrapiMe = StrapiUser;
+export interface StrapiMe extends StrapiUser {
+    role: {
+        type: string
+    }
+}
 
 export interface StrapiLoginPayload {
     identifier: string,

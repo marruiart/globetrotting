@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { ApiService } from './api.service';
-import { MapService } from './map.service';
+import { MappingService } from './map.service';
 import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class DestinationsService extends ApiService {
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
 
   constructor(
-    private mapSvc: MapService
+    private mapSvc: MappingService
   ) {
     super();
   }

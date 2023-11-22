@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimengModule } from './primeng.module';
 import { DestinationCardComponent } from './components/destination-card/destination-card.component';
 import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
+import { AuthModule } from '../core/libs/auth/auth.module';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
     IonicModule,
     FormsModule,
     ReactiveFormsModule,
-    PrimengModule
+    PrimengModule,
+    AuthModule
   ],
   exports: [
     CommonModule,

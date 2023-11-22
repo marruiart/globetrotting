@@ -5,7 +5,6 @@ import { LoginPageRoutingModule } from './login-routing.module';
 import { LoginPage } from './login.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PrimengModule } from 'src/app/shared/primeng.module';
-import { AuthModule } from '../../core/libs/auth/auth.module';
 
 // PrimeNg
 
@@ -13,8 +12,7 @@ import { AuthModule } from '../../core/libs/auth/auth.module';
   imports: [
     SharedModule,
     LoginPageRoutingModule,
-    PrimengModule,
-    AuthModule
+    PrimengModule
   ],
   declarations: [
     LoginPage

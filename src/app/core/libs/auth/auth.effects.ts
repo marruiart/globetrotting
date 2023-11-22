@@ -29,17 +29,15 @@ export class AuthEffects {
             ofType(AuthActions.loginSuccess),
             switchMap(() => this.authSvc.me().pipe(
                 map(user => {
+                    console.log(`${user.user_id}: ${user.role}`);
                     switch (user.role) {
                         case 'ADMIN':
-                            console.log(user.role);
                             this.router.navigate(['/admin'])
                             break;
                         case 'AGENT':
-                            console.log(user.role);
                             this.router.navigate(['/admin'])
                             break;
                         default:
-                            console.log(user.role);
                             this.router.navigate(['/home'])
                     }
                     return AuthActions.assignRole({ user: user })

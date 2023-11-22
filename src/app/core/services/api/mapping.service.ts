@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination, emptyDestination } from '../../models/globetrotting/destination.interface';
 import { User } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media';
-import { PaginatedData, emptyPaginatedData } from '../../models/globetrotting/pagination-data';
+import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
 
 @Injectable({
   providedIn: 'root'

@@ -1,3 +1,5 @@
+import { StrapiDestination } from "./strapi-destination"
+
 export interface StrapiData<T> {
   id: number,
   attributes: T
@@ -22,3 +24,5 @@ export interface StrapiResponse<T> {
 export interface StrapiPayload<T> {
   data: T
 }
+
+export type StrapiDestinationResponse = StrapiResponse<StrapiDestination>

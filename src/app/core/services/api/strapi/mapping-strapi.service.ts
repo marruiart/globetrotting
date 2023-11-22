@@ -7,7 +7,7 @@ import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/
 import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media';
 
-export class MapStrapiService extends MappingService {
+export class MappingStrapiService extends MappingService {
 
   constructor() {
     super();

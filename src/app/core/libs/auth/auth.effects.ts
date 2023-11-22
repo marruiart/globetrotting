@@ -32,11 +32,11 @@ export class AuthEffects {
                     switch (user.role) {
                         case 'ADMIN':
                             console.log(user.role);
-                            this.router.navigate(['/destinations'])
+                            this.router.navigate(['/admin'])
                             break;
                         case 'AGENT':
                             console.log(user.role);
-                            this.router.navigate(['/home'])
+                            this.router.navigate(['/admin'])
                             break;
                         default:
                             console.log(user.role);

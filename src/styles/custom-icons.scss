@@ -1,0 +1,32 @@
+::ng-deep {
+  .custom-icon {
+    width: 20px;
+    height: 20px;
+    background-color: var(--primary-color);
+  }
+
+  .paper-plane-outline {
+    -webkit-mask-image: url("../../node_modules/ionicons/dist/svg/paper-plane-outline.svg");
+    mask-image: url("../../node_modules/ionicons/dist/svg/paper-plane-outline.svg");
+  }
+
+  .home-outline {
+    -webkit-mask-image: url("../../node_modules/ionicons/dist/svg/home-outline.svg");
+    mask-image: url("../../node_modules/ionicons/dist/svg/home-outline.svg");
+  }
+
+  .person-outline {
+    -webkit-mask-image: url("../../node_modules/ionicons/dist/svg/person-outline.svg");
+    mask-image: url("../../node_modules/ionicons/dist/svg/person-outline.svg");
+  }
+
+  .person-circle-outline {
+    -webkit-mask-image: url("../../node_modules/ionicons/dist/svg/person-circle-outline.svg");
+    mask-image: url("../../node_modules/ionicons/dist/svg/person-circle-outline.svg");
+  }
+
+  .log-in-outline {
+    -webkit-mask-image: url("../../node_modules/ionicons/dist/svg/log-in-outline.svg");
+    mask-image: url("../../node_modules/ionicons/dist/svg/log-in-outline.svg");
+  }
+}

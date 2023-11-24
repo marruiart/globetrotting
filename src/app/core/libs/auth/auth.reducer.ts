@@ -20,6 +20,7 @@ export const initialState: AuthState = {
 
 export const authReducer = createReducer(
     initialState,
+    on(AuthAction.init, (state) => ({ ...state })),
     on(AuthAction.login, (state) => ({ ...state })),
     on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true })),
     on(AuthAction.assignRole, (state, { user }) => ({ isLogged: true, role: user.role, user_id: user.user_id, error: null })),

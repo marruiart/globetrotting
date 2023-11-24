@@ -6,11 +6,13 @@ import { AuthService } from '../../auth/auth.service';
 import { lastValueFrom } from 'rxjs';
 import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
+import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
+  private authFacade = inject(AuthFacade);
 
   constructor(
     private apiSvc: ApiService,
@@ -21,8 +23,18 @@ export class AuthStrapiService extends AuthService {
   }
 
   private init() {
+    /*     this.jwtSvc.loadToken().subscribe(async _ => {
+          let user = this.me().pipe(take(1));
+          user.subscribe({
+            next: user => {
+              this.authFacade.init();
+            },
+            error: err => console.error(err)
+          })
+        }); */
+
     this.jwtSvc.loadToken().subscribe(_ => {
-      this._isLogged.next(true);
+      this.authFacade.init();
     });
   }
 

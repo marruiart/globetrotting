@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 // Redux
-import { StoreModule, provideStore } from '@ngrx/store';
+import { StoreModule } from '@ngrx/store';
 import { AUTH_FEATURE_KEY, authReducer } from 'src/app/core/libs/auth/auth.reducer';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { AuthEffects } from 'src/app/core/libs/auth/auth.effects';

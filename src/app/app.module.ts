@@ -19,6 +19,7 @@ import { MappingServiceFactory } from './core/factories/mapping-service.factory'
 import { JwtService } from './core/services/auth/jwt.service';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { AuthModule } from './core/libs/auth/auth.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { EffectsModule } from '@ngrx/effects';
     AppRoutingModule,
     HttpClientModule,
     StoreModule.forRoot({}),
-    EffectsModule.forRoot([])
+    EffectsModule.forRoot([]),
+    AuthModule
   ],
   providers: [
     {

@@ -39,7 +39,7 @@ export class JwtService {
     }));
   }
 
-  public getToken() {
+  public getToken(): string {
     return this._jwt;
   }
 

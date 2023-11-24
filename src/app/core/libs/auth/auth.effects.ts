@@ -4,7 +4,8 @@ import { JwtService } from "../../services/auth/jwt.service";
 import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
-import { catchError, map, of, switchMap } from "rxjs";
+import { catchError, map, of, switchMap, tap } from "rxjs";
+import { AuthUser } from "../../models/globetrotting/auth.interface";
 
 @Injectable()
 export class AuthEffects {
@@ -16,13 +17,29 @@ export class AuthEffects {
         private authSvc: AuthService
     ) { }
 
+    init$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.init),
+            switchMap(() => this.authSvc.me().pipe(
+                map(user => {
+                    let authUser: AuthUser = {
+                        user_id: user.user_id,
+                        role: user.role
+                    }
+                    return AuthActions.assignRole({ user: authUser })
+                }),
+                catchError(error => of(AuthActions.loginFailure({ error: error })))
+            )))
+    );
+
     login$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.login),
             switchMap(props => this.authSvc.login(props.credentials).pipe(
                 map(() => AuthActions.loginSuccess()),
                 catchError(error => of(AuthActions.loginFailure({ error: error })))
-            ))));
+            )))
+    );
 
     assignRole$ = createEffect(() =>
         this.actions$.pipe(
@@ -43,6 +60,7 @@ export class AuthEffects {
                     return AuthActions.assignRole({ user: user })
                 }),
                 catchError(error => of(AuthActions.loginFailure({ error: error })))
-            ))));
+            )))
+    );
 
 }

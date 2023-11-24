@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { UserCredentials, UserRegisterInfo } from '../../models/globetrotting/user.interface';
 import { Auth, AuthUser } from '../../models/globetrotting/auth.interface';
 
+export const init = createAction('[Auth API] Init');
 export const login = createAction('[Auth API] Login', props<{ credentials: UserCredentials }>());
 export const loginSuccess = createAction('[Auth API] Login Success');
 export const assignRole = createAction('[Auth API] Assign Role', props<{ user: AuthUser }>());

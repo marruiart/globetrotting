@@ -3,16 +3,18 @@ import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api.service';
 import { JwtService } from '../../auth/jwt.service';
 import { AuthService } from '../../auth/auth.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, tap } from 'rxjs';
 import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
+import { MenuService } from '../../menu.service';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
   private authFacade = inject(AuthFacade);
+  private menuSvc = inject(MenuService);
 
   constructor(
     private apiSvc: ApiService,
@@ -23,16 +25,6 @@ export class AuthStrapiService extends AuthService {
   }
 
   private init() {
-    /*     this.jwtSvc.loadToken().subscribe(async _ => {
-          let user = this.me().pipe(take(1));
-          user.subscribe({
-            next: user => {
-              this.authFacade.init();
-            },
-            error: err => console.error(err)
-          })
-        }); */
-
     this.jwtSvc.loadToken().subscribe(_ => {
       this.authFacade.init();
     });
@@ -98,14 +90,8 @@ export class AuthStrapiService extends AuthService {
     });
   }
 
-  public logout(): void {
-    lastValueFrom(this.jwtSvc.destroyToken())
-      .then(_ => {
-        this._isLogged.next(false);
-      })
-      .catch(err => {
-        console.error(err);
-      });
+  public logout(): Observable<any> {
+    return this.jwtSvc.destroyToken();
   }
 
   public me(): Observable<AuthUser> {

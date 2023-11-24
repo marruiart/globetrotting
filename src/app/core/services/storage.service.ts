@@ -19,6 +19,10 @@ export class StorageService {
         }).catch((error: any) => {
           observer.error(error);
         });
+      } else if (token == '') {
+        Preferences.remove({ key: 'jwtToken' });
+        observer.next({ jwt: '' });
+        observer.complete();
       } else {
         observer.error('No token');
       }

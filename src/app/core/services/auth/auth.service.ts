@@ -14,7 +14,7 @@ export abstract class AuthService {
 
   public abstract register(info: Object): Observable<any>;
 
-  public abstract logout(): void;
+  public abstract logout(): Observable<any>;
 
   public abstract me(): Observable<any>;
 

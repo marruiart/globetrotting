@@ -25,7 +25,9 @@ export const authReducer = createReducer(
     on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true })),
     on(AuthAction.assignRole, (state, { user }) => ({ isLogged: true, role: user.role, user_id: user.user_id, error: null })),
     on(AuthAction.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, error: error })),
-    on(AuthAction.logout, (state) => ({ isLogged: false, role: null, user_id: null, error: null })),
+    on(AuthAction.logout, (state) => ({ ...state })),
+    on(AuthAction.logoutSuccess, (state) => ({ isLogged: false, role: null, user_id: null, error: null })),
+    on(AuthAction.logoutFailure, (state, { error }) => ({ ...state, error: error })),
     on(AuthAction.register, (state) => ({ ...state })),
     on(AuthAction.registerSuccess, (state) => ({ ...state, isLogged: true }))
 );

@@ -1,20 +1,20 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { JwtService } from "../../services/auth/jwt.service";
 import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap, tap } from "rxjs";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
+import { MenuService } from "../../services/menu.service";
 
 @Injectable()
 export class AuthEffects {
 
     constructor(
         private actions$: Actions,
-        private jwtSvc: JwtService,
         private router: Router,
-        private authSvc: AuthService
+        private authSvc: AuthService,
+        private menuSvc: MenuService
     ) { }
 
     init$ = createEffect(() =>
@@ -63,4 +63,15 @@ export class AuthEffects {
             )))
     );
 
+    logout$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.logout),
+            switchMap(() => this.authSvc.logout().pipe(
+                map(() => {
+                    this.menuSvc.selectMenu(null);
+                    return AuthActions.logoutSuccess();
+                }),
+                catchError(error => of(AuthActions.logoutFailure({ error: error })))
+            )))
+    );
 }

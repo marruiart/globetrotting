@@ -1,5 +1,5 @@
 <header>
-  <p-menubar [model]="items">
+  <p-menubar [model]="menuSvc.menu$ | async">
     <ng-template pTemplate="start">
       <img src="assets/logo/logo.svg" height="80" class="mr-2" />
     </ng-template>

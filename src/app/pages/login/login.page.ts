@@ -17,7 +17,7 @@ export class LoginPage implements OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private auth: AuthFacade,
+    private authFacade: AuthFacade,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -29,30 +29,13 @@ export class LoginPage implements OnDestroy {
     });
   }
 
-/*   ngOnInit() {
-    this.auth.role$.subscribe(role => {
-      console.log(role);
-    });
-  } */
-
-
   public onLogin() {
     const credentials: UserCredentials = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     }
 
-    this.auth.login(credentials);
-
-/*     let sub = this.authSvc.login(credentials).subscribe({
-      next: _ => {
-        this.router.navigate(['/home']);
-      },
-      error: err => {
-        console.error(err);
-      }
-    });
-    this._subs.push(sub); */
+    this.authFacade.login(credentials);
   }
 
   public onCreateAccount() {

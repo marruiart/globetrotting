@@ -27,6 +27,7 @@ import { AuthModule } from '../core/libs/auth/auth.module';
     AuthModule
   ],
   exports: [
+    PrimengModule,
     CommonModule,
     IonicModule,
     FormsModule,

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
-import { menuItems } from 'src/app/core/models/globetrotting/menu';
+import { MenuService } from 'src/app/core/services/menu.service';
 
 @Component({
   selector: 'app-header',
@@ -12,23 +12,12 @@ export class HeaderComponent {
   public items?: MenuItem[];
 
   constructor(
-    private authFacade: AuthFacade
+    private authFacade: AuthFacade,
+    public menuSvc: MenuService
   ) {
     this.authFacade.role$.subscribe({
       next: role => {
-        switch (role) {
-          case 'AUTHENTICATED':
-            this.items = menuItems.client;
-            break;
-          case 'ADMIN':
-            this.items = menuItems.admin;
-            break;
-          case 'AGENT':
-            this.items = menuItems.agent;
-            break;
-          default:
-            this.items = menuItems.public
-        }
+        this.menuSvc.selectMenu(role);
       },
       error: err => {
         console.error(err);

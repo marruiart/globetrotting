@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { lastValueFrom } from 'rxjs';
 import { UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 
@@ -33,13 +34,8 @@ export class RegisterPage {
       email: this.registerForm.value.email,
       password: this.registerForm.value.password
     }
-    this.authSvc.register(credentials).subscribe({
-      next: _ => {
-        this.router.navigate(['/home']);
-      },
-      error: err => {
-        console.error(err);
-      }
-    });
+    lastValueFrom(this.authSvc.register(credentials))
+      .then(_ => this.router.navigate(['/home']))
+      .catch(err => console.error(err));
   }
 }

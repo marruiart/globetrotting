@@ -20,7 +20,10 @@ export class StorageService {
           observer.error(error);
         });
       } else if (token == '') {
-        Preferences.remove({ key: 'jwtToken' });
+        Preferences.remove({ key: 'jwtToken' })
+          .catch(err => {
+            observer.error(err);
+          });;
         observer.next({ jwt: '' });
         observer.complete();
       } else {

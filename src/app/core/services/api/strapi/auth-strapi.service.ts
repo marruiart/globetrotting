@@ -40,9 +40,7 @@ export class AuthStrapiService extends AuthService {
         .subscribe({
           next: async auth => {
             await lastValueFrom(this.jwtSvc.saveToken(auth.jwt))
-              .catch(err => {
-                observer.error(err);
-              });
+              .catch(err => console.error(err));
             this._isLogged.next(true);
             observer.next();
             observer.complete();

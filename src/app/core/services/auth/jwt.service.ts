@@ -21,7 +21,7 @@ export class JwtService {
         this._jwt = jwt;
       },
       error: err => {
-        console.error(err)
+        console.error(err);
       }
     }));
   }
@@ -32,9 +32,7 @@ export class JwtService {
         this._jwt = token.jwt;
       },
       error: err => {
-        if (err != 'No token') {
-          console.error(err)
-        }
+        console.error(err);
       }
     }));
   }

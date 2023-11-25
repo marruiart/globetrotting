@@ -1,8 +1,11 @@
-import { StrapiMedia } from "./strapi-media";
-import { StrapiResponse } from "./strapi-data";
+import { StrapiMedia } from "./strapi-media.interface";
+import { StrapiResponse } from "./strapi-data.interface";
 
-export interface StrapiUser {
-    id: number,
+export interface StrapiUser extends StrapiDataUser {
+    id: number
+}
+
+export interface StrapiDataUser {
     username: string,
     email: string
 }

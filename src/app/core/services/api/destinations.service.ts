@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { emptyPaginatedData } from '../../models/globetrotting/pagination-data';
+import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 
 @Injectable({
   providedIn: 'root'

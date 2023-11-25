@@ -1,11 +1,11 @@
 import { MappingService } from '../mapping.service';
-import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data';
-import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination';
-import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media';
-import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user';
+import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
+import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
+import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
+import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
 import { User } from 'src/app/core/models/globetrotting/user.interface';
-import { Media } from 'src/app/core/models/globetrotting/media';
+import { Media } from 'src/app/core/models/globetrotting/media.interface';
 
 export class MappingStrapiService extends MappingService {
 

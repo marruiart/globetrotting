@@ -1,4 +1,4 @@
-import { StrapiDestination } from "./strapi-destination"
+import { StrapiDestination } from "./strapi-destination.interface"
 
 export interface StrapiData<T> {
   id: number,

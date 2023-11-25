@@ -1,5 +1,5 @@
-import { StrapiResponse } from "./strapi-data"
-import { StrapiMedia } from "./strapi-media"
+import { StrapiResponse } from "./strapi-data.interface"
+import { StrapiMedia } from "./strapi-media.interface"
 
 export interface StrapiDestination {
   id?: number,

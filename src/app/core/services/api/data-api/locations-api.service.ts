@@ -5,7 +5,7 @@ import { Location } from '../../../models/rick-morty-api/location.interface';
 import { HttpService } from '../../http/http.service';
 import { DestinationsService } from '../destinations.service';
 import { Destination, NewDestination } from '../../../models/globetrotting/destination.interface';
-import { Page } from 'src/app/core/models/rick-morty-api/pagination';
+import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
 
 
 @Injectable({

@@ -3,18 +3,16 @@ import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api.service';
 import { JwtService } from '../../auth/jwt.service';
 import { AuthService } from '../../auth/auth.service';
-import { lastValueFrom, tap } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
-import { MenuService } from '../../menu.service';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
   private authFacade = inject(AuthFacade);
-  private menuSvc = inject(MenuService);
 
   constructor(
     private apiSvc: ApiService,

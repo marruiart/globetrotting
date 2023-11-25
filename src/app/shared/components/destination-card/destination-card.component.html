@@ -4,10 +4,27 @@
   [style]="{ width: '360px' }"
 >
   <ng-template pTemplate="header">
-    <img [alt]="" [src]="destination.image?.url_thumbnail ?? 'assets/destinations/default_card.jpg'" />
+    <img
+      [alt]=""
+      [src]="
+        destination.image?.url_thumbnail ??
+        'assets/destinations/default_card.jpg'
+      "
+    />
+    <p-button
+      class="fav-btn"
+      icon="true"
+      *ngIf="user == 'AUTHENTICATED'"
+      styleClass="p-button-text p-button-rounded p-button-danger"
+      (click)="updateFav()"
+    >
+      <ion-icon *ngIf="fav" name="heart" />
+      <ion-icon *ngIf="!fav" name="heart-outline" />
+    </p-button>
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button
+      *ngIf="user == 'AUTHENTICATED'"
       label="Reservar"
       styleClass="p-button-raised p-button-text p-button-secondary"
     ></p-button>

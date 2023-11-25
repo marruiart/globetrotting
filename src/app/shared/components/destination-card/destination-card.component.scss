@@ -3,6 +3,21 @@ img {
 }
 
 ::ng-deep {
+  .p-card-header {
+    position: relative;
+  }
+
+  .fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    ion-icon {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
   .p-card-content {
     display: none;
   }

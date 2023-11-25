@@ -1,11 +1,13 @@
 import { Media } from "./media.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
-export interface Destination extends NewDestination {
+
+export interface DestinationId {
     id: number
 }
+export interface Destination extends NewDestination, DestinationId {}
 
-export interface NewDestination {
+export interface NewDestination extends DestinationId {
     name: string,
     type?: string,
     dimension?: string,
@@ -16,8 +18,3 @@ export interface NewDestination {
 }
 
 export type PaginatedDestination = PaginatedData<Destination>
-
-export let emptyDestination: Destination = {
-    id: 0,
-    name: ""
-}

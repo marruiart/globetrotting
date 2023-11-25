@@ -4,7 +4,7 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { Fav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -91,6 +91,9 @@ export class MappingStrapiService extends MappingService {
 
   public mapUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): User[] =>
     this.extractArrayData<User, StrapiExtendedUser>(res, this.mapUserData);
+
+  public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedUser =>
+    this.extractPaginatedData<User, StrapiExtendedUser>(res, this.mapUserData);
 
   // FAVORITES
 

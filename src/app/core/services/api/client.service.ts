@@ -65,8 +65,9 @@ export class ClientService extends ApiService {
 
   public clientMe(id: number): Observable<Client | null> {
     if (id) {
-      this.queries["filters[user_id]"] = `${id}`;
-      return this.getAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
+      let _queries = JSON.parse(JSON.stringify(this.queries));
+      _queries["filters[user_id]"] = `${id}`;
+      return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let me = res.data[0];

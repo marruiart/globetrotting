@@ -1,5 +1,9 @@
 import { Media } from "./media.interface"
+import { PaginatedData } from "./pagination-data.interface"
 
+export interface User extends NewUser {
+    id: number
+}
 export interface NewUser {
     nickname: string,
     avatar?: Media,
@@ -21,9 +25,7 @@ export interface NewUser {
     }
 } */
 
-export interface User extends NewUser {
-    id: number
-}
+export type PaginatedUser = PaginatedData<User>
 
 export interface UserCredentials {
     username: string,

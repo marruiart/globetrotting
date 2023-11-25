@@ -43,7 +43,13 @@ export class UsersService extends ApiService {
   }
 
   public getUser(id: number): Observable<User> {
-    return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
+    let _queries = JSON.parse(JSON.stringify(this.queries));
+    _queries["populate"] = "avatar"
+    return this.get<User>(this.path, id, this.mapSvc.mapUser, _queries);
+  }
+
+  public extendedMe(id: number) {
+    return this.getUser(id);
   }
 
   public addUser(user: User | NewUser, updateObs: boolean = true): Observable<User> {

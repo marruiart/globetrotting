@@ -28,7 +28,6 @@ export class AgentService extends ApiService {
   }
 
   constructor(
-    private authFacade: AuthFacade,
     private mapSvc: MappingService
   ) {
     super();
@@ -38,8 +37,9 @@ export class AgentService extends ApiService {
     if (page == null) {
       return of(null);
     }
-    this.queries["pagination[page]"] = `${page}`;
-    return this.getAll<PaginatedAgent>(this.path, this.queries, this.mapSvc.mapPaginatedAgents)
+    let _queries = JSON.parse(JSON.stringify(this.queries));
+    _queries["pagination[page]"] = `${page}`;
+    return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
       .pipe(tap((page: PaginatedAgent) => {
         if (page.data.length > 0) {
           let _agents: Agent[] = JSON.parse(JSON.stringify(page.data))
@@ -58,9 +58,10 @@ export class AgentService extends ApiService {
 
   public agentMe(id: number): Observable<Agent | null> {
     if (id) {
-      this.queries["filters[user_id]"] = `${id}`;
-      this.queries["populate"] = "bookings";
-      return this.getAll<PaginatedAgent>(this.path, this.queries, this.mapSvc.mapPaginatedAgents)
+      let _queries = JSON.parse(JSON.stringify(this.queries));
+      _queries["filters[user_id]"] = `${id}`;
+      _queries["populate"] = "bookings";
+      return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let me = res.data[0];

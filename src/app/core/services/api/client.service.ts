@@ -31,7 +31,6 @@ export class ClientService extends ApiService {
   }
 
   constructor(
-    private authFacade: AuthFacade,
     private mapSvc: MappingService
   ) {
     super();
@@ -41,7 +40,8 @@ export class ClientService extends ApiService {
     if (page == null) {
       return of(null);
     }
-    this.queries["pagination[page]"] = `${page}`;
+    let _queries = JSON.parse(JSON.stringify(this.queries));
+    _queries["pagination[page]]"] = `${page}`;
     return this.getAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
       .pipe(tap((page: PaginatedClient) => {
         if (page.data.length > 0) {

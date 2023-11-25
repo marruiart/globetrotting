@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LazyLoadEvent } from 'primeng/api';
 import { lastValueFrom } from 'rxjs';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
+import { ClientService } from 'src/app/core/services/api/client.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
-import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 @Component({
@@ -20,7 +20,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
     public authFacade: AuthFacade,
-    public favsSvc: FavoritesService
+    public clientSvc: ClientService
   ) {
     this.subsSvc.addSubscriptions([
       {
@@ -28,12 +28,6 @@ export class DestinationsPage implements OnInit, OnDestroy {
         sub: this.authFacade.currentUser$.subscribe(res => {
           this.role = res.role;
           this.user_id = res.user_id
-        })
-      },
-      {
-        component: 'DestinationsPage',
-        sub: this.favsSvc.getAllClientFavs().subscribe({
-          error: err => console.error(err)
         })
       }
     ]

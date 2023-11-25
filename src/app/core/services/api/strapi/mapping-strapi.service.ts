@@ -100,8 +100,8 @@ export class MappingStrapiService extends MappingService {
   private mapFavData = (data: StrapiData<StrapiFav>): Fav => {
     return {
       id: data.id,
-      destination_id: data.attributes.destination.id,
-      client_id: data.attributes.client?.id ?? null
+      destination_id: data.attributes.destination.data.id,
+      client_id: data.attributes.client?.data.id ?? undefined
     }
   }
 

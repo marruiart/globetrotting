@@ -2,7 +2,7 @@
 <main>
   <p-virtualScroller
     class="content"
-    [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:[{id: 1, destination_id: 8, client_id: 1}] | virtualItems | async) ?? []"
+    [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:(clientSvc.clientMe$ | async) | virtualItems | async) ?? []"
     [itemSize]="itemSize"
     [lazy]="true"
     (onLazyLoad)="loadDestinations($event)"

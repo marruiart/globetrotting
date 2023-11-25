@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { AuthFacade } from '../../libs/auth/auth.facade';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 
 @Injectable({

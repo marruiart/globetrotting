@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LazyLoadEvent } from 'primeng/api';
-import { Subscription, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
+import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
+import { FavoritesService } from 'src/app/core/services/api/favorites.service';
+import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 @Component({
   selector: 'app-destinations',
@@ -9,12 +12,23 @@ import { DestinationsService } from 'src/app/core/services/api/destinations.serv
   styleUrls: ['./destinations.page.scss'],
 })
 export class DestinationsPage implements OnInit, OnDestroy {
-  private subs: Subscription[] = [];
+  public role: string | null = null;
+  public user_id: number | null = null;
   public itemSize = 600;
 
   constructor(
-    public destinationsSvc: DestinationsService
-  ) { }
+    public destinationsSvc: DestinationsService,
+    private subsSvc: SubscriptionsService,
+    public authFacade: AuthFacade,
+    private favsSvc: FavoritesService
+  ) {
+    this.subsSvc.addSubscription('DestinationsPage',
+      this.authFacade.currentUser$.subscribe(res => {
+        this.role = res.role;
+        this.user_id = res.user_id
+      })
+    )
+  }
 
   ngOnInit() {
     lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => {
@@ -38,7 +52,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subs.forEach(s => s.unsubscribe());
+    this.subsSvc.unsubscribe('DestinationsPage');
   }
 
 }

@@ -8,6 +8,7 @@ import { PrimengModule } from './primeng.module';
 import { DestinationCardComponent } from './components/destination-card/destination-card.component';
 import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
 import { AuthModule } from '../core/libs/auth/auth.module';
+import { FavPipe } from './pipes/fav.pipe';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { AuthModule } from '../core/libs/auth/auth.module';
     FooterComponent,
     DestinationCardComponent,
     // Pipes
-    VirtualItemsPipe
+    VirtualItemsPipe,
+    FavPipe
   ],
   imports: [
     CommonModule,
@@ -37,7 +39,8 @@ import { AuthModule } from '../core/libs/auth/auth.module';
     FooterComponent,
     DestinationCardComponent,
     // Pipes
-    VirtualItemsPipe
+    VirtualItemsPipe,
+    FavPipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

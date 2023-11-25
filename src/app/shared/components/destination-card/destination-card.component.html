@@ -14,7 +14,7 @@
     <p-button
       class="fav-btn"
       icon="true"
-      *ngIf="user == 'AUTHENTICATED'"
+      *ngIf="isClient"
       styleClass="p-button-text p-button-rounded p-button-danger"
       (click)="updateFav()"
     >
@@ -24,7 +24,7 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button
-      *ngIf="user == 'AUTHENTICATED'"
+      *ngIf="isClient"
       label="Reservar"
       styleClass="p-button-raised p-button-text p-button-secondary"
     ></p-button>

@@ -1,5 +1,4 @@
 import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
-import { lastValueFrom, tap } from 'rxjs';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';

@@ -1,42 +1,33 @@
-import { Component, Input, OnDestroy } from '@angular/core';
-import { map } from 'rxjs';
-import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
+import { Component, Input } from '@angular/core';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 @Component({
   selector: 'app-destination-card',
   templateUrl: './destination-card.component.html',
   styleUrls: ['./destination-card.component.scss'],
 })
-export class DestinationCardComponent implements OnDestroy {
+export class DestinationCardComponent {
   private _destination!: Destination;
-  public user: string | null = null;
+  private _isClient: boolean = false;
   public fav: boolean = false;
 
-  @Input() set destination(destination: Destination) {
+  @Input() set destination(destination: any) {
+    this.fav = destination.fav;
     this._destination = destination;
   }
-
   get destination() {
     return this._destination;
   }
 
-  constructor(
-    private subsSvc: SubscriptionsService,
-    private authFacade: AuthFacade
-  ) {
-    this.subsSvc.addSubscription('DestinationCardComponent',
-      this.authFacade.role$.subscribe(res => this.user = res)
-    )
+  @Input() set isClient(isClient: boolean) {
+    this._isClient = isClient;
+  }
+  get isClient() {
+    return this._isClient;
   }
 
   public updateFav() {
     this.fav = !this.fav;
-  }
-
-  ngOnDestroy() {
-    this.subsSvc.unsubscribe('DestinationCardComponent');
   }
 
 }

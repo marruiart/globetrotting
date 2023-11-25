@@ -61,7 +61,7 @@ export class MappingStrapiService extends MappingService {
       type: data.attributes.type,
       dimension: data.attributes.dimension,
       price: data.attributes.price,
-      image: data.attributes.image ? this.mapImage(data.attributes.image) : undefined,
+      image: data.attributes.image?.data ? this.mapImage(data.attributes.image) : undefined,
       description: data.attributes.description
     }
   }

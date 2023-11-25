@@ -8,7 +8,8 @@ import * as AuthSelector from './auth.selectors'
 export class AuthFacade {
 
     private readonly store = inject(Store);
-    role$ = this.store.pipe(select(AuthSelector.selectCurrentUserRole));
+    role$ = this.store.pipe(select(AuthSelector.selectCurrentRole));
+    currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
 
     init() {
         this.store.dispatch(AuthAction.init());

@@ -7,7 +7,7 @@ export interface DestinationId {
 }
 export interface Destination extends NewDestination, DestinationId {}
 
-export interface NewDestination extends DestinationId {
+export interface NewDestination {
     name: string,
     type?: string,
     dimension?: string,

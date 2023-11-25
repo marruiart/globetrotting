@@ -40,10 +40,14 @@ export class MappingStrapiService extends MappingService {
   }
 
   private mapPagination(res: StrapiArrayResponse<any>) {
+    const page = res.meta.pagination.page;
+    const pageCount = res.meta.pagination.pageCount;
     return {
-      page: res.meta.pagination.page,
+      prev: page == 1 ? null : page - 1,
+      page: page,
+      next: page == pageCount ? null : page + 1,
       pageSize: res.meta.pagination.pageSize,
-      pageCount: res.meta.pagination.pageCount,
+      pageCount: pageCount,
       total: res.meta.pagination.total
     }
   }
@@ -94,7 +98,7 @@ export class MappingStrapiService extends MappingService {
     return {
       id: data.id,
       destination_id: data.attributes.destination.id,
-      client_id: data.attributes.client.id
+      client_id: data.attributes.client?.id ?? null
     }
   }
 

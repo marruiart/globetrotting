@@ -17,15 +17,18 @@ export class HeaderComponent implements OnDestroy {
     public menuSvc: MenuService,
     public subsSvc: SubscriptionsService
   ) {
-    this.subsSvc.addSubscription('HeaderComponent',
-      this.authFacade.role$.subscribe({
+    // TODO recibir esto desde el padre
+    this.subsSvc.addSubscriptions([{
+      component: 'HeaderComponent',
+      sub: this.authFacade.role$.subscribe({
         next: role => {
           this.menuSvc.selectMenu(role);
         },
         error: err => {
           console.error(err);
         }
-      }))
+      })
+    }])
   }
 
   ngOnDestroy() {

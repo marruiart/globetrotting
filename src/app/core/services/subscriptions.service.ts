@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
 
+interface Sub {
+  component: string, sub: Subscription
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,11 +20,13 @@ export class SubscriptionsService {
     }
   }
 
-  public addSubscription(component: string, sub: Subscription) {
-    if (component in this._subs) {
-      this._subs[component].push(sub);
-    } else {
-      this._subs[component] = [sub];
-    }
+  public addSubscriptions(subs: Sub[]) {
+    subs.forEach(s => {
+      if (s.component in this._subs) {
+        this._subs[s.component].push(s.sub);
+      } else {
+        this._subs[s.component] = [s.sub];
+      }
+    })
   }
 }

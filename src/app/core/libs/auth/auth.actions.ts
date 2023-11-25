@@ -1,12 +1,12 @@
 import { createAction, props } from '@ngrx/store';
 import { UserCredentials, UserRegisterInfo } from '../../models/globetrotting/user.interface';
-import { Auth, AuthUser } from '../../models/globetrotting/auth.interface';
+import { Auth, AuthUser, ExtendedAuthUser } from '../../models/globetrotting/auth.interface';
 
 export const init = createAction('[Auth API] Init');
 export const login = createAction('[Auth API] Login', props<{ credentials: UserCredentials }>());
 export const loginSuccess = createAction('[Auth API] Login Success');
 export const loginFailure = createAction('[Auth API] Login Failure', props<{ error: any }>());
-export const assignRole = createAction('[Auth API] Assign Role', props<{ user: AuthUser }>());
+export const assignRole = createAction('[Auth API] Assign Role', props<{ user: ExtendedAuthUser }>());
 export const redirectRole = createAction('[Auth API] Redirect Role', props<{ redirectUrl: string }>());
 export const logout = createAction('[Auth API] Logout');
 export const logoutSuccess = createAction('[Auth API] Logout Success');

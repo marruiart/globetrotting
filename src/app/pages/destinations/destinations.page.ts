@@ -20,13 +20,23 @@ export class DestinationsPage implements OnInit, OnDestroy {
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
     public authFacade: AuthFacade,
-    private favsSvc: FavoritesService
+    public favsSvc: FavoritesService
   ) {
-    this.subsSvc.addSubscription('DestinationsPage',
-      this.authFacade.currentUser$.subscribe(res => {
-        this.role = res.role;
-        this.user_id = res.user_id
-      })
+    this.subsSvc.addSubscriptions([
+      {
+        component: 'DestinationsPage',
+        sub: this.authFacade.currentUser$.subscribe(res => {
+          this.role = res.role;
+          this.user_id = res.user_id
+        })
+      },
+      {
+        component: 'DestinationsPage',
+        sub: this.favsSvc.getAllClientFavs().subscribe({
+          error: err => console.error(err)
+        })
+      }
+    ]
     )
   }
 

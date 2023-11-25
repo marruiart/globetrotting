@@ -1,4 +1,5 @@
 import { StrapiDestination } from "./strapi-destination.interface"
+import { StrapiPagination } from "./strapi-pagination.interface"
 
 export interface StrapiData<T> {
   id: number,
@@ -8,12 +9,7 @@ export interface StrapiData<T> {
 export interface StrapiArrayResponse<T> {
   data: StrapiData<T>[],
   meta: {
-    pagination: {
-      page: number,
-      pageSize: number,
-      pageCount: number,
-      total: number,
-    }
+    pagination: StrapiPagination
   }
 }
 

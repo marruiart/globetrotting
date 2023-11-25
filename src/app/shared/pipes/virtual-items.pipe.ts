@@ -15,16 +15,20 @@ export class VirtualItemsPipe implements PipeTransform, OnDestroy {
 
   async transform(destinations: Destination[]): Promise<(Destination | undefined)[]> {
     let _destinations: (Destination | undefined)[] = [];
-    this.subsSvc.addSubscription('VirtualItemsPipe',
-      this.destinationsSvc.pagination$.subscribe({
-        next: res => {
-          _destinations = Array.from({ length: res.pagination.total });
-          _destinations.splice(0, destinations.length, ...destinations);
-        },
-        error: err => {
-          console.error(err);
-        }
-      }))
+    this.subsSvc.addSubscriptions([
+      {
+        component: 'VirtualItemsPipe',
+        sub: this.destinationsSvc.destinationsPage$.subscribe({
+          next: res => {
+            _destinations = Array.from({ length: res.pagination.total });
+            _destinations.splice(0, destinations.length, ...destinations);
+          },
+          error: err => {
+            console.error(err);
+          }
+        })
+      }
+    ])
     return _destinations;
   }
 

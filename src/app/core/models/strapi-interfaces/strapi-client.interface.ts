@@ -6,5 +6,5 @@ import { StrapiDataUser } from "./strapi-user.interface";
 export interface StrapiClient {
     bookings: StrapiArrayResponse<StrapiBooking>,
     favorites: StrapiArrayResponse<StrapiFav>,
-    user_id: StrapiData<StrapiDataUser>
+    user_id?: StrapiData<StrapiDataUser>
 }

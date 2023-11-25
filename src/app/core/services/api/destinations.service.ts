@@ -10,13 +10,14 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.i
 })
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
-  private endOfData = false;
 
-  private _pagination = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
-  public pagination$ = this._pagination.asObservable();
+  private endOfData = false;
+  public itemsCount: number = 0;
+
+  private _destinationsPage = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
+  public destinationsPage$ = this._destinationsPage.asObservable();
   private _destinations = new BehaviorSubject<Destination[]>([]);
   public destinations$: Observable<Destination[]> = this._destinations.asObservable();
-  public itemsCount: number = 0;
 
   private queries: { [query: string]: string } = { "populate": "image" }
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
@@ -27,11 +28,11 @@ export class DestinationsService extends ApiService {
     super();
   }
 
-  public getAllDestinations(page?: number): Observable<PaginatedDestination> {
+  public getAllDestinations(page: number | null | undefined = undefined): Observable<PaginatedDestination> {
     if (page) {
       this.queries["pagination[page]"] = `${page}`;
     }
-    return this.getAll<PaginatedDestination>(this.path, this.queries, this.mapSvc.mapDestinations).pipe(tap(res => {
+    return this.getAll<PaginatedDestination>(this.path, this.queries, this.mapSvc.mapPaginatedDestinations).pipe(tap(res => {
       if (res.data.length > 0) {
         this.endOfData = false;
         let _destinations: Destination[] = [...res.data].reduce((
@@ -48,7 +49,7 @@ export class DestinationsService extends ApiService {
           pagination: res.pagination
         }
         this._destinations.next(_destinations);
-        this._pagination.next(_pagination);
+        this._destinationsPage.next(_pagination);
       } else {
         this.endOfData = true;
       }
@@ -56,7 +57,7 @@ export class DestinationsService extends ApiService {
   }
 
   public getNextDestinationsPage() {
-    return this.getAllDestinations(this._pagination.value.pagination.page + 1);
+    return this.getAllDestinations(this._destinationsPage.value.pagination.page + 1);
   }
 
   public getDestination(id: number): Observable<Destination> {

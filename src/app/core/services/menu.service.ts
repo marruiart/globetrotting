@@ -82,6 +82,7 @@ export class MenuService {
   }
 
   private clientProfileItem = {
+    label: 'Usuario',
     icon: this.userProfileItem.icon,
     items: [
       this.userProfileItem.items[0],
@@ -139,5 +140,9 @@ export class MenuService {
       default:
         this._menu.next(this.menuItems.public)
     }
+  }
+
+  public setNickname(nickname: string) {
+    this.clientProfileItem["label"] = nickname;
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
+import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
 import { MenuService } from 'src/app/core/services/menu.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
@@ -14,6 +15,7 @@ export class HeaderComponent implements OnDestroy {
 
   constructor(
     private authFacade: AuthFacade,
+    public userFacade: UserFacade,
     public menuSvc: MenuService,
     public subsSvc: SubscriptionsService
   ) {
@@ -23,6 +25,17 @@ export class HeaderComponent implements OnDestroy {
       sub: this.authFacade.role$.subscribe({
         next: role => {
           this.menuSvc.selectMenu(role);
+        },
+        error: err => {
+          console.error(err);
+        }
+      })
+    },
+    {
+      component: 'HeaderComponent',
+      sub: this.userFacade.nickname$.subscribe({
+        next: nickname => {
+          this.menuSvc.setNickname(nickname ?? "");
         },
         error: err => {
           console.error(err);

@@ -63,6 +63,7 @@ export class MenuService {
   }
 
   private userProfileItem = {
+    label: 'Usuario',
     icon: 'custom-icon person-outline',
     items: [
       {
@@ -82,7 +83,7 @@ export class MenuService {
   }
 
   private clientProfileItem = {
-    label: 'Usuario',
+    label: this.userProfileItem.label,
     icon: this.userProfileItem.icon,
     items: [
       this.userProfileItem.items[0],
@@ -123,8 +124,7 @@ export class MenuService {
 
   constructor(
     private authFacade: AuthFacade
-  ) {
-  }
+  ) { }
 
   public selectMenu(role: string | null) {
     switch (role) {
@@ -143,6 +143,7 @@ export class MenuService {
   }
 
   public setNickname(nickname: string) {
-    this.clientProfileItem["label"] = nickname;
+    this.userProfileItem.label = nickname;
+    this.clientProfileItem.label = nickname;
   }
 }

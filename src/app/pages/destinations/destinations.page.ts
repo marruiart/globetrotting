@@ -1,10 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LazyLoadEvent } from 'primeng/api';
 import { lastValueFrom } from 'rxjs';
-import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
-import { ClientService } from 'src/app/core/services/api/client.service';
+import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
+import { Destination, FavDestination } from 'src/app/core/models/globetrotting/destination.interface';
+import { NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
+import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+
+export interface FavClickedEvent {
+  fav: boolean;
+}
 
 @Component({
   selector: 'app-destinations',
@@ -13,25 +19,29 @@ import { SubscriptionsService } from 'src/app/core/services/subscriptions.servic
 })
 export class DestinationsPage implements OnInit, OnDestroy {
   public role: string | null = null;
-  public user_id: number | null = null;
+  public specificUserId: number | null = null;
+  private favs: FavDestination[] = [];
   public itemSize = 600;
 
   constructor(
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
-    public authFacade: AuthFacade,
-    public clientSvc: ClientService
+    public userFacade: UserFacade,
+    public favsSvc: FavoritesService,
   ) {
     this.subsSvc.addSubscriptions([
       {
         component: 'DestinationsPage',
-        sub: this.authFacade.currentUser$.subscribe(res => {
+        sub: this.userFacade.currentUser$.subscribe(res => {
           this.role = res.role;
-          this.user_id = res.user_id
+          if (res.specificUser) {
+            this.specificUserId = res.specificUser.id
+            if (res.specificUser.type == 'AUTHENTICATED') {
+              this.favs = res.specificUser.favorites;
+            }
+          }
         })
-      }
-    ]
-    )
+      }])
   }
 
   ngOnInit() {
@@ -53,6 +63,23 @@ export class DestinationsPage implements OnInit, OnDestroy {
     lastValueFrom(this.destinationsSvc.getNextDestinationsPage()).catch(err => {
       console.error(err);
     });
+  }
+
+  onFavClicked(destination: Destination, event: FavClickedEvent) {
+    if (this.specificUserId) {
+      if (event.fav) {
+        let fav: NewFav = {
+          client_id: this.specificUserId,
+          destination_id: destination.id
+        }
+        lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
+      } else {
+        let fav = this.favs.find(f => f.destination_id == destination.id);
+        if (fav) {
+          lastValueFrom(this.favsSvc.deleteFav(fav.fav_id)).catch(err => console.error(err));;
+        }
+      }
+    }
   }
 
   ngOnDestroy() {

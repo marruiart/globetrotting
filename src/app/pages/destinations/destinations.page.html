@@ -2,7 +2,7 @@
 <main>
   <p-virtualScroller
     class="content"
-    [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:(clientSvc.clientMe$ | async) | virtualItems | async) ?? []"
+    [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:(userFacade.currentSpecificUser$ | async)| virtualItems | async) ?? []"
     [itemSize]="itemSize"
     [lazy]="true"
     (onLazyLoad)="loadDestinations($event)"
@@ -13,6 +13,7 @@
         [destination]="destination"
         [isClient]="(role === 'AUTHENTICATED')"
         class="flex-item"
+        (onFavClicked)="onFavClicked(destination, $event)"
       />
     </ng-template>
     <ng-template let-destination pTemplate="loadingItem">

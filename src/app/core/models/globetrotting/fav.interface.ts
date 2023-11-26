@@ -3,6 +3,6 @@ export interface Fav extends NewFav {
 }
 
 export interface NewFav {
-    destination_id: number,
+    destination_id?: number,
     client_id?: number
 }

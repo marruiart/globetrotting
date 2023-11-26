@@ -3,7 +3,7 @@ import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from '
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
+import { Destination, FavDestination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
 import { PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
@@ -100,8 +100,8 @@ export class MappingStrapiService extends MappingService {
   private mapFavData = (data: StrapiData<StrapiFav>): Fav => {
     return {
       id: data.id,
-      destination_id: data.attributes.destination.data.id,
-      client_id: data.attributes.client?.data.id ?? undefined
+      destination_id: data.attributes.destination?.data.id,
+      client_id: data.attributes.client?.data.id
     }
   }
 
@@ -110,14 +110,22 @@ export class MappingStrapiService extends MappingService {
 
   public mapFavs = (res: StrapiArrayResponse<StrapiFav>): Fav[] =>
     this.extractArrayData<Fav, StrapiFav>(res, this.mapFavData);
+    
+  public mapClientFavs = (favs: Fav[]): FavDestination[] => favs.reduce((prev: FavDestination[], fav: Fav): FavDestination[] => {
+    if (fav.destination_id) {
+      prev.push({ fav_id: fav.id, destination_id: fav.destination_id });
+    }
+    return prev;
+  }, [])
 
-  // CLIENT
+  // AUTHENTICATED
 
   private mapClientData = (data: StrapiData<StrapiClient>): Client => {
     return {
       id: data.id,
+      type: 'AUTHENTICATED',
       bookings: this.mapBookings(data.attributes.bookings),
-      favorites: this.mapFavs(data.attributes.favorites).map(fav => { return { id: fav.destination_id } })
+      favorites: this.mapClientFavs(this.mapFavs(data.attributes.favorites))
     }
   }
 
@@ -132,6 +140,7 @@ export class MappingStrapiService extends MappingService {
   private mapAgentData = (data: StrapiData<StrapiAgent>): Agent => {
     return {
       id: data.id,
+      type: 'AGENT',
       bookings: this.mapBookings(data.attributes.bookings)
     }
   }

@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { FavClickedEvent } from 'src/app/pages/destinations/destinations.page';
 
 @Component({
   selector: 'app-destination-card',
@@ -26,8 +27,12 @@ export class DestinationCardComponent {
     return this._isClient;
   }
 
-  public updateFav() {
+  @Output() onFavClicked: EventEmitter<FavClickedEvent> = new EventEmitter<FavClickedEvent>();
+
+  public updateFav(event: Event) {
+    this.onFavClicked.emit({ fav: !this.fav });
     this.fav = !this.fav;
+    event.stopPropagation();
   }
 
 }

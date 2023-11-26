@@ -4,6 +4,7 @@ import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { AuthFacade } from '../../libs/auth/auth.facade';
+import { UserFacade } from '../../libs/load-user/load-user.facade';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class FavoritesService extends ApiService {
   private _clientFavs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
   public clientFavs$: Observable<Fav[]> = this._clientFavs.asObservable();
   private queries: { [query: string]: string } = {}
+  private userRole: string | null = null;
 
   private body: any = (fav: Fav) => {
     return {
@@ -30,6 +32,9 @@ export class FavoritesService extends ApiService {
     private mapSvc: MappingService
   ) {
     super();
+    this.authFacade.role$.subscribe(role => {
+      this.userRole = role;
+    })
   }
 
   public getAllFavs(): Observable<Fav[]> {
@@ -56,18 +61,20 @@ export class FavoritesService extends ApiService {
     return this.get<Fav>(this.path, id, this.mapSvc.mapFav, this.queries);
   }
 
-  public addFav(fav: NewFav, updateObs: boolean = true): Observable<Fav> {
+  public addFav(fav: NewFav): Observable<Fav> {
     return this.add<Fav>(this.path, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
-      if (updateObs) {
-        this.getAllFavs().subscribe();
+      this.getAllFavs().subscribe();
+      if (this.userRole == 'AUTHENTICATED') {
+        this.getAllClientFavs().subscribe();
       }
     }));
   }
 
-  public updateFav(fav: Fav, updateObs: boolean = true): Observable<Fav> {
+  public updateFav(fav: Fav): Observable<Fav> {
     return this.update<Fav>(this.path, fav.id, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
-      if (updateObs) {
-        this.getAllFavs().subscribe();
+      this.getAllFavs().subscribe();
+      if (this.userRole == 'AUTHENTICATED') {
+        this.getAllClientFavs().subscribe();
       }
     }));
   }
@@ -75,6 +82,9 @@ export class FavoritesService extends ApiService {
   public deleteFav(id: number): Observable<Fav> {
     return this.delete<Fav>(this.path, this.mapSvc.mapFav, id).pipe(tap(_ => {
       this.getAllFavs().subscribe();
+      if (this.userRole == 'AUTHENTICATED') {
+        this.getAllClientFavs().subscribe();
+      }
     }));;
   }
 

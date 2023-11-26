@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, lastValueFrom, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { AuthFacade } from '../../libs/auth/auth.facade';
 import { Agent, NewAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
+import { UserFacade } from '../../libs/load-user/load-user.facade';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +15,6 @@ export class AgentService extends ApiService {
   public page$: Observable<PaginatedAgent | null> = this._page.asObservable();
   private _agents: BehaviorSubject<Agent[]> = new BehaviorSubject<Agent[]>([]);
   public agents$: Observable<Agent[]> = this._agents.asObservable();
-  private _agentMe: BehaviorSubject<Agent | null> = new BehaviorSubject<Agent | null>(null);
-  public agentMe$: Observable<Agent | null> = this._agentMe.asObservable();
   private queries: { [query: string]: string } = {}
 
   private body: any = (agent: Agent) => {
@@ -28,7 +26,8 @@ export class AgentService extends ApiService {
   }
 
   constructor(
-    private mapSvc: MappingService
+    private mapSvc: MappingService,
+    private userFacade: UserFacade
   ) {
     super();
   }
@@ -64,9 +63,9 @@ export class AgentService extends ApiService {
       return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
         .pipe(map(res => {
           if (res.data.length > 0) {
-            let me = res.data[0];
-            this._agentMe.next(me);
-            return me;
+            let agentMe = res.data[0];
+            this.userFacade.updateSpecificUser(agentMe);
+            return agentMe;
           } else {
             return null;
           }

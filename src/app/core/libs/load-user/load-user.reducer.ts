@@ -22,6 +22,7 @@ export const userReducer = createReducer(
     on(UserActions.loadUser, (state) => ({ ...state })),
     on(UserActions.assignExtendedUser, (state, { extendedUser }) => ({ ...state, extendedUser: extendedUser })),
     on(UserActions.assignSpecificUser, (state, { specificUser }) => ({ ...state, specificUser: specificUser })),
+    on(UserActions.updateSpecificUser, (state, { specificUser }) => ({ ...state, specificUser: specificUser })),
     on(UserActions.loadUserSuccess, (state) => ({ ...state })),
     on(UserActions.loadUserFailure, (state, { error }) => ({ ...state, error: error })),
     on(AuthActions.logoutSuccess, (state) => ({ ...state, extendedUser: null, specificUser: null })),

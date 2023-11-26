@@ -3,6 +3,8 @@ import { Store, select } from "@ngrx/store";
 import * as UserActions from './load-user.actions'
 import * as AuthSelector from './load-user.selectors'
 import { AuthUser } from "../../models/globetrotting/auth.interface";
+import { Client } from "../../models/globetrotting/client.interface";
+import { Agent } from "../../models/globetrotting/agent.interface";
 
 @Injectable()
 export class UserFacade {
@@ -26,6 +28,10 @@ export class UserFacade {
 
     loadSpecificUser(id: number, role: string) {
         this.store.dispatch(UserActions.loadSpecificUser({ user_id: id, role: role }));
+    }
+
+    updateSpecificUser(user: Client | Agent | null) {
+        this.store.dispatch(UserActions.updateSpecificUser({ specificUser: user }));
     }
 
 }

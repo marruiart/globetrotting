@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
+import { UserFacade } from '../../libs/load-user/load-user.facade';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +18,6 @@ export class ClientService extends ApiService {
   public clientsPage$: Observable<PaginatedClient | null> = this._clientsPage.asObservable();
   private _clients: BehaviorSubject<Client[]> = new BehaviorSubject<Client[]>([]);
   public clients$: Observable<Client[]> = this._clients.asObservable();
-  private _clientMe: BehaviorSubject<Client | null> = new BehaviorSubject<Client | null>(null);
-  public clientMe$: Observable<Client | null> = this._clientMe.asObservable();
 
   private body: any = (client: Client) => {
     return {
@@ -30,7 +29,8 @@ export class ClientService extends ApiService {
   }
 
   constructor(
-    private mapSvc: MappingService
+    private mapSvc: MappingService,
+    private userFacade: UserFacade
   ) {
     super();
   }
@@ -69,9 +69,9 @@ export class ClientService extends ApiService {
       return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {
-            let me = res.data[0];
-            this._clientMe.next(me);
-            return me;
+            let clientMe = res.data[0];
+            this.userFacade.updateSpecificUser(clientMe);
+            return clientMe;
           } else {
             return null;
           }

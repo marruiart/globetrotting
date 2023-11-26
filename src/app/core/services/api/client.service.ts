@@ -62,7 +62,7 @@ export class ClientService extends ApiService {
     return this.getAllClients(this._clientsPage.value?.pagination.next);
   }
 
-  public clientMe(id: number): Observable<Client | null> {
+  public clientMe(id: number | null): Observable<Client | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user_id]"] = `${id}`;

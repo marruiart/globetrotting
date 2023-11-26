@@ -56,7 +56,7 @@ export class AgentService extends ApiService {
       }));
   }
 
-  public agentMe(id: number): Observable<Agent | null> {
+  public agentMe(id: number | null): Observable<Agent | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user_id]"] = `${id}`;

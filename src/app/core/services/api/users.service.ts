@@ -51,7 +51,7 @@ export class UsersService extends ApiService {
     return this.get<User>(this.path, id, this.mapSvc.mapUser, _queries);
   }
 
-  public extendedMe(id: number): Observable<User | null> {
+  public extendedMe(id: number | null): Observable<User | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user_id]"] = `${id}`;

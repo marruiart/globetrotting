@@ -3,26 +3,18 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
-import { catchError, concatMap, map, of, switchMap, tap } from "rxjs";
-import { ExtendedAuthUser } from "../../models/globetrotting/auth.interface";
+import { catchError, map, of, switchMap } from "rxjs";
 import { MenuService } from "../../services/menu.service";
-import { ClientService } from "../../services/api/client.service";
-import { AgentService } from "../../services/api/agent.service";
-import { Agent } from "../../models/globetrotting/agent.interface";
-import { Client } from "../../models/globetrotting/client.interface";
-import { UsersService } from "../../services/api/users.service";
-import { User } from "../../models/globetrotting/user.interface";
+import { AuthUser } from "../../models/globetrotting/auth.interface";
+import { UserFacade } from "../user/user.facade";
 
 @Injectable()
 export class AuthEffects {
 
     constructor(
         private actions$: Actions,
-        private router: Router,
         private authSvc: AuthService,
-        private clientSvc: ClientService,
-        private agentSvc: AgentService,
-        private userSvc: UsersService,
+        private userFacade: UserFacade,
         private menuSvc: MenuService
     ) { }
 
@@ -31,13 +23,11 @@ export class AuthEffects {
             ofType(AuthActions.init),
             switchMap(() => this.authSvc.me().pipe(
                 map(user => {
-                    let authUser: ExtendedAuthUser = {
+                    let authUser: AuthUser = {
                         user_id: user.user_id,
-                        role: user.role,
-                        extended_id: user.extended_id,
-                        client_id: user.client_id,
-                        agent_id: user.agent_id
+                        role: user.role
                     }
+                    this.userFacade.init(user);
                     return AuthActions.assignRole({ user: authUser })
                 }),
                 catchError(error => of(AuthActions.loginFailure({ error: error })))
@@ -57,34 +47,19 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.loginSuccess),
             switchMap(() => this.authSvc.me().pipe(
-                concatMap((user) => {
-                    return this.userSvc.extendedMe(user.user_id).pipe(
-                        switchMap((extended_user: User | null) => {
-                            switch (user.role) {
-                                case 'AGENT':
-                                case 'ADMIN':
-                                    return this.agentSvc.agentMe(user.user_id).pipe(
-                                        switchMap((agent: Agent | null) => {
-                                            this.router.navigate(['/admin']);
-                                            user["agent_id"] = agent?.id ?? null;
-                                            user["extended_id"] = extended_user?.id ?? null;
-                                            console.log(`id ${user.user_id} (extended: ${user.extended_id}): ${user.role} (Agent id ${user.agent_id})`);
-                                            return of(AuthActions.assignRole({ user: user }));
-                                        }), catchError(error => of(AuthActions.loginFailure({ error: error }))));
-                                default:
-                                    return this.clientSvc.clientMe(user.user_id).pipe(
-                                        switchMap((client: Client | null) => {
-                                            this.router.navigate(['/home']);
-                                            user["client_id"] = client?.id ?? null;
-                                            user["extended_id"] = extended_user?.id ?? null;
-                                            console.log(`id ${user.user_id} (extended: ${user.extended_id}): ${user.role} (Client id ${user.client_id})`);
-                                            return of(AuthActions.assignRole({ user: user }));
-                                        }), catchError(error => of(AuthActions.loginFailure({ error: error }))));
-                            }
-                        })
-                    )
-                }),
-                catchError(error => of(AuthActions.loginFailure({ error: error })))
+                map((user: AuthUser) => {
+                    switch (user.role) {
+                        case 'AGENT':
+                        case 'ADMIN':
+                            console.log(`id ${user.user_id}: ${user.role}`);
+                            break;
+                        default:
+                            console.log(`id ${user.user_id}: ${user.role}`);
+                            break;
+                    }
+                    this.userFacade.init(user);
+                    return AuthActions.assignRole({ user: user });
+                }), catchError(error => of(AuthActions.loginFailure({ error: error })))
             )))
     );
 

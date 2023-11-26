@@ -1,3 +1,5 @@
+import { Agent } from "./agent.interface"
+import { Client } from "./client.interface"
 import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
 
@@ -39,4 +41,10 @@ export interface UserRegisterInfo {
     name?: string,
     surname?: string,
     nickname?: string
+}
+
+export interface CurrentUserData {
+    extendedUser: User | null,
+    client: Client | null,
+    agent: Agent | null
 }

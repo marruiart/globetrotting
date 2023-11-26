@@ -43,8 +43,7 @@ export interface UserRegisterInfo {
     nickname?: string
 }
 
-export interface CurrentUserData {
-    extendedUser: User | null,
-    client: Client | null,
-    agent: Agent | null
+export interface CurrentUser {
+    extendedUser: User | null
+    specificUser: Client | Agent | null
 }

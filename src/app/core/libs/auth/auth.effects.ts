@@ -6,7 +6,7 @@ import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap } from "rxjs";
 import { MenuService } from "../../services/menu.service";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
-import { UserFacade } from "../user/user.facade";
+import { UserFacade } from "../load-user/load-user.facade";
 
 @Injectable()
 export class AuthEffects {

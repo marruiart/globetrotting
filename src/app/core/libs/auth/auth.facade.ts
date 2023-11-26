@@ -10,7 +10,6 @@ export class AuthFacade {
     private readonly store = inject(Store);
     userId$ = this.store.pipe(select(AuthSelector.selectCurrentUserId));
     role$ = this.store.pipe(select(AuthSelector.selectCurrentRole));
-    currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
 
     init() {
         this.store.dispatch(AuthAction.init());

@@ -9,7 +9,7 @@ import { DestinationCardComponent } from './components/destination-card/destinat
 import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
 import { AuthModule } from '../core/libs/auth/auth.module';
 import { FavPipe } from './pipes/fav.pipe';
-import { UserModule } from '../core/libs/user/user.module';
+import { UserModule } from '../core/libs/load-user/load-user.module';
 
 @NgModule({
   declarations: [

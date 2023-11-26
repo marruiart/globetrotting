@@ -20,7 +20,7 @@ import { JwtService } from './core/services/auth/jwt.service';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/libs/auth/auth.module';
-import { UserModule } from './core/libs/user/user.module';
+import { UserModule } from './core/libs/load-user/load-user.module';
 
 @NgModule({
   declarations: [

@@ -28,10 +28,16 @@ export class DestinationCardComponent {
   }
 
   @Output() onFavClicked: EventEmitter<FavClickedEvent> = new EventEmitter<FavClickedEvent>();
+  @Output() onCreateBookingClicked: EventEmitter<any> = new EventEmitter<any>();
 
   public updateFav(event: Event) {
     this.onFavClicked.emit({ fav: !this.fav });
     this.fav = !this.fav;
+    event.stopPropagation();
+  }
+
+  public createBooking(event: Event) {
+    this.onCreateBookingClicked.emit();
     event.stopPropagation();
   }
 

@@ -10,8 +10,6 @@ import { MappingService } from './mapping.service';
 })
 export class BookingsService extends ApiService {
   private path: string = "/api/bookings";
-  private _favs: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
-  public favs$: Observable<Booking[]> = this._favs.asObservable();
   private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
   public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
   private queries: { [query: string]: string } = {
@@ -30,9 +28,7 @@ export class BookingsService extends ApiService {
   }
 
   public getAllBookings(): Observable<Booking[]> {
-    return this.getAll<Booking[]>(this.path, this.queries, this.mapSvc.mapBookings).pipe(tap(res => {
-      this._favs.next(res);
-    }));
+    return this.getAll<Booking[]>(this.path, this.queries, this.mapSvc.mapBookings);
   }
 
   public getAllClientBookings(): Observable<Booking[]> {

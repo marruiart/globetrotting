@@ -3,12 +3,12 @@ import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from '
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { Destination, FavDestination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
+import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
 import { NewUser, PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { Client, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
+import { Client, ClientBooking, ClientFavDestination, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
 import { Booking, NewBooking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-booking.interface';
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';
@@ -30,6 +30,9 @@ export class MappingStrapiService extends MappingService {
     }
   }
 
+  /**
+   * Receives a generic strapi array response and a callback and returns an array of objects mapped for this application use.
+   */
   private extractArrayData<T, S>(res: StrapiArrayResponse<S>, callback: (data: StrapiData<S>) => T): T[] {
     return Array.from(res.data)
       .reduce((prev: T[], data: StrapiData<S>): T[] => {
@@ -111,7 +114,7 @@ export class MappingStrapiService extends MappingService {
   public mapFavs = (res: StrapiArrayResponse<StrapiFav>): Fav[] =>
     this.extractArrayData<Fav, StrapiFav>(res, this.mapFavData);
 
-  public mapClientFavs = (favs: Fav[]): FavDestination[] => favs.reduce((prev: FavDestination[], fav: Fav): FavDestination[] => {
+  public mapClientFavs = (favs: Fav[]): ClientFavDestination[] => favs.reduce((prev: ClientFavDestination[], fav: Fav): ClientFavDestination[] => {
     if (fav.destination_id) {
       prev.push({ fav_id: fav.id, destination_id: fav.destination_id });
     }
@@ -124,7 +127,7 @@ export class MappingStrapiService extends MappingService {
     return {
       id: data.id,
       type: 'AUTHENTICATED',
-      bookings: this.mapBookings(data.attributes.bookings),
+      bookings: this.mapClientBookings(this.mapBookings(data.attributes.bookings)),
       favorites: this.mapClientFavs(this.mapFavs(data.attributes.favorites))
     }
   }
@@ -161,7 +164,10 @@ export class MappingStrapiService extends MappingService {
       rating: data.attributes.rating,
       isActive: data.attributes.isActive,
       isConfirmed: data.attributes.isConfirmed,
-      travelers: data.attributes.travelers
+      travelers: data.attributes.travelers,
+      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data.id,
+      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data.id,
+      agent_id: (data.attributes.agent as StrapiResponse<StrapiAgent>)?.data?.id
     }
   }
 
@@ -173,6 +179,13 @@ export class MappingStrapiService extends MappingService {
 
   public mapBookings = (res: StrapiArrayResponse<StrapiBooking>): Booking[] =>
     this.extractArrayData<Booking, StrapiBooking>(res, this.mapBookingData);
+
+    public mapClientBookings = (bookings: Booking[]): ClientBooking[] => bookings.reduce((prev: ClientBooking[], booking: Booking): ClientBooking[] => {
+      if (booking.id) {
+        prev.push({ booking_id: booking.id });
+      }
+      return prev;
+    }, [])
 
   // MEDIA
 
@@ -236,10 +249,12 @@ export class MappingStrapiService extends MappingService {
       data: {
         start: booking.start,
         end: booking.start,
-        rating: booking.rating,
         isActive: booking.isActive,
         isConfirmed: booking.isConfirmed,
-        travelers: booking.travelers
+        travelers: booking.travelers,
+        client: booking.client_id,
+        agent: booking.agent_id,
+        destination: booking.destination_id
       }
     }
   }

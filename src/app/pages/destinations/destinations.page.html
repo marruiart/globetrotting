@@ -14,6 +14,7 @@
         [isClient]="(role === 'AUTHENTICATED')"
         class="flex-item"
         (onFavClicked)="onFavClicked(destination, $event)"
+        (onCreateBookingClicked)="onCreateBookingClicked(destination)"
       />
     </ng-template>
     <ng-template let-destination pTemplate="loadingItem">

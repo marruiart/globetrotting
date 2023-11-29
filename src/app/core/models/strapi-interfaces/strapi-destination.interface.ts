@@ -1,6 +1,9 @@
 import { StrapiResponse } from "./strapi-data.interface"
 import { StrapiMedia } from "./strapi-media.interface"
 
+/**
+ * Strapi destination response interface
+ */
 export interface StrapiDestination {
   name: string
   type?: string

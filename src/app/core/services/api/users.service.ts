@@ -18,19 +18,8 @@ export class UsersService extends ApiService {
   private _extendedMe: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
   public extendedMe$: Observable<User | null> = this._extendedMe.asObservable();
   public jwt: string = "";
-  private queries: { [query: string]: string } = {}
-
-  private body: any = (user: User) => {
-    return {
-      data: {
-        avatar: user.avatar ?? null,
-        nickname: user.nickname,
-        name: user.name,
-        surname: user.surname,
-        age: user.age ?? null,
-        user_id: user.user_id,
-      }
-    }
+  private queries: { [query: string]: string } = {
+    "populate": "avatar"
   }
 
   constructor(
@@ -46,16 +35,13 @@ export class UsersService extends ApiService {
   }
 
   public getUser(id: number): Observable<User> {
-    let _queries = JSON.parse(JSON.stringify(this.queries));
-    _queries["populate"] = "avatar"
-    return this.get<User>(this.path, id, this.mapSvc.mapUser, _queries);
+    return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
   }
 
   public extendedMe(id: number | null): Observable<User | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user_id]"] = `${id}`;
-      _queries["populate"] = "avatar"
       return this.getAll<PaginatedData<any>>(this.path, _queries, this.mapSvc.mapPaginatedUsers)
         .pipe(map(res => {
           if (res.data.length > 0) {
@@ -72,7 +58,7 @@ export class UsersService extends ApiService {
   }
 
   public addUser(user: User | NewUser, updateObs: boolean = true): Observable<User> {
-    return this.add<User>(this.path, this.body(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.add<User>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
@@ -80,7 +66,7 @@ export class UsersService extends ApiService {
   }
 
   public updateUser(user: User, updateObs: boolean = true): Observable<User> {
-    return this.update<User>(this.path, user.id, this.body(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.update<User>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }

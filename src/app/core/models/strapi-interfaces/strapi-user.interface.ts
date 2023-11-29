@@ -36,9 +36,9 @@ export type StrapiRegisterResponse = StrapiLoginResponse;
 
 export interface StrapiExtendedUser {
     nickname: string,
-    name: string,
-    surname: string,
-    age: string,
+    name?: string,
+    surname?: string,
+    age?: string,
     user_id: number,
-    avatar?: StrapiResponse<StrapiMedia>
+    avatar: StrapiResponse<StrapiMedia> | null
 }

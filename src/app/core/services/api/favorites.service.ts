@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, lastValueFrom, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { AuthFacade } from '../../libs/auth/auth.facade';
-import { UserFacade } from '../../libs/load-user/load-user.facade';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +16,6 @@ export class FavoritesService extends ApiService {
   public clientFavs$: Observable<Fav[]> = this._clientFavs.asObservable();
   private queries: { [query: string]: string } = {}
   private userRole: string | null = null;
-
-  private body: any = (fav: Fav) => {
-    return {
-      data: {
-        destination: fav.destination_id,
-        client: fav.client_id
-      }
-    }
-  }
 
   constructor(
     private authFacade: AuthFacade,
@@ -62,7 +52,7 @@ export class FavoritesService extends ApiService {
   }
 
   public addFav(fav: NewFav): Observable<Fav> {
-    return this.add<Fav>(this.path, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+    return this.add<Fav>(this.path, this.mapSvc.mapFavPayload(fav), this.mapSvc.mapFav).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();
@@ -71,7 +61,7 @@ export class FavoritesService extends ApiService {
   }
 
   public updateFav(fav: Fav): Observable<Fav> {
-    return this.update<Fav>(this.path, fav.id, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+    return this.update<Fav>(this.path, fav.id, this.mapSvc.mapFavPayload(fav), this.mapSvc.mapFav).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();

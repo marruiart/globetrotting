@@ -3,6 +3,6 @@ import { StrapiResponse } from "./strapi-data.interface";
 import { StrapiDestination } from "./strapi-destination.interface";
 
 export interface StrapiFav {
-    destination: StrapiResponse<StrapiDestination>,
-    client?: StrapiResponse<StrapiClient>,
+    destination: StrapiResponse<StrapiDestination> | number,
+    client?: StrapiResponse<StrapiClient> | number,
 }

@@ -4,12 +4,12 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, FavDestination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { NewUser, PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
-import { Fav } from 'src/app/core/models/globetrotting/fav.interface';
+import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { Client, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
-import { Booking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { Booking, NewBooking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-booking.interface';
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
@@ -100,8 +100,8 @@ export class MappingStrapiService extends MappingService {
   private mapFavData = (data: StrapiData<StrapiFav>): Fav => {
     return {
       id: data.id,
-      destination_id: data.attributes.destination?.data.id,
-      client_id: data.attributes.client?.data.id
+      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data.id,
+      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data.id
     }
   }
 
@@ -110,7 +110,7 @@ export class MappingStrapiService extends MappingService {
 
   public mapFavs = (res: StrapiArrayResponse<StrapiFav>): Fav[] =>
     this.extractArrayData<Fav, StrapiFav>(res, this.mapFavData);
-    
+
   public mapClientFavs = (favs: Fav[]): FavDestination[] => favs.reduce((prev: FavDestination[], fav: Fav): FavDestination[] => {
     if (fav.destination_id) {
       prev.push({ fav_id: fav.id, destination_id: fav.destination_id });
@@ -201,6 +201,45 @@ export class MappingStrapiService extends MappingService {
         price: destination.price,
         image: undefined,
         description: destination.description
+      }
+    }
+  }
+
+  public mapFavPayload(fav: NewFav): StrapiPayload<StrapiFav> | null {
+    if (fav.destination_id && fav.client_id) {
+      return {
+        data: {
+          destination: fav.destination_id,
+          client: fav.client_id
+        }
+      }
+    } else {
+      return null
+    }
+  }
+
+  public mapExtendedUserPayload(user: NewUser): StrapiPayload<StrapiExtendedUser> {
+    return {
+      data: {
+        nickname: user.nickname,
+        name: user.name,
+        surname: user.surname,
+        age: user.age,
+        user_id: user.user_id,
+        avatar: null,
+      }
+    }
+  }
+
+  public mapBookingPayload(booking: NewBooking): StrapiPayload<StrapiBooking> {
+    return {
+      data: {
+        start: booking.start,
+        end: booking.start,
+        rating: booking.rating,
+        isActive: booking.isActive,
+        isConfirmed: booking.isConfirmed,
+        travelers: booking.travelers
       }
     }
   }

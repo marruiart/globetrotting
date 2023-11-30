@@ -2,28 +2,31 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
 import { Booking, NewBooking } from '../../models/globetrotting/booking.interface';
 import { ApiService } from './api.service';
-import { AuthFacade } from '../../libs/auth/auth.facade';
 import { MappingService } from './mapping.service';
+import { UserFacade } from '../../libs/load-user/load-user.facade';
+import { AuthFacade } from '../../libs/auth/auth.facade';
+import { Client } from '../../models/globetrotting/client.interface';
+import { Agent } from '../../models/globetrotting/agent.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingsService extends ApiService {
   private path: string = "/api/bookings";
+  private currentUser: Client | Agent | null = null;
   private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
   public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
   private queries: { [query: string]: string } = {
     "populate": "destination,client,agent"
   }
-  private userRole: string | null = null;
 
   constructor(
-    private authFacade: AuthFacade,
+    private userFacade: UserFacade,
     private mapSvc: MappingService
   ) {
     super();
-    this.authFacade.role$.subscribe(role => {
-      this.userRole = role;
+    this.userFacade.currentSpecificUser$.subscribe(specificUser => {
+      this.currentUser = specificUser;
     })
   }
 
@@ -32,31 +35,27 @@ export class BookingsService extends ApiService {
   }
 
   public getAllClientBookings(): Observable<Booking[]> {
-    return this.authFacade.userId$.pipe(concatMap(id => {
-      if (id) {
-        let _queries = JSON.parse(JSON.stringify(this.queries));
-        _queries["filters[client]"] = `${id}`;
-        return this.getAll<Booking[]>(this.path, _queries, this.mapSvc.mapBookings).pipe(tap(res => {
-          this._userBookings.next(res);
-        }));
-      } else {
-        return of([]);
-      }
-    }))
+    if (this.currentUser && this.currentUser.type == 'AUTHENTICATED') {
+      let _queries = JSON.parse(JSON.stringify(this.queries));
+      _queries["filters[client]"] = `${this.currentUser.id}`;
+      return this.getAll<Booking[]>(this.path, _queries, this.mapSvc.mapBookings).pipe(tap(res => {
+        this._userBookings.next(res);
+      }));
+    } else {
+      return of([]);
+    }
   }
 
   public getAllAgentBookings(): Observable<Booking[]> {
-    return this.authFacade.userId$.pipe(concatMap(id => {
-      if (id) {
-        let _queries = JSON.parse(JSON.stringify(this.queries));
-        _queries["filters[agent]"] = `${id}`;
-        return this.getAll<Booking[]>(this.path, _queries, this.mapSvc.mapBookings).pipe(tap(res => {
-          this._userBookings.next(res);
-        }));
-      } else {
-        return of([]);
-      }
-    }))
+    if (this.currentUser && this.currentUser.type == 'AGENT') {
+      let _queries = JSON.parse(JSON.stringify(this.queries));
+      _queries["filters[agent]"] = `${this.currentUser.id}`;
+      return this.getAll<Booking[]>(this.path, _queries, this.mapSvc.mapBookings).pipe(tap(res => {
+        this._userBookings.next(res);
+      }));
+    } else {
+      return of([]);
+    }
   }
 
   public getBooking(id: number): Observable<Booking> {
@@ -85,9 +84,9 @@ export class BookingsService extends ApiService {
   }
 
   private updateCurrentUserBookings() {
-    if (this.userRole == 'AUTHENTICATED') {
+    if (this.currentUser?.type == 'AUTHENTICATED') {
       this.getAllClientBookings().subscribe();
-    } else if (this.userRole == 'ADMIN' || this.userRole == 'AGENT') {
+    } else if (this.currentUser?.type == 'AGENT') {
       this.getAllAgentBookings().subscribe();
     }
   }

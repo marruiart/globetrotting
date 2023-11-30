@@ -38,6 +38,10 @@ export class UsersService extends ApiService {
     return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
   }
 
+  public getAgent(id: number | null): Observable<User | null> {
+    return this.extendedMe(id);
+  }
+
   public extendedMe(id: number | null): Observable<User | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));

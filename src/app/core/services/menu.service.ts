@@ -29,7 +29,7 @@ export class MenuService {
       {
         label: 'Gestionar reservas',
         icon: 'custom-icon calendar-outline',
-        routerLink: ['/profile']
+        routerLink: ['/bookings']
       },
       {
         label: 'Gestionar destinos',
@@ -90,7 +90,7 @@ export class MenuService {
       {
         label: 'Mis reservas',
         icon: 'custom-icon calendar-outline',
-        routerLink: ['/profile']
+        routerLink: ['/bookings']
       },
       this.userProfileItem.items[1]
     ],

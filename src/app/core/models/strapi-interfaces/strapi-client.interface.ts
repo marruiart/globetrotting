@@ -1,5 +1,5 @@
 import { StrapiBooking } from "./strapi-booking.interface";
-import { StrapiArrayResponse, StrapiData } from "./strapi-data.interface";
+import { StrapiArrayResponse, StrapiResponse } from "./strapi-data.interface";
 import { StrapiFav } from "./strapi-fav.interface";
 import { StrapiDataUser } from "./strapi-user.interface";
 
@@ -9,5 +9,8 @@ import { StrapiDataUser } from "./strapi-user.interface";
 export interface StrapiClient {
     bookings: StrapiArrayResponse<StrapiBooking>,
     favorites: StrapiArrayResponse<StrapiFav>,
-    user_id?: StrapiData<StrapiDataUser>
+    /**
+    * Strapi user data as a response or user id (number) as payload 
+    */
+    user: StrapiResponse<StrapiDataUser> | number
 }

@@ -3,6 +3,7 @@ import { PaginatedData } from "./pagination-data.interface";
 
 export interface Client extends NewClient {
     id: number,
+    user_id: number,
     type: 'AUTHENTICATED'
 }
 

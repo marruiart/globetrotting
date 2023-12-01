@@ -19,7 +19,7 @@ export class UsersService extends ApiService {
   public extendedMe$: Observable<User | null> = this._extendedMe.asObservable();
   public jwt: string = "";
   private queries: { [query: string]: string } = {
-    "populate": "avatar"
+    "populate": "avatar,user"
   }
 
   constructor(
@@ -42,10 +42,14 @@ export class UsersService extends ApiService {
     return this.extendedMe(id);
   }
 
+  public getClientUser(id: number | null): Observable<User | null> {
+    return this.extendedMe(id);
+  }
+
   public extendedMe(id: number | null): Observable<User | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
-      _queries["filters[user_id]"] = `${id}`;
+      _queries["filters[user]"] = `${id}`;
       return this.getAll<PaginatedData<any>>(this.path, _queries, this.mapSvc.mapPaginatedUsers)
         .pipe(map(res => {
           if (res.data.length > 0) {

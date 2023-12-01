@@ -39,6 +39,9 @@ export interface StrapiExtendedUser {
     name?: string,
     surname?: string,
     age?: string,
-    user_id: number,
+    /**
+    * Strapi user data as a response or user id (number) as payload 
+    */
+    user: StrapiResponse<StrapiUser> | number,
     avatar: StrapiResponse<StrapiMedia> | null
 }

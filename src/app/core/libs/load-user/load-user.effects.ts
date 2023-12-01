@@ -5,7 +5,7 @@ import * as UserActions from './load-user.actions'
 import { Observable, catchError, map, of, switchMap, tap } from "rxjs";
 import { ClientService } from "../../services/api/client.service";
 import { AgentService } from "../../services/api/agent.service";
-import { Agent } from "../../models/globetrotting/agent.interface";
+import { TravelAgent } from "../../models/globetrotting/agent.interface";
 import { Client } from "../../models/globetrotting/client.interface";
 import { UsersService } from "../../services/api/users.service";
 import { User } from "../../models/globetrotting/user.interface";
@@ -57,7 +57,7 @@ export class UserEffects {
         this.actions$.pipe(
             ofType(UserActions.loadSpecificUser),
             switchMap((props) => {
-                let user: Agent | Client | null = null;
+                let user: TravelAgent | Client | null = null;
                 let specificUser$: Observable<any>;
                 const role = props.role;
                 const user_id = props.user_id;
@@ -65,7 +65,7 @@ export class UserEffects {
                     case 'AGENT':
                     case 'ADMIN':
                         specificUser$ = this.agentSvc.agentMe(user_id).pipe(
-                            tap((agent: Agent | null) => {
+                            tap((agent: TravelAgent | null) => {
                                 if (agent) {
                                     user = agent;
                                 } else {

@@ -3,13 +3,13 @@ import * as UserActions from './load-user.actions';
 import * as AuthActions from '../auth/auth.actions';
 import { Client } from '../../models/globetrotting/client.interface';
 import { User } from '../../models/globetrotting/user.interface';
-import { Agent } from '../../models/globetrotting/agent.interface';
+import { TravelAgent } from '../../models/globetrotting/agent.interface';
 
 export const USER_FEATURE_KEY = 'user'
 
 export interface UserState {
     extendedUser: User | null,
-    specificUser: Client | Agent | null
+    specificUser: Client | TravelAgent | null
 }
 
 export const initialState: UserState = {

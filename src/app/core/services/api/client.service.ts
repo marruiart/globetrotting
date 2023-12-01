@@ -11,7 +11,7 @@ import { UserFacade } from '../../libs/load-user/load-user.facade';
 export class ClientService extends ApiService {
   private path: string = "/api/clients";
   private queries: { [query: string]: string } = {
-    "populate": "bookings,favorites.destination"
+    "populate": "bookings,favorites.destination,user"
   }
 
   private _clientsPage: BehaviorSubject<PaginatedClient | null> = new BehaviorSubject<PaginatedClient | null>(null);
@@ -65,7 +65,7 @@ export class ClientService extends ApiService {
   public clientMe(id: number | null): Observable<Client | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
-      _queries["filters[user_id]"] = `${id}`;
+      _queries["filters[user]"] = `${id}`;
       return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {

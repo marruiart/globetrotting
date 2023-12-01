@@ -7,5 +7,8 @@ import { StrapiDataUser } from "./strapi-user.interface";
  */
 export interface StrapiAgent {
     bookings: StrapiArrayResponse<StrapiBooking>,
-    user: StrapiResponse<StrapiDataUser>
+    /**
+    * Strapi user data as a response or user id (number) as payload 
+    */
+    user: StrapiResponse<StrapiDataUser> | number
 }

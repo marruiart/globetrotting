@@ -5,7 +5,7 @@ import { Media } from '../../models/globetrotting/media.interface';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, ClientFavDestination, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { Agent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
+import { TravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export abstract class MappingService {
   public abstract mapClient(res: any): Client
   public abstract mapPaginatedClients(res: any): PaginatedClient
 
-  public abstract mapAgent(res: any): Agent
+  public abstract mapAgent(res: any): TravelAgent
   public abstract mapPaginatedAgents(res: any): PaginatedAgent
 
   public abstract mapBooking(res: any): Booking

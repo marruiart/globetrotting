@@ -29,4 +29,8 @@ export class SubscriptionsService {
       }
     })
   }
+
+  public addSubscription(subs: Sub) {
+    this.addSubscriptions([subs]);
+  }
 }

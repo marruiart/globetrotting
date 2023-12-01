@@ -1,4 +1,4 @@
-import { Agent } from "./agent.interface"
+import { TravelAgent } from "./agent.interface"
 import { Client } from "./client.interface"
 import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
@@ -45,5 +45,5 @@ export interface UserRegisterInfo {
 
 export interface CurrentUser {
     extendedUser: User | null
-    specificUser: Client | Agent | null
+    specificUser: Client | TravelAgent | null
 }

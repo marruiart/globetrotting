@@ -38,7 +38,7 @@ export class UsersService extends ApiService {
     return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
   }
 
-  public getAgent(id: number | null): Observable<User | null> {
+  public getAgentUser(id: number | null): Observable<User | null> {
     return this.extendedMe(id);
   }
 

@@ -2,7 +2,7 @@
 <main>
   <p-table
     [columns]="cols"
-    [value]="data"
+    [value]="(bookingTable$ | async) ?? []"
     [tableStyle]="{ 'min-width': '50rem' }"
   >
     <ng-template pTemplate="header" let-columns>

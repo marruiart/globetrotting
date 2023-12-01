@@ -15,7 +15,9 @@ export class AgentService extends ApiService {
   public page$: Observable<PaginatedAgent | null> = this._page.asObservable();
   private _agents: BehaviorSubject<Agent[]> = new BehaviorSubject<Agent[]>([]);
   public agents$: Observable<Agent[]> = this._agents.asObservable();
-  private queries: { [query: string]: string } = {}
+  private queries: { [query: string]: string } = {
+    "populate": "bookings,user"
+  }
 
   private body: any = (agent: Agent) => {
     return {

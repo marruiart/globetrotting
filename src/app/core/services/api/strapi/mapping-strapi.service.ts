@@ -143,8 +143,9 @@ export class MappingStrapiService extends MappingService {
   private mapAgentData = (data: StrapiData<StrapiAgent>): Agent => {
     return {
       id: data.id,
+      user_id: data.attributes.user.data.id,
       type: 'AGENT',
-      bookings: this.mapBookings(data.attributes.bookings)
+      bookings: this.mapBookings(data.attributes.bookings ?? [])
     }
   }
 
@@ -180,12 +181,12 @@ export class MappingStrapiService extends MappingService {
   public mapBookings = (res: StrapiArrayResponse<StrapiBooking>): Booking[] =>
     this.extractArrayData<Booking, StrapiBooking>(res, this.mapBookingData);
 
-    public mapClientBookings = (bookings: Booking[]): ClientBooking[] => bookings.reduce((prev: ClientBooking[], booking: Booking): ClientBooking[] => {
-      if (booking.id) {
-        prev.push({ booking_id: booking.id });
-      }
-      return prev;
-    }, [])
+  public mapClientBookings = (bookings: Booking[]): ClientBooking[] => bookings.reduce((prev: ClientBooking[], booking: Booking): ClientBooking[] => {
+    if (booking.id) {
+      prev.push({ booking_id: booking.id });
+    }
+    return prev;
+  }, [])
 
   // MEDIA
 

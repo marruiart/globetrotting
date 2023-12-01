@@ -3,6 +3,7 @@ import { PaginatedData } from "./pagination-data.interface";
 
 export interface Agent extends NewAgent {
     id: number,
+    user_id: number,
     type: 'AGENT'
 }
 

@@ -10,6 +10,8 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.i
 })
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
+  private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
+  private queries: { [query: string]: string } = { "populate": "image" }
 
   private endOfData = false;
   public itemsCount: number = 0;
@@ -19,8 +21,6 @@ export class DestinationsService extends ApiService {
   private _destinations = new BehaviorSubject<Destination[]>([]);
   public destinations$: Observable<Destination[]> = this._destinations.asObservable();
 
-  private queries: { [query: string]: string } = { "populate": "image" }
-  private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
 
   constructor(
     private mapSvc: MappingService

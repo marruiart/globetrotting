@@ -2,12 +2,12 @@ import { Booking } from "./booking.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
 export interface Client extends NewClient {
-    id: number,
-    user_id: number,
-    type: 'AUTHENTICATED'
+    id: number
 }
 
 export interface NewClient {
+    type: 'AUTHENTICATED',
+    user_id: number,
     bookings: ClientBooking[],
     favorites: ClientFavDestination[]
 }

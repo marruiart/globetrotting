@@ -7,7 +7,6 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ApiService } from './core/services/api/api.service';
 import { AuthServiceFactory } from './core/factories/auth-service.factory';
 import { AuthService } from './core/services/auth/auth.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -16,7 +15,6 @@ import { HttpService } from './core/services/http/http.service';
 
 import { MappingService } from './core/services/api/mapping.service';
 import { MappingServiceFactory } from './core/factories/mapping-service.factory';
-import { JwtService } from './core/services/auth/jwt.service';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/libs/auth/auth.module';
@@ -58,7 +56,7 @@ import { UserModule } from './core/libs/load-user/load-user.module';
     },
     {
       provide: AuthService,
-      deps: ['backend', ApiService, JwtService],
+      deps: ['backend'],
       useFactory: AuthServiceFactory
     }
   ],

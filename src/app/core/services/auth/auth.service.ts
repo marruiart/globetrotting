@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
+import { ApiService } from '../api/api.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export abstract class AuthService {
+export abstract class AuthService extends ApiService {
 
   protected _isLogged = new BehaviorSubject<boolean>(false);
   public isLogged$ = this._isLogged.asObservable();

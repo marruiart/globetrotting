@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { TravelAgent, NewAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
+import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { UserFacade } from '../../libs/load-user/load-user.facade';
 
 @Injectable({
@@ -18,14 +18,7 @@ export class AgentService extends ApiService {
   private queries: { [query: string]: string } = {
     "populate": "bookings,user"
   }
-
-  private body: any = (agent: TravelAgent) => {
-    return {
-      data: {
-        bookings: agent.bookings
-      }
-    }
-  }
+  private body = (agent: NewTravelAgent) => this.mapSvc.mapAgentPayload(agent);
 
   constructor(
     private mapSvc: MappingService,
@@ -80,7 +73,7 @@ export class AgentService extends ApiService {
     return this.get<TravelAgent>(this.path, id, this.mapSvc.mapAgent, this.queries);
   }
 
-  public addAgent(agent: NewAgent, updateObs: boolean = true): Observable<TravelAgent> {
+  public addAgent(agent: NewTravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
     return this.add<TravelAgent>(this.path, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
         this.getAllAgents().subscribe();

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
@@ -10,6 +10,7 @@ import { UserFacade } from '../../libs/load-user/load-user.facade';
 })
 export class ClientService extends ApiService {
   private path: string = "/api/clients";
+  private body = (client: NewClient) => this.mapSvc.mapClientPayload(client);
   private queries: { [query: string]: string } = {
     "populate": "bookings,favorites.destination,user"
   }
@@ -18,15 +19,6 @@ export class ClientService extends ApiService {
   public clientsPage$: Observable<PaginatedClient | null> = this._clientsPage.asObservable();
   private _clients: BehaviorSubject<Client[]> = new BehaviorSubject<Client[]>([]);
   public clients$: Observable<Client[]> = this._clients.asObservable();
-
-  private body: any = (client: Client) => {
-    return {
-      data: {
-        bookings: client.bookings,
-        favorites: client.favorites
-      }
-    }
-  }
 
   constructor(
     private mapSvc: MappingService,
@@ -55,7 +47,7 @@ export class ClientService extends ApiService {
           this._clients.next(_clients);
           this._clientsPage.next(page);
         }
-      }));
+      }), catchError(() => throwError(() => 'No se han podido obtener los clientes')));
   }
 
   public getNextClientsPage(): Observable<PaginatedClient | null> {
@@ -75,35 +67,39 @@ export class ClientService extends ApiService {
           } else {
             return null;
           }
-        }))
+        }), catchError(() => throwError(() => 'No se ha podido obtener tu cliente')))
     } else {
       return of(null);
     }
   }
 
   public getClient(id: number): Observable<Client> {
-    return this.get<Client>(this.path, id, this.mapSvc.mapClient, this.queries);
+    return this.get<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
+      .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
-    return this.add<Client>(this.path, this.body(client), this.mapSvc.mapClient).pipe(tap(_ => {
-      if (updateObs) {
-        this.getAllClients().subscribe();
-      }
-    }));
+    return this.add<Client>(this.path, this.body(client), this.mapSvc.mapClient)
+      .pipe(tap(_ => {
+        if (updateObs) {
+          this.getAllClients().subscribe();
+        }
+      }), catchError(() => throwError(() => 'No se ha podido añadir al cliente')));
   }
 
   public updateClient(client: Client, updateObs: boolean = true): Observable<Client> {
-    return this.update<Client>(this.path, client.id, this.body(client), this.mapSvc.mapClient).pipe(tap(_ => {
-      if (updateObs) {
-        this.getAllClients().subscribe();
-      }
-    }));
+    return this.update<Client>(this.path, client.id, this.body(client), this.mapSvc.mapClient)
+      .pipe(tap(_ => {
+        if (updateObs) {
+          this.getAllClients().subscribe();
+        }
+      }), catchError(() => throwError(() => 'No se ha podido modificar el cliente')));
   }
 
   public deleteClient(id: number): Observable<Client> {
-    return this.delete<Client>(this.path, this.mapSvc.mapClient, id).pipe(tap(_ => {
-      this.getAllClients().subscribe();
-    }));;
+    return this.delete<Client>(this.path, this.mapSvc.mapClient, id)
+      .pipe(tap(_ => {
+        this.getAllClients().subscribe();
+      }), catchError(() => throwError(() => 'No se ha podido eliminar al cliente')));
   }
 }

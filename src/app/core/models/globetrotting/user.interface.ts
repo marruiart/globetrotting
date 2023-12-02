@@ -12,7 +12,7 @@ export interface NewUser {
     name?: string,
     surname?: string,
     age?: string,
-    user_id: number
+    user_id?: number
 }
 
 /* interface Media {

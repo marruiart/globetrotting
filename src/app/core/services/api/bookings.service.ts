@@ -12,12 +12,14 @@ import { TravelAgent } from '../../models/globetrotting/agent.interface';
 })
 export class BookingsService extends ApiService {
   private path: string = "/api/bookings";
-  private currentUser: Client | TravelAgent | null = null;
-  private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
-  public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
+  private body = (booking: NewBooking) => this.mapSvc.mapBookingPayload(booking);
   private queries: { [query: string]: string } = {
     "populate": "destination,client,agent"
   }
+  
+  private currentUser: Client | TravelAgent | null = null;
+  private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
+  public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
 
   constructor(
     private userFacade: UserFacade,
@@ -53,21 +55,21 @@ export class BookingsService extends ApiService {
   }
 
   public addBooking(fav: NewBooking): Observable<Booking> {
-    return this.add<Booking>(this.path, this.mapSvc.mapBookingPayload(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
+    return this.add<Booking>(this.path, this.body(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));
   }
 
   public updateBooking(fav: Booking): Observable<Booking> {
-    return this.update<Booking>(this.path, fav.id, this.mapSvc.mapBookingPayload(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
+    return this.update<Booking>(this.path, fav.id, this.body(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));
   }
 
   public deleteBooking(id: number): Observable<Booking> {
-    return this.delete<Booking>(this.path, this.mapSvc.mapBookingPayload, id).pipe(tap(_ => {
+    return this.delete<Booking>(this.path, this.mapSvc.mapBooking, id).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));;

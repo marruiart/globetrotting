@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { NewUser, User } from '../../models/globetrotting/user.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
@@ -31,11 +31,12 @@ export class UsersService extends ApiService {
   public getAllUsers(): Observable<User[]> {
     return this.getAll<User[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
-    }));
+    }), catchError(() => throwError(() => 'No se han podido obtener los usuarios')));
   }
 
   public getUser(id: number): Observable<User> {
-    return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries);
+    return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries)
+      .pipe(catchError(() => throwError(() => 'No se ha podido obtener el usuario')));
   }
 
   public getAgentUser(id: number | null): Observable<User | null> {
@@ -59,18 +60,18 @@ export class UsersService extends ApiService {
           } else {
             return null;
           }
-        }))
+        }), catchError(() => throwError(() => 'No se ha podido obtener el usuario')))
     } else {
       return of(null);
     }
   }
 
-  public addUser(user: User | NewUser, updateObs: boolean = true): Observable<User> {
+  public addUser(user: NewUser, updateObs: boolean = true): Observable<User> {
     return this.add<User>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }));
+    }), catchError(() => throwError(() => 'No se ha podido añadir al usuario')));
   }
 
   public updateUser(user: User, updateObs: boolean = true): Observable<User> {
@@ -78,13 +79,13 @@ export class UsersService extends ApiService {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }));
+    }), catchError(() => throwError(() => 'No se ha podido modificar el usuario')));
   }
 
   public deleteUser(id: number): Observable<User> {
     return this.delete<User>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
       this.getAllUsers().subscribe();
-    }));;
+    }), catchError(() => throwError(() => 'No se ha podido eliminar al usuario')));
   }
 
 }

@@ -10,6 +10,9 @@ import { AuthFacade } from '../../libs/auth/auth.facade';
 })
 export class FavoritesService extends ApiService {
   private path: string = "/api/favorites";
+  private favsBody = (favs: NewFav[]) => this.mapSvc.mapFavs(favs);
+  private favBody = (fav: NewFav) => this.mapSvc.mapFav(fav);
+
   private _favs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
   public favs$: Observable<Fav[]> = this._favs.asObservable();
   private _clientFavs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
@@ -28,7 +31,7 @@ export class FavoritesService extends ApiService {
   }
 
   public getAllFavs(): Observable<Fav[]> {
-    return this.getAll<Fav[]>(this.path, this.queries, this.mapSvc.mapFavs).pipe(tap(res => {
+    return this.getAll<Fav[]>(this.path, this.queries, this.favsBody).pipe(tap(res => {
       this._favs.next(res);
     }));
   }
@@ -38,7 +41,7 @@ export class FavoritesService extends ApiService {
       if (id) {
         let _queries = JSON.parse(JSON.stringify(this.queries));
         _queries["filters[client]"] = `${id}`;
-        return this.getAll<Fav[]>(this.path, _queries, this.mapSvc.mapFavs).pipe(tap(res => {
+        return this.getAll<Fav[]>(this.path, _queries, this.favsBody).pipe(tap(res => {
           this._clientFavs.next(res);
         }));
       } else {
@@ -48,11 +51,11 @@ export class FavoritesService extends ApiService {
   }
 
   public getFav(id: number): Observable<Fav> {
-    return this.get<Fav>(this.path, id, this.mapSvc.mapFav, this.queries);
+    return this.get<Fav>(this.path, id, this.favBody, this.queries);
   }
 
   public addFav(fav: NewFav): Observable<Fav> {
-    return this.add<Fav>(this.path, this.mapSvc.mapFavPayload(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+    return this.add<Fav>(this.path, this.favBody(fav), this.favBody).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();
@@ -61,7 +64,7 @@ export class FavoritesService extends ApiService {
   }
 
   public updateFav(fav: Fav): Observable<Fav> {
-    return this.update<Fav>(this.path, fav.id, this.mapSvc.mapFavPayload(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+    return this.update<Fav>(this.path, fav.id, this.favBody(fav), this.favBody).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();
@@ -70,12 +73,12 @@ export class FavoritesService extends ApiService {
   }
 
   public deleteFav(id: number): Observable<Fav> {
-    return this.delete<Fav>(this.path, this.mapSvc.mapFav, id).pipe(tap(_ => {
+    return this.delete<Fav>(this.path, this.favBody, id).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();
       }
-    }));;
+    }));
   }
 
 }

@@ -8,13 +8,13 @@ import { NewUser, PaginatedUser, User } from 'src/app/core/models/globetrotting/
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { Client, ClientBooking, ClientFavDestination, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
+import { Client, ClientBooking, ClientFavDestination, NewClient, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
 import { Booking, NewBooking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-booking.interface';
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
-import { TravelAgent, PaginatedAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { TravelAgent, PaginatedAgent, NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 
 export class MappingStrapiService extends MappingService {
 
@@ -33,13 +33,17 @@ export class MappingStrapiService extends MappingService {
   /**
    * Receives a generic strapi array response and a callback and returns an array of objects mapped for this application use.
    */
-  private extractArrayData<T, S>(res: StrapiArrayResponse<S>, callback: (data: StrapiData<S>) => T): T[] {
-    return Array.from(res.data)
-      .reduce((prev: T[], data: StrapiData<S>): T[] => {
-        let _mappedData: T = callback(data);
-        prev.push(_mappedData);
-        return prev;
-      }, []);
+  private extractArrayData<T, S>(res: StrapiArrayResponse<S> | undefined, callback: (data: StrapiData<S>) => T): T[] {
+    if (res?.data) {
+      return Array.from(res?.data)
+        .reduce((prev: T[], data: StrapiData<S>): T[] => {
+          let _mappedData: T = callback(data);
+          prev.push(_mappedData);
+          return prev;
+        }, []);
+    } else {
+      return [];
+    }
   }
 
   private mapPagination(res: StrapiArrayResponse<any>) {
@@ -78,6 +82,10 @@ export class MappingStrapiService extends MappingService {
   // USERS
 
   private mapUserData = (data: StrapiData<StrapiExtendedUser>): User => {
+    const user_id = (data.attributes.user as StrapiResponse<StrapiUser>)?.data?.id ?? null;
+    if (!user_id) {
+      console.info(`Usuario con id ${data.id} no asociado a un user_id`);
+    }
     return {
       id: data.id,
       avatar: data.attributes.avatar ? this.mapImage(data.attributes.avatar) : undefined,
@@ -85,7 +93,7 @@ export class MappingStrapiService extends MappingService {
       name: data.attributes.name,
       surname: data.attributes.surname,
       age: data.attributes.age,
-      user_id: (data.attributes.user as StrapiResponse<StrapiUser>).data.id,
+      user_id: user_id,
     }
   }
 
@@ -111,7 +119,7 @@ export class MappingStrapiService extends MappingService {
   public mapFav = (res: StrapiResponse<StrapiFav>): Fav =>
     this.mapFavData(res.data);
 
-  public mapFavs = (res: StrapiArrayResponse<StrapiFav>): Fav[] =>
+  public mapFavs = (res?: StrapiArrayResponse<StrapiFav>): Fav[] =>
     this.extractArrayData<Fav, StrapiFav>(res, this.mapFavData);
 
   public mapClientFavs = (favs: Fav[]): ClientFavDestination[] => favs.reduce((prev: ClientFavDestination[], fav: Fav): ClientFavDestination[] => {
@@ -126,7 +134,7 @@ export class MappingStrapiService extends MappingService {
   private mapClientData = (data: StrapiData<StrapiClient>): Client => {
     return {
       id: data.id,
-      user_id: (data.attributes.user as StrapiResponse<StrapiUser>)?.data.id,
+      user_id: (data.attributes.user as StrapiResponse<StrapiUser>)?.data?.id,
       type: 'AUTHENTICATED',
       bookings: this.mapClientBookings(this.mapBookings(data.attributes.bookings)),
       favorites: this.mapClientFavs(this.mapFavs(data.attributes.favorites))
@@ -146,7 +154,7 @@ export class MappingStrapiService extends MappingService {
       id: data.id,
       user_id: (data.attributes.user as StrapiResponse<StrapiUser>).data.id,
       type: 'AGENT',
-      bookings: this.mapBookings(data.attributes.bookings ?? [])
+      bookings: this.mapBookings(data.attributes.bookings)
     }
   }
 
@@ -179,7 +187,7 @@ export class MappingStrapiService extends MappingService {
   public mapPaginatedBookings = (res: StrapiArrayResponse<StrapiBooking>): PaginatedBooking =>
     this.extractPaginatedData<Booking, StrapiBooking>(res, this.mapBookingData);
 
-  public mapBookings = (res: StrapiArrayResponse<StrapiBooking>): Booking[] =>
+  public mapBookings = (res?: StrapiArrayResponse<StrapiBooking>): Booking[] =>
     this.extractArrayData<Booking, StrapiBooking>(res, this.mapBookingData);
 
   public mapClientBookings = (bookings: Booking[]): ClientBooking[] => bookings.reduce((prev: ClientBooking[], booking: Booking): ClientBooking[] => {
@@ -242,6 +250,22 @@ export class MappingStrapiService extends MappingService {
         age: user.age,
         user: user.user_id,
         avatar: null,
+      }
+    }
+  }
+
+  public mapClientPayload(client: NewClient): StrapiPayload<StrapiClient> {
+    return {
+      data: {
+        user: client.user_id
+      }
+    }
+  }
+
+  public mapAgentPayload(agent: NewTravelAgent): StrapiPayload<StrapiAgent> {
+    return {
+      data: {
+        user: agent.user_id
       }
     }
   }

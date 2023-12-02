@@ -1,13 +1,13 @@
 import { Booking } from "./booking.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
-export interface TravelAgent extends NewAgent {
-    id: number,
-    user_id: number,
-    type: 'AGENT'
+export interface TravelAgent extends NewTravelAgent {
+    id: number
 }
 
-export interface NewAgent {
+export interface NewTravelAgent {
+    type: 'AGENT',
+    user_id: number,
     bookings: Booking[]
 }
 

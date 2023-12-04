@@ -14,6 +14,17 @@
   .p-virtualscroller-list::-webkit-scrollbar {
     display: none;
   }
+  
+  .booking-form {
+    height: fit-content;
+    width: fit-content;
+  }
+
+  .p-dialog-content.booking-form-content {
+    overflow: visible;
+    height: fit-content;
+    width: fit-content;
+  }
 
 /*   .p-scroller-content {
     display: flex;
@@ -21,3 +32,4 @@
     justify-content: space-between;
   }  */
 }
+

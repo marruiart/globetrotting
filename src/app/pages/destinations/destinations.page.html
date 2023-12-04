@@ -14,7 +14,7 @@
         [isClient]="(role === 'AUTHENTICATED')"
         class="flex-item"
         (onFavClicked)="onFavClicked(destination, $event)"
-        (onCreateBookingClicked)="onCreateBookingClicked(destination)"
+        (onBookNowClicked)="showBookingForm(destination)"
       />
     </ng-template>
     <ng-template let-destination pTemplate="loadingItem">
@@ -25,3 +25,18 @@
   </p-virtualScroller>
 </main>
 <app-footer></app-footer>
+
+<p-dialog
+  header="Header"
+  [draggable]="false"
+  [resizable]="false"
+  [(visible)]="showDialog"
+  [modal]="true"
+  [blockScroll]="true"
+  [dismissableMask]="true"
+  styleClass="booking-form"
+  contentStyleClass="booking-form-content"
+  (onShow)="saveDestination()"
+>
+  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" />
+</p-dialog>

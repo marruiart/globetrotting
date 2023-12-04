@@ -1,0 +1,31 @@
+form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+::ng-deep {
+  .calendar {
+    width: 45ch;
+  }
+
+  .p-inputnumber-input.travelers-input {
+    border-radius: 10px !important;
+    width: 7ch;
+    text-align: center;
+  }
+
+  .input-button {
+    border-radius: 100% !important;
+    background-color: var(--primary);
+    color: var(--color);
+
+    &:first-of-type {
+      margin-left: 1rem;
+    }
+
+    &:last-of-type {
+      margin-right: 1rem;
+    }
+  }
+}

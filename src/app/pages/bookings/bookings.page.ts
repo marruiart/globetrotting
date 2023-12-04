@@ -15,8 +15,8 @@ import { SubscriptionsService } from 'src/app/core/services/subscriptions.servic
 
 interface TableRow {
   destination: string,
-  start: string,
-  end: string,
+  start: string | null,
+  end: string | null,
   travelers: number
 }
 

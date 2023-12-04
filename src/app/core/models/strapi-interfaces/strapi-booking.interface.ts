@@ -7,8 +7,8 @@ import { StrapiDestination } from "./strapi-destination.interface";
  * Strapi booking response interface
  */
 export interface StrapiBooking {
-    start: string,
-    end: string,
+    start: string | null,
+    end: string | null,
     rating?: number,
     isActive?: boolean,
     isConfirmed?: boolean,

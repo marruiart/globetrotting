@@ -1,0 +1,36 @@
+<form [formGroup]="form" (ngSubmit)="onAccept($event)">
+  <span class="p-float-label">
+    <input type="hidden" formControlName="id" />
+    <input formControlName="name" pInputText id="name" />
+    <label htmlFor="name">Lugar de destino</label>
+  </span>
+  <span class="p-float-label">
+    <input formControlName="type" pInputText id="type" />
+    <label htmlFor="type">Tipo de destino</label>
+  </span>
+  <span class="p-float-label">
+    <input formControlName="dimension" pInputText id="dimension" />
+    <label htmlFor="dimension">Dimensión del destino</label>
+  </span>
+  <span class="p-float-label">
+    <p-inputNumber
+      formControlName="price"
+      mode="currency"
+      id="price"
+      currency="EUR"
+      locale="es-ES"
+    />
+    <label htmlFor="price">Precio/noche/persona</label>
+  </span>
+  <span class="p-float-label">
+    <input
+      formControlName="description"
+      rows="5"
+      cols="30"
+      pInputTextarea
+      id="description"
+    />
+    <label htmlFor="description">Descripción</label>
+  </span>
+  <p-button type="submit">Aceptar</p-button>
+</form>

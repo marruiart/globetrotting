@@ -11,6 +11,7 @@ import { AuthModule } from '../core/libs/auth/auth.module';
 import { FavPipe } from './pipes/fav.pipe';
 import { UserModule } from '../core/libs/load-user/load-user.module';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
+import { DestinationFormComponent } from './components/destination-form/destination-form.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { BookingFormComponent } from './components/booking-form/booking-form.com
     FooterComponent,
     DestinationCardComponent,
     BookingFormComponent,
+    DestinationFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe
@@ -43,6 +45,7 @@ import { BookingFormComponent } from './components/booking-form/booking-form.com
     FooterComponent,
     DestinationCardComponent,
     BookingFormComponent,
+    DestinationFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

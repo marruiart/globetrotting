@@ -24,9 +24,11 @@ interface TableRow {
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage implements OnInit {
+  public selectedDestination: Destination | null = null;
   public currentUser: Client | TravelAgent | null = null;
   private mappedDestinations: TableRow[] = [];
   private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
+  public showEditForm: boolean = false;
   public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
   public data: TableRow[] = [];
   public cols: any[] = [];
@@ -81,17 +83,19 @@ export class DestinationsManagementPage implements OnInit {
     this.mappedDestinations.push(clientTableRow);
   }
 
+  public showDestinationForm(destination: Destination) {
+    this.selectedDestination = destination;
+    this.showEditForm = true;
+  }
+
+  private hideDestinationForm() {
+    this.showEditForm = false;
+  }
+
   public editDestination(destination: Destination) {
-    let _destination: Destination = {
-      id: destination.id,
-      name: destination.name,
-      type: destination.type,
-      dimension: destination.dimension,
-      price: destination.price,
-      description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae officia ex nulla itaque fuga, pariatur aspernatur alias laudantium iusto debitis voluptate porro nihil. Necessitatibus incidunt eveniet est, hic saepe recusandae?"
-    }
-    lastValueFrom(this.destinationsSvc.updateDestination(_destination))
+    lastValueFrom(this.destinationsSvc.updateDestination(destination))
       .catch(err => console.error(err));
+    this.hideDestinationForm();
   }
 
   private deleteDestination(id: number) {
@@ -99,7 +103,7 @@ export class DestinationsManagementPage implements OnInit {
       .catch(err => console.error(err));
   }
 
-  confirmDialog(id: number) {
+  showConfirmDialog(id: number) {
     this.confirmationService.confirm({
       message: '¿Desea eliminar el destino?',
       header: 'Confirmación',

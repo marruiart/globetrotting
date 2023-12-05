@@ -175,8 +175,8 @@ export class MappingStrapiService extends MappingService {
       isActive: data.attributes.isActive,
       isConfirmed: data.attributes.isConfirmed,
       travelers: data.attributes.travelers,
-      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data.id,
-      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data.id,
+      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data?.id,
+      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data?.id,
       agent_id: (data.attributes.agent as StrapiResponse<StrapiAgent>)?.data?.id
     }
   }

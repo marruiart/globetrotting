@@ -19,6 +19,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/libs/auth/auth.module';
 import { UserModule } from './core/libs/load-user/load-user.module';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { UserModule } from './core/libs/load-user/load-user.module';
     UserModule
   ],
   providers: [
+    DatePipe,
     {
       provide: 'backend',
       useValue: 'Strapi'

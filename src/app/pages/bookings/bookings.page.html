@@ -1,37 +1,49 @@
-<app-header></app-header>
-<main>
-  <p-table
-    [columns]="cols"
-    [value]="(bookingTable$ | async) ?? []"
-    [tableStyle]="{ 'min-width': '50rem' }"
-  >
-    <ng-template pTemplate="header" let-columns>
-      <tr>
-        <th *ngFor="let col of columns">{{ col.header }}</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-rowData let-columns="columns">
-      <tr>
-        <td *ngFor="let col of columns">
-          <ng-container *ngIf="col.field === 'isConfirmed'; else otherColumns">
-            <p-tag
-              *ngIf="rowData[col.field]"
-              value="CONFIRMADO"
-              severity="success"
-              [rounded]="true"
-              icon="pi pi-check"
-            ></p-tag>
-            <p-tag
-              *ngIf="!rowData[col.field]"
-              value="SIN CONFIRMAR"
-              severity="danger"
-              [rounded]="true"
-            ></p-tag>
-          </ng-container>
-          <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</main>
-<app-footer></app-footer>
+<ion-content>
+  <app-header></app-header>
+  <main>
+    <p-table
+      [columns]="cols"
+      [value]="(bookingTable$ | async) ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            <!-- If is isConfirmed column, display a tag content -->
+            <ng-container
+              *ngIf="col.field === 'isConfirmed'; else otherColumns"
+            >
+              <p-tag
+                *ngIf="rowData[col.field]"
+                value="CONFIRMADO"
+                severity="success"
+                [rounded]="true"
+                icon="pi pi-check"
+              ></p-tag>
+              <p-tag
+                *ngIf="!rowData[col.field] && currentUser?.type == 'AUTHENTICATED'"
+                value="SIN CONFIRMAR"
+                severity="danger"
+                [rounded]="true"
+              ></p-tag>
+              <p-button
+                *ngIf="!rowData[col.field] && currentUser?.type == 'AGENT'"
+                label="CONFIRMAR"
+                styleClass="p-button-danger p-button-rounded"
+                (click)="confirmBook(rowData.booking_id)"
+              ></p-button>
+            </ng-container>
+            <!-- Otherwise, display the content of the field -->
+            <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </main>
+  <app-footer></app-footer>
+</ion-content>

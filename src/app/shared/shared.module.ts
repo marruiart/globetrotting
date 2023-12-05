@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -10,6 +10,7 @@ import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
 import { AuthModule } from '../core/libs/auth/auth.module';
 import { FavPipe } from './pipes/fav.pipe';
 import { UserModule } from '../core/libs/load-user/load-user.module';
+import { BookingFormComponent } from './components/booking-form/booking-form.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { UserModule } from '../core/libs/load-user/load-user.module';
     HeaderComponent,
     FooterComponent,
     DestinationCardComponent,
+    BookingFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe
@@ -40,6 +42,7 @@ import { UserModule } from '../core/libs/load-user/load-user.module';
     HeaderComponent,
     FooterComponent,
     DestinationCardComponent,
+    BookingFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

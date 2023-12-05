@@ -1,3 +1,4 @@
+import { Destination } from "./destination.interface"
 import { PaginatedData } from "./pagination-data.interface"
 
 export interface Booking extends NewBooking {
@@ -5,8 +6,8 @@ export interface Booking extends NewBooking {
 }
 
 export interface NewBooking {
-    start: string,
-    end: string,
+    start: string | null,
+    end: string | null,
     travelers: number,
     rating?: number,
     isActive?: boolean,
@@ -18,6 +19,12 @@ export interface NewBooking {
     agent_id?: number,
     client_id: number,
     destination_id: number
+}
+
+export interface BookingForm {
+    start: string,
+    end: string,
+    travelers: number
 }
 
 export type PaginatedBooking = PaginatedData<Booking>

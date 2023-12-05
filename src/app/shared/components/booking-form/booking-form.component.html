@@ -1,0 +1,31 @@
+<form [formGroup]="bookingForm" (ngSubmit)="onAccept($event)">
+  <label htmlFor="travelers">Número de pasajeros:</label>
+  <p-inputNumber
+    formControlName="travelers"
+    inputId="travelers"
+    inputStyleClass="travelers-input"
+    [showButtons]="true"
+    buttonLayout="horizontal"
+    spinnerMode="horizontal"
+    [step]="1"
+    decrementButtonClass="input-button"
+    incrementButtonClass="input-button"
+    incrementButtonIcon="pi pi-plus"
+    decrementButtonIcon="pi pi-minus"
+    [min]="1"
+    [max]="10"
+    [allowEmpty]="false"
+  ></p-inputNumber>
+  <label htmlFor="dates">Fechas del viaje:</label>
+  <p-calendar
+    formControlName="dates"
+    inputId="dates"
+    selectionMode="range"
+    [showIcon]="true"
+    styleClass="calendar"
+    dateFormat="dd-MM-yy"
+  ></p-calendar>
+  <p-button type="submit">Aceptar</p-button>
+</form>
+
+

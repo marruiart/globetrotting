@@ -20,6 +20,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/libs/auth/auth.module';
 import { UserModule } from './core/libs/load-user/load-user.module';
 import { DatePipe } from '@angular/common';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,11 @@ import { DatePipe } from '@angular/common';
     UserModule
   ],
   providers: [
+    // PrimeNg
     DatePipe,
+    ConfirmationService,
+    MessageService,
+    // General
     {
       provide: 'backend',
       useValue: 'Strapi'

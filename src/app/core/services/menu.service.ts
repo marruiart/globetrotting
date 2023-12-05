@@ -34,7 +34,7 @@ export class MenuService {
       {
         label: 'Gestionar destinos',
         icon: 'custom-icon trail-sign-outline',
-        routerLink: ['/home']
+        routerLink: ['/destinations-management']
       }
     ],
     styleClass: "login-btn"

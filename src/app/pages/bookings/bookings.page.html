@@ -34,7 +34,8 @@
               <p-button
                 *ngIf="!rowData[col.field] && currentUser?.type == 'AGENT'"
                 label="CONFIRMAR"
-                styleClass="p-button-danger p-button-rounded"
+                icon="pi pi-thumbs-up" 
+                styleClass="p-button-secondary p-button-rounded light-tag"
                 (click)="confirmBook(rowData.booking_id)"
               ></p-button>
             </ng-container>

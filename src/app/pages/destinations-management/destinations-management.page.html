@@ -44,8 +44,17 @@
       styleClass="booking-form"
       contentStyleClass="booking-form-content"
     >
-      <app-destination-form [destination]="selectedDestination" (onDestinationFormAccepted)="editDestination($event)" />
+      <app-destination-form
+        [destination]="selectedDestination"
+        (onDestinationFormAccepted)="addOrEditDestination($event)"
+      />
     </p-dialog>
+    <p-button
+      label="Añadir destino"
+      icon="pi pi-plus"
+      styleClass="p-button-rounded floating-button"
+      (click)="showDestinationForm()"
+    />
   </main>
   <app-footer></app-footer>
 </ion-content>

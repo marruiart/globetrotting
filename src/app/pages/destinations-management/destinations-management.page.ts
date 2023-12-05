@@ -83,8 +83,10 @@ export class DestinationsManagementPage implements OnInit {
     this.mappedDestinations.push(clientTableRow);
   }
 
-  public showDestinationForm(destination: Destination) {
-    this.selectedDestination = destination;
+  public showDestinationForm(destination?: Destination) {
+    if (destination) {
+      this.selectedDestination = destination;
+    }
     this.showEditForm = true;
   }
 
@@ -92,9 +94,14 @@ export class DestinationsManagementPage implements OnInit {
     this.showEditForm = false;
   }
 
-  public editDestination(destination: Destination) {
-    lastValueFrom(this.destinationsSvc.updateDestination(destination))
-      .catch(err => console.error(err));
+  public addOrEditDestination(destination: Destination) {
+    if (destination.id) {
+      lastValueFrom(this.destinationsSvc.updateDestination(destination))
+        .catch(err => console.error(err));
+    } else {
+      lastValueFrom(this.destinationsSvc.addDestination(destination))
+        .catch(err => console.error(err));
+    }
     this.hideDestinationForm();
   }
 

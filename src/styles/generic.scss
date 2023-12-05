@@ -36,3 +36,13 @@ main {
 main.full {
   padding: 0;
 }
+
+.light-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  line-height: 1.5;
+
+  >[class*="icon"] {
+    font-size: 0.75rem;
+  }
+}

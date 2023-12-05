@@ -6,6 +6,7 @@ import { MappingService } from './mapping.service';
 import { UserFacade } from '../../libs/load-user/load-user.facade';
 import { Client } from '../../models/globetrotting/client.interface';
 import { TravelAgent } from '../../models/globetrotting/agent.interface';
+import { StrapiPayload } from '../../models/strapi-interfaces/strapi-data.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class BookingsService extends ApiService {
   private queries: { [query: string]: string } = {
     "populate": "destination,client,agent"
   }
-  
+
   private currentUser: Client | TravelAgent | null = null;
   private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
   public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
@@ -45,7 +46,7 @@ export class BookingsService extends ApiService {
       }
       return this.getAll<Booking[]>(this.path, _queries, this.mapSvc.mapBookings).pipe(tap(res => {
         this._userBookings.next(res);
-      }));      
+      }));
     }
     return of([]);
   }
@@ -54,15 +55,15 @@ export class BookingsService extends ApiService {
     return this.get<Booking>(this.path, id, this.mapSvc.mapBooking, this.queries);
   }
 
-  public addBooking(fav: NewBooking): Observable<Booking> {
-    return this.add<Booking>(this.path, this.body(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
+  public addBooking(booking: NewBooking): Observable<Booking> {
+    return this.add<Booking>(this.path, this.body(booking), this.mapSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));
   }
 
-  public updateBooking(fav: Booking): Observable<Booking> {
-    return this.update<Booking>(this.path, fav.id, this.body(fav), this.mapSvc.mapBooking).pipe(tap(_ => {
+  public updateBooking(booking: StrapiPayload<any>): Observable<Booking> {
+    return this.update<Booking>(this.path, booking.data.id, this.body(booking.data), this.mapSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));

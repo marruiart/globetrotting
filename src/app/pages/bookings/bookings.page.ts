@@ -6,6 +6,7 @@ import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Client } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { AgentService } from 'src/app/core/services/api/agent.service';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { ClientService } from 'src/app/core/services/api/client.service';
@@ -14,19 +15,21 @@ import { UsersService } from 'src/app/core/services/api/users.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 interface TableRow {
+  booking_id: number,
   destination: string,
   start: string | null,
   end: string | null,
-  travelers: number
-}
-
-interface ClientTableRow extends TableRow {
-  agentName: string | null,
+  travelers: number,
   isConfirmed: boolean
 }
 
+interface ClientTableRow extends TableRow {
+  agentName: string | null
+}
+
 interface AgentTableRow extends TableRow {
-  clientName: string
+  clientName: string,
+
 }
 
 @Component({
@@ -35,7 +38,7 @@ interface AgentTableRow extends TableRow {
   styleUrls: ['./bookings.page.scss'],
 })
 export class BookingsPage implements OnInit {
-  private currentUser: Client | TravelAgent | null = null;
+  public currentUser: Client | TravelAgent | null = null;
   private mappedBookings: TableRow[] = [];
   private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
@@ -61,7 +64,12 @@ export class BookingsPage implements OnInit {
 
 
   async ngOnInit() {
-    let bookings = await lastValueFrom(this.bookingsSvc.getAllUserBookings());
+    let bookings: Booking[] = [];
+    if (this.currentUser?.type == 'AUTHENTICATED') {
+      bookings = await lastValueFrom(this.bookingsSvc.getAllUserBookings());
+    } else if (this.currentUser?.type == 'AGENT') {
+      bookings = await lastValueFrom(this.bookingsSvc.getAllBookings());
+    }
     bookings.forEach(booking => {
       if (this.currentUser?.type == 'AUTHENTICATED') {
         this.displayClientBookings(booking);
@@ -89,6 +97,7 @@ export class BookingsPage implements OnInit {
         { field: 'start', header: 'Fecha de inicio' },
         { field: 'end', header: 'Fecha de fin' },
         { field: 'travelers', header: 'Número de viajeros' },
+        { field: 'isConfirmed', header: 'Estado' }
       ]
     }
     return [];
@@ -97,6 +106,7 @@ export class BookingsPage implements OnInit {
   private mapTableRow(user: User | null, booking: Booking, destination: Destination): TableRow | null {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       const clientTableRow: ClientTableRow = {
+        booking_id: booking.id,
         destination: destination ? destination.name : 'Desconocido',
         start: booking.start,
         end: booking.end,
@@ -107,11 +117,13 @@ export class BookingsPage implements OnInit {
       return clientTableRow;
     } else if (this.currentUser?.type == 'AGENT') {
       const agentTableRow: AgentTableRow = {
+        booking_id: booking.id,
         destination: destination ? destination.name : 'Desconocido',
         start: booking.start,
         end: booking.end,
         travelers: booking.travelers,
-        clientName: `${user?.name ?? "-"} ${user?.surname ?? ""}`
+        clientName: `${user?.name ?? "-"} ${user?.surname ?? ""}`,
+        isConfirmed: booking.isConfirmed ?? false
       }
       return agentTableRow;
     }
@@ -181,6 +193,19 @@ export class BookingsPage implements OnInit {
         error: err => console.error(err)
       })
     });
+  }
+
+  public confirmBook(id: number) {
+    let modifiedBooking: StrapiPayload<any> = {
+      data: {
+        id: id,
+        isConfirmed: true,
+        agent_id: this.currentUser?.id
+      }
+    }
+    lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking))
+      .catch(err => console.error(err));
+    console.log(JSON.stringify(id));
   }
 
   ngOnDestroy() {

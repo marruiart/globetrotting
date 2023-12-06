@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { lastValueFrom } from 'rxjs';
-import { NewUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
+import { catchError, lastValueFrom, of, switchMap, tap } from 'rxjs';
+import { AgentRegisterInfo, NewUser, User, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
@@ -55,8 +55,8 @@ export class AuthStrapiService extends AuthService {
     });
   }
 
-  public register(registerInfo: UserRegisterInfo, isAgent: boolean = false): Observable<void> {
-    const nickname = registerInfo.username.slice(0, registerInfo.username.indexOf("@"));
+  public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<void> {
+    let nickname = registerInfo.nickname ?? registerInfo.username.slice(0, registerInfo.username.indexOf("@"));
     let _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.email,
       email: registerInfo.email,
@@ -67,21 +67,43 @@ export class AuthStrapiService extends AuthService {
         .subscribe({
           next: async (response: StrapiRegisterResponse | null) => {
             if (response) {
-              console.info(`Usuario creado con id ${response.user.id}`)
-              // Save token in local storage
-              await lastValueFrom(this.jwtSvc.saveToken(response.jwt))
-                .catch(err => {
-                  observer.error(err)
-                });
+              console.info(`Usuario creado con id ${response.user.id}`);
+              if (!isAgent) {
+                // Save token in local storage
+                await lastValueFrom(this.jwtSvc.saveToken(response.jwt))
+                  .catch(err => {
+                    observer.error(err)
+                  });
+              }
 
               // Create related extended user
               const user: NewUser = {
                 user_id: response.user.id,
+                name: registerInfo.name,
+                surname: registerInfo.surname,
                 nickname: nickname
               }
               this._isLogged.next(true);
-              const newUser = await lastValueFrom(this.userSvc.addUser(user))
-                .catch(err => observer.error(err));
+              const newUser = await lastValueFrom(this.userSvc.addUser(user)
+                .pipe(switchMap((newUser: User): Observable<User> => {
+                  if (isAgent) {
+                    let _user: any = {
+                      id: newUser.id,
+                      role: 3 // agent
+                    }
+                    return this.userSvc.updateUser(_user)
+                      .pipe(tap(_ => {
+                        console.info(`Usuario con id ${newUser.user_id} asignado al rol de agente correctamente`);
+                      }),
+                        catchError(err => {
+                          console.info("Rol del agente no asignado correctamente");
+                          console.error(err);
+                          return of(newUser);
+                        }))
+                  } else {
+                    return of(newUser);
+                  }
+                })));
               (newUser) ?
                 console.info(`Extended user creado con id ${newUser?.id} asociado a ${newUser.user_id}`)
                 : "Extended user no creado";

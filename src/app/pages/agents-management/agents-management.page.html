@@ -1,0 +1,60 @@
+<ion-content>
+  <app-header></app-header>
+  <main>
+    <p-table
+      [columns]="cols"
+      [value]="(agentTable$ | async) ?? []"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="col.field === 'options'; else otherColumns">
+              <p-button
+                icon="pi pi-pencil"
+                styleClass="p-button-rounded p-button-primary p-button-text"
+                (click)="showAgentForm(rowData)"
+              ></p-button>
+              <p-button
+                icon="pi pi-trash"
+                styleClass="p-button-rounded p-button-danger p-button-text"
+                (click)="showConfirmDialog(rowData.id)"
+              ></p-button>
+            </ng-container>
+            <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+    <p-toast></p-toast>
+    <p-dialog
+      header="Editar datos del agente"
+      [draggable]="false"
+      [resizable]="false"
+      [(visible)]="showEditForm"
+      [modal]="true"
+      [blockScroll]="true"
+      [dismissableMask]="true"
+      styleClass="booking-form"
+      contentStyleClass="booking-form-content"
+    >
+      <app-agent-form
+        [agent]="selectedAgent"
+        (onAgentFormAccepted)="addOrEditAgent($event)"
+      />
+    </p-dialog>
+    <p-button
+      label="Añadir agente"
+      icon="pi pi-plus"
+      styleClass="p-button-rounded floating-button"
+      (click)="showAgentForm()"
+    />
+  </main>
+  <app-footer></app-footer>
+</ion-content>

@@ -43,7 +43,15 @@ export interface UserRegisterInfo {
     nickname?: string
 }
 
-export interface CurrentUser {
+export interface AgentRegisterInfo extends UserRegisterInfo {
+    id: number,
+    name: string,
+    surname: string,
+    nickname: string
+}
+
+export interface FullUser {
+    user?: UserCredentials | null
     extendedUser: User | null
     specificUser: Client | TravelAgent | null
 }

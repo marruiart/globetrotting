@@ -13,7 +13,7 @@ export abstract class AuthService extends ApiService {
 
   public abstract login(credentials: Object): Observable<any>;
 
-  public abstract register(info: Object): Observable<any>;
+  public abstract register(info: Object, isAgent?: boolean): Observable<any>;
 
   public abstract logout(): Observable<any>;
 

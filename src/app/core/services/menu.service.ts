@@ -49,7 +49,7 @@ export class MenuService {
       {
         label: 'Gestionar agentes',
         icon: 'custom-icon people-outline',
-        routerLink: ['/home']
+        routerLink: ['/agents-management']
       }
     ],
     styleClass: this.managingItem.styleClass

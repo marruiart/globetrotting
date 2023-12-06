@@ -37,6 +37,10 @@ const routes: Routes = [
   },  {
     path: 'destinations-management',
     loadChildren: () => import('./pages/destinations-management/destinations-management.module').then( m => m.DestinationsManagementPageModule)
+  },
+  {
+    path: 'agents-management',
+    loadChildren: () => import('./pages/agents-management/agents-management.module').then( m => m.AgentsManagementPageModule)
   }
 
 ];

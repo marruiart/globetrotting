@@ -31,12 +31,12 @@ export class UsersService extends ApiService {
   public getAllUsers(): Observable<User[]> {
     return this.getAll<User[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
-    }), catchError(() => throwError(() => 'No se han podido obtener los usuarios')));
+    }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
   }
 
   public getUser(id: number): Observable<User> {
     return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries)
-      .pipe(catchError(() => throwError(() => 'No se ha podido obtener el usuario')));
+      .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
   }
 
   public getAgentUser(id: number | null): Observable<User | null> {
@@ -60,7 +60,7 @@ export class UsersService extends ApiService {
           } else {
             return null;
           }
-        }), catchError(() => throwError(() => 'No se ha podido obtener el usuario')))
+        }), catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })))
     } else {
       return of(null);
     }
@@ -71,7 +71,7 @@ export class UsersService extends ApiService {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError(() => throwError(() => 'No se ha podido añadir al usuario')));
+    }), catchError((err) => throwError(() => { 'No se ha podido añadir al usuario'; console.error(err) })));
   }
 
   public updateUser(user: User, updateObs: boolean = true): Observable<User> {
@@ -79,13 +79,13 @@ export class UsersService extends ApiService {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError(() => throwError(() => 'No se ha podido modificar el usuario')));
+    }), catchError((err) => throwError(() => { 'No se ha podido modificar el usuario'; console.error(err) })));
   }
 
   public deleteUser(id: number): Observable<User> {
     return this.delete<User>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
       this.getAllUsers().subscribe();
-    }), catchError(() => throwError(() => 'No se ha podido eliminar al usuario')));
+    }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
   }
 
 }

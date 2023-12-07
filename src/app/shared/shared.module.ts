@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -13,6 +13,9 @@ import { UserModule } from '../core/libs/load-user/load-user.module';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
 import { DestinationFormComponent } from './components/destination-form/destination-form.component';
 import { UserFormComponent } from './components/user-form/user-form.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { HttpClient } from '@angular/common/http';
+import { translateLoaderFactory } from '../core/factories/translate-loader.factory';
 
 @NgModule({
   declarations: [
@@ -34,7 +37,14 @@ import { UserFormComponent } from './components/user-form/user-form.component';
     ReactiveFormsModule,
     PrimengModule,
     AuthModule,
-    UserModule
+    UserModule,
+    TranslateModule.forChild({
+      loader: {
+        provide: TranslateLoader,
+        deps: [HttpClient],
+        useFactory: (translateLoaderFactory)
+      }
+    })
   ],
   exports: [
     PrimengModule,

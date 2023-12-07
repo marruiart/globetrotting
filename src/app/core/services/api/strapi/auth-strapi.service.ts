@@ -10,7 +10,7 @@ import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
 import { NewClient } from 'src/app/core/models/globetrotting/client.interface';
-import { NewTravelAgent, TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { MappingService } from '../mapping.service';
 
 export class AuthStrapiService extends AuthService {

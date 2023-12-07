@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 
@@ -59,7 +60,8 @@ export class UserFormComponent implements OnDestroy {
 
 
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    public translate: TranslateService
   ) { }
 
   initForm() {

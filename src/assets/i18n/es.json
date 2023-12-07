@@ -12,12 +12,47 @@
       "destinations": "Gestionar destinos",
       "agents": "Gestionar agentes"
     },
-    "login": "Login",
+    "login": "Iniciar sesión",
     "user": {
-        "top": "Usuario",
-        "profile": "Mi perfil",
-        "logout": "Salir",
-        "bookings": "Mis reservas"
+      "top": "Usuario",
+      "profile": "Mi perfil",
+      "logout": "Salir",
+      "bookings": "Mis reservas"
     }
+  },
+  "userForm": {
+    "loginHeader": "Inicio de sesión",
+    "registerHeader": "Registro",
+    "agentRegisterHeader": "Alta de agente de viajes",
+    "username": "Usuario",
+    "email": "Email",
+    "password": "Contraseña",
+    "repeatPassword": "Repetir contraseña",
+    "name": "Nombre",
+    "surname": "Apellidos",
+    "nickname": "Nickname",
+    "profileBtn": "Modificar perfil",
+    "agentBtn": "Modificar agente",
+    "registerAgentBtn": "Dar de alta agente",
+    "getAccount": "No tengo cuenta",
+    "submitBtn": "Entrar",
+    "registerBtn": "Registrarme"
+  },
+  "bookingsPage": {
+    "confirmBtn": "Confirmar",
+    "confirmedTag": "Confirmado",
+    "unconfirmedTag": "Sin confirmar",
+    "tableDestination": "Destino",
+    "tableStart": "Fecha de salida",
+    "tableEnd": "Fecha de llegada",
+    "tableTravelers": "Número de viajeros",
+    "tableConfirmationState": "Estado",
+    "tableAgent": "Agente de viajes asignado",
+    "tableClient": "Cliente"
+  },
+  "bookingsForm": {
+    "dates": "Fechas de salida y llegada",
+    "travelers": "Número de viajeros",
+    "acceptBtn": "Aceptar"
   }
 }

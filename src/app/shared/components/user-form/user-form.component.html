@@ -2,9 +2,13 @@
   <ng-container *ngTemplateOutlet="form" />
 
   <ng-template #form [ngSwitch]="formType">
-    <h2 *ngSwitchCase="'LOGIN'">Inicio de sesión</h2>
-    <h2 *ngSwitchCase="'REGISTER'">Registro</h2>
-    <h2 *ngSwitchCase="'REGISTER_AGENT'">Alta de agente de viajes</h2>
+    <h2 *ngSwitchCase="'LOGIN'">{{ "userForm.loginHeader" | translate }}</h2>
+    <h2 *ngSwitchCase="'REGISTER'">
+      {{ "userForm.registerHeader" | translate }}
+    </h2>
+    <h2 *ngSwitchCase="'REGISTER_AGENT'">
+      {{ "userForm.agentRegisterHeader" | translate }}
+    </h2>
   </ng-template>
   <!-- Username -->
   <div class="p-inputgroup" *ngIf="formType == 'LOGIN'">
@@ -13,7 +17,7 @@
     </span>
     <span class="p-float-label">
       <input pInputText id="username" formControlName="username" />
-      <label htmlFor="username">Usuario</label>
+      <label htmlFor="username">{{ "userForm.username" | translate }}</label>
     </span>
   </div>
   <!-- Email -->
@@ -30,7 +34,7 @@
     </span>
     <span class="p-float-label">
       <input pInputText id="email" formControlName="email" />
-      <label htmlFor="email">Email</label>
+      <label htmlFor="email">{{ "userForm.email" | translate }}</label>
     </span>
   </div>
   <!-- Password -->
@@ -47,7 +51,7 @@
         [toggleMask]="true"
         formControlName="password"
       ></p-password>
-      <label for="password">Contraseña</label>
+      <label for="password">{{ "userForm.password" | translate }}</label>
     </span>
   </div>
   <!-- Repeat password -->
@@ -71,7 +75,9 @@
         [toggleMask]="true"
         formControlName="passwordRepeat"
       ></p-password>
-      <label for="password-repeat">Repetir contraseña</label>
+      <label for="password-repeat">
+        {{ "userForm.repeatPassword" | translate }}
+      </label>
     </span>
   </div>
   <!-- Name -->
@@ -84,7 +90,9 @@
     </span>
     <span class="p-float-label">
       <input pInputText id="name" formControlName="name" />
-      <label htmlFor="name">Nombre</label>
+      <label htmlFor="name">
+        {{ "userForm.name" | translate }}
+      </label>
     </span>
   </div>
   <!-- Surname -->
@@ -97,7 +105,9 @@
     </span>
     <span class="p-float-label">
       <input pInputText id="surname" formControlName="surname" />
-      <label htmlFor="surname">Apellidos</label>
+      <label htmlFor="surname">
+        {{ "userForm.surname" | translate }}
+      </label>
     </span>
   </div>
   <!-- Nickname -->
@@ -110,13 +120,15 @@
     </span>
     <span class="p-float-label">
       <input pInputText id="nickname" formControlName="nickname" />
-      <label htmlFor="nickname">Nickname</label>
+      <label htmlFor="nickname">
+        {{ "userForm.nickname" | translate }}
+      </label>
     </span>
   </div>
 
   <p-button
     *ngIf="formType == 'LOGIN'"
-    label="No tengo cuenta"
+    [label]="'userForm.getAccount' | translate"
     styleClass="p-button-link"
     (click)="onNavigateToRegister()"
   ></p-button>
@@ -125,11 +137,19 @@
     <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
   </ng-container>
   <ng-template #submitBtn [ngSwitch]="formType">
-    <p-button type="submit" label="Entrar" *ngSwitchCase="'LOGIN'" />
-    <p-button type="submit" label="Registrarme" *ngSwitchCase="'REGISTER'" />
     <p-button
       type="submit"
-      label="Dar de alta agente"
+      [label]="'userForm.submitBtn' | translate"
+      *ngSwitchCase="'LOGIN'"
+    />
+    <p-button
+      type="submit"
+      [label]="'userForm.registerBtn' |translate"
+      *ngSwitchCase="'REGISTER'"
+    />
+    <p-button
+      type="submit"
+      [label]="'userForm.registerAgentBtn' | translate"
       *ngSwitchCase="'REGISTER_AGENT'"
     />
   </ng-template>
@@ -140,12 +160,12 @@
   <ng-template #updateBtn [ngSwitch]="formType">
     <p-button
       type="submit"
-      label="Modificar perfil"
+      [label]="'userForm.profileBtn' | translate"
       *ngSwitchCase="'PROFILE'"
     />
     <p-button
       type="submit"
-      label="Modificar agente"
+      [label]="'userForm.agentBtn' | translate"
       *ngSwitchCase="'REGISTER_AGENT'"
     />
   </ng-template>

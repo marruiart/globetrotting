@@ -17,8 +17,10 @@ export class JwtService {
 
   public saveToken(jwt: string): Observable<Auth> {
     return this.storageSvc.add(jwt).pipe(tap({
-      next: _ => {
-        this._jwt = jwt;
+      next: res => {
+        if (res) {
+          this._jwt = res.jwt;
+        }
       },
       error: err => {
         console.error(err);
@@ -29,7 +31,9 @@ export class JwtService {
   public loadToken(): Observable<Auth> {
     return this.storageSvc.get().pipe(tap({
       next: token => {
-        this._jwt = token.jwt;
+        if (token) {
+          this._jwt = token.jwt;
+        }
       },
       error: err => {
         console.error(err);

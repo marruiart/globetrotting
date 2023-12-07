@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AuthFacade } from '../libs/auth/auth.facade';
-import { BehaviorSubject, zip } from 'rxjs';
+import { BehaviorSubject, catchError, map, of, zip } from 'rxjs';
 import { CustomTranslateService } from './custom-translate.service';
+import { UserFacade } from '../libs/load-user/load-user.facade';
+
+interface CustomMenu {
+  public: any[],
+  client: any[],
+  agent: any[],
+  admin: any[]
+}
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +17,6 @@ import { CustomTranslateService } from './custom-translate.service';
 export class MenuService {
   private _menu = new BehaviorSubject<any>({});
   public menu$ = this._menu.asObservable();
-  private _nickname: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  private nickname = this._nickname.asObservable();
 
   private homeItem = {
     label: 'Inicio',
@@ -59,7 +65,7 @@ export class MenuService {
   }
 
   private loginItem = {
-    label: 'Login',
+    label: 'Iniciar sesión',
     icon: 'custom-icon person-outline',
     routerLink: ['/login'],
     styleClass: "login-btn"
@@ -100,37 +106,20 @@ export class MenuService {
     styleClass: this.userProfileItem.styleClass
   }
 
-  public menuItems = {
-    public: [
-      this.homeItem,
-      this.destinationsItem,
-      this.loginItem
-    ],
-    client: [
-      this.homeItem,
-      this.destinationsItem,
-      this.clientProfileItem
-    ],
-    agent: [
-      this.homeItem,
-      this.destinationsItem,
-      this.managingItem,
-      this.userProfileItem
-    ],
-    admin: [
-      this.homeItem,
-      this.destinationsItem,
-      this.adminManagingItem,
-      this.userProfileItem
-    ]
-  }
-
   constructor(
     private authFacade: AuthFacade,
+    private userFacade: UserFacade,
     private translate: CustomTranslateService
-  ) { }
+  ) {
+    this.selectMenu('PUBLIC');
+    this.userFacade.nickname$.subscribe(nickname => {
+      if (nickname) {
+        this.userProfileItem.label = nickname;
+      }
+    });
+  }
 
-  public selectMenu(role: string | null) {
+  public selectMenu(role: string) {
     const homeItem$ = this.translate.getTranslation("menu.home");
     const destinationsItem$ = this.translate.getTranslation("menu.destinations");
     const managingItem$ = this.translate.getTranslation("menu.managing.top");
@@ -139,19 +128,12 @@ export class MenuService {
     const adminManagingItem$ = this.translate.getTranslation("menu.managing.agents");
     const loginItem$ = this.translate.getTranslation("menu.login");
     const userProfileItem$ = this.translate.getTranslation("menu.user.top");
-    const userNickname$ = this.nickname;
     const userProfileItemProfile$ = this.translate.getTranslation("menu.user.profile");
     const userProfileItemLogout$ = this.translate.getTranslation("menu.user.logout");
     const clientProfileItem$ = this.translate.getTranslation("menu.user.bookings");
 
-    userNickname$.subscribe({
-      next: nickname => {
-        this.userProfileItem.label = nickname;
-      },
-      error: err => console.error(err)
-    })
-
-    zip(homeItem$,
+    const customMenu$ = zip(
+      homeItem$,
       destinationsItem$,
       managingItem$,
       managingItemBookings$,
@@ -161,49 +143,93 @@ export class MenuService {
       userProfileItem$,
       userProfileItemProfile$,
       userProfileItemLogout$,
-      clientProfileItem$).subscribe({
-        next: ([home,
-          destinations,
-          management,
-          managementBookings,
-          managementsDestination,
-          managementAgents,
-          login,
-          user,
-          profile,
-          logout,
-          mybookings]) => {
-          this.homeItem.label = home;
-          this.destinationsItem.label = destinations;
-          this.managingItem.label = management;
-          this.managingItem.items[0].label = managementBookings;
-          this.managingItem.items[1].label = managementsDestination;
-          this.adminManagingItem.items[2].label = managementAgents;
-          this.loginItem.label = login;
-          this.userProfileItem.label = user;
-          this.userProfileItem.items[0].label = profile;
-          this.userProfileItem.items[1].label = logout;
-          this.clientProfileItem.items[1].label = mybookings
+      clientProfileItem$)
+      .pipe(map(([
+        home,
+        destinations,
+        management,
+        managementBookings,
+        managementsDestination,
+        managementAgents,
+        login,
+        user,
+        profile,
+        logout,
+        mybookings
+      ]) => {
+        this.translateMenuItems(home, destinations, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings);
+        return this.createMenu();
+      }), catchError(err => of(err)));
 
-          switch (role) {
-            case 'AUTHENTICATED':
-              this._menu.next(this.menuItems.client)
-              break;
-            case 'ADMIN':
-              this._menu.next(this.menuItems.admin)
-              break;
-            case 'AGENT':
-              this._menu.next(this.menuItems.agent)
-              break;
-            default:
-              this._menu.next(this.menuItems.public)
-          }
-        },
-        error: err => console.error(err)
-      });
+    customMenu$.subscribe(menu => {
+      switch (role) {
+        case 'AUTHENTICATED':
+          this._menu.next(menu.client);
+          break;
+        case 'ADMIN':
+          this._menu.next(menu.admin);
+          break;
+        case 'AGENT':
+          this._menu.next(menu.agent);
+          break;
+        default:
+          this._menu.next(menu.public);
+      }
+    });
   }
 
-  public setNickname(nickname: string) {
-    this._nickname.next(nickname);
+  private translateMenuItems(
+    home: string,
+    destinations: string,
+    management: string,
+    managementBookings: string,
+    managementsDestination: string,
+    managementAgents: string,
+    login: string,
+    user: string,
+    profile: string,
+    logout: string,
+    mybookings: string
+  ) {
+    this.homeItem.label = home;
+    this.destinationsItem.label = destinations;
+    this.managingItem.label = management;
+    this.adminManagingItem.label = management;
+    this.managingItem.items[0].label = managementBookings;
+    this.managingItem.items[1].label = managementsDestination;
+    this.adminManagingItem.items[2].label = managementAgents;
+    this.loginItem.label = login;
+    this.userProfileItem.label = user;
+    this.userProfileItem.items[0].label = profile;
+    this.userProfileItem.items[1].label = logout;
+    this.clientProfileItem.items[1].label = mybookings;
+  }
+
+  private createMenu(): CustomMenu {
+    return {
+      public: [
+        this.homeItem,
+        this.destinationsItem,
+        this.loginItem
+      ],
+      client: [
+        this.homeItem,
+        this.destinationsItem,
+        this.clientProfileItem
+      ],
+      agent: [
+        this.homeItem,
+        this.destinationsItem,
+        this.managingItem,
+        this.userProfileItem
+      ],
+      admin: [
+        this.homeItem,
+        this.destinationsItem,
+        this.adminManagingItem,
+        this.userProfileItem
+      ]
+    };
+
   }
 }

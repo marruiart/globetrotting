@@ -23,11 +23,12 @@ export class StorageService {
         Preferences.remove({ key: 'jwtToken' })
           .catch(err => {
             observer.error(err);
-          });;
+          });
         observer.next({ jwt: '' });
         observer.complete();
       } else {
-        observer.error('No token');
+        observer.next();
+        observer.complete();
       }
     });
   }
@@ -39,7 +40,7 @@ export class StorageService {
           if (token != null && token['value']) {
             observer.next({ jwt: JSON.parse(token.value) });
           } else {
-            observer.error('No token')
+            observer.next();
           }
           observer.complete();
         }).catch((error: any) => {

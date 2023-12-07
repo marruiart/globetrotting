@@ -6,8 +6,18 @@ import { catchError, map, of, switchMap } from "rxjs";
 import { MenuService } from "../../services/menu.service";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { UserFacade } from "../load-user/load-user.facade";
-import { Router } from "@angular/router";
 import { AuthFacade } from "./auth.facade";
+
+/* 
+'(isLogged: boolean) => Observable<({ user: AuthUser; } & TypedAction<"[Auth API] Assign Role">) | ({ error: any; } & TypedAction<"[Auth API] Login Failure">)> | null'
+'(value: boolean, index: number) => ObservableInput<any>'.
+
+'Observable<({ user: AuthUser; } & TypedAction<"[Auth API] Assign Role">) | ({ error: any; } & TypedAction<"[Auth API] Login Failure">)> | null'
+'ObservableInput<any>'.
+
+'null'
+'ObservableInput<any>'.
+*/
 
 @Injectable()
 export class AuthEffects {
@@ -16,24 +26,35 @@ export class AuthEffects {
         private actions$: Actions,
         private authSvc: AuthService,
         private userFacade: UserFacade,
+        private authFacade: AuthFacade,
         private menuSvc: MenuService,
-        private router: Router
     ) { }
 
     init$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.init),
-            switchMap(() => this.authSvc.me().pipe(
-                map(user => {
-                    let authUser: AuthUser = {
-                        user_id: user.user_id,
-                        role: user.role
+            switchMap(() => this.authFacade.isLogged$.pipe(
+                switchMap(isLogged => {
+                    if (isLogged) {
+                        return this.authSvc.me().pipe(
+                            map(user => {
+                                let authUser: AuthUser = {
+                                    user_id: user.user_id,
+                                    role: user.role
+                                }
+                                this.userFacade.init(user);
+                                this.menuSvc.selectMenu(user.role);
+                                return AuthActions.assignRole({ user: authUser });
+                            }),
+                            catchError(error => of(AuthActions.loginFailure({ error: error })))
+                        )
+                    } else {
+                        this.menuSvc.selectMenu('PUBLIC');
+                        return of(AuthActions.loginFailure({ error: 'Usuario no loggeado' }));
                     }
-                    this.userFacade.init(user);
-                    return AuthActions.assignRole({ user: authUser })
-                }),
-                catchError(error => of(AuthActions.loginFailure({ error: error })))
-            )))
+                })
+            )
+            ))
     );
 
     login$ = createEffect(() =>
@@ -65,15 +86,8 @@ export class AuthEffects {
             ofType(AuthActions.loginSuccess),
             switchMap(() => this.authSvc.me().pipe(
                 map((user: AuthUser) => {
-                    switch (user.role) {
-                        case 'AGENT':
-                        case 'ADMIN':
-                            console.log(`id ${user.user_id}: ${user.role}`);
-                            break;
-                        default:
-                            console.log(`id ${user.user_id}: ${user.role}`);
-                            break;
-                    }
+                    console.log(`id ${user.user_id}: ${user.role}`);
+                    this.menuSvc.selectMenu(user.role);
                     this.userFacade.init(user);
                     return AuthActions.assignRole({ user: user });
                 }), catchError(error => of(AuthActions.loginFailure({ error: error })))
@@ -85,7 +99,7 @@ export class AuthEffects {
             ofType(AuthActions.logout),
             switchMap(() => this.authSvc.logout().pipe(
                 map(() => {
-                    this.menuSvc.selectMenu(null);
+                    this.menuSvc.selectMenu('PUBLIC');
                     return AuthActions.logoutSuccess();
                 }),
                 catchError(error => of(AuthActions.logoutFailure({ error: error })))

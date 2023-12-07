@@ -20,20 +20,20 @@
             >
               <p-tag
                 *ngIf="rowData[col.field]"
-                value="CONFIRMADO"
+                [value]="'bookingsPage.confirmedTag' | translate | uppercase"
                 severity="success"
                 [rounded]="true"
                 icon="pi pi-check"
               ></p-tag>
               <p-tag
                 *ngIf="!rowData[col.field] && currentUser?.type == 'AUTHENTICATED'"
-                value="SIN CONFIRMAR"
+                [value]="'bookingsPage.unconfirmedTag' | translate | uppercase"
                 severity="danger"
                 [rounded]="true"
               ></p-tag>
               <p-button
                 *ngIf="!rowData[col.field] && currentUser?.type == 'AGENT'"
-                label="CONFIRMAR"
+                [label]="'bookingsPage.confirmBtn' | translate"
                 icon="pi pi-thumbs-up" 
                 styleClass="p-button-secondary p-button-rounded light-tag"
                 (click)="confirmBook(rowData.booking_id)"

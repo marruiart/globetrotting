@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, of, zip } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, map, of, tap, zip } from 'rxjs';
 import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
 import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
@@ -12,6 +13,7 @@ import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { ClientService } from 'src/app/core/services/api/client.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { UsersService } from 'src/app/core/services/api/users.service';
+import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 interface TableRow {
@@ -52,7 +54,8 @@ export class BookingsPage implements OnInit {
     private agentSvc: AgentService,
     private clientSvc: ClientService,
     private userFacade: UserFacade,
-    private subsSvc: SubscriptionsService
+    private subsSvc: SubscriptionsService,
+    private translate: CustomTranslateService,
   ) {
     this.subsSvc.addSubscription({
       component: 'BookingsPage',
@@ -77,30 +80,63 @@ export class BookingsPage implements OnInit {
         this.displayAgentBookings(booking);
       }
     })
-    this.cols = this.getCols();
+    this.getCols();
   }
 
   private getCols() {
+    const destination$ = this.translate.getTranslation("bookingsPage.tableDestination");
+    const start$ = this.translate.getTranslation("bookingsPage.tableStart");
+    const end$ = this.translate.getTranslation("bookingsPage.tableEnd");
+    const travelers$ = this.translate.getTranslation("bookingsPage.tableTravelers");
+    const confirmationState$ = this.translate.getTranslation("bookingsPage.tableConfirmationState");
+    const agent$ = this.translate.getTranslation("bookingsPage.tableAgent");
+    const client$ = this.translate.getTranslation("bookingsPage.tableClient");
+
+    const tableHeaders$ = zip(
+      destination$,
+      start$,
+      end$,
+      travelers$,
+      confirmationState$,
+      agent$,
+      client$
+    ).pipe(tap(([
+      destination,
+      start,
+      end,
+      travelers,
+      confirmationState,
+      agent,
+      client
+    ]) => {
+      this.cols = this.translateMenuItems(destination, start, end, travelers, confirmationState, agent, client);
+    }), catchError(err => of(err)));
+
+    tableHeaders$.subscribe();
+  }
+
+  private translateMenuItems(destination: string, start: string, end: string, travelers: string, confirmationState: string, agent: string, client: string) {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       return [
-        { field: 'destination', header: 'Destino' },
-        { field: 'start', header: 'Fecha de inicio' },
-        { field: 'end', header: 'Fecha de fin' },
-        { field: 'travelers', header: 'Número de viajeros' },
-        { field: 'isConfirmed', header: 'Estado' },
-        { field: 'agentName', header: 'Agente asignado' }
+        { field: 'destination', header: destination },
+        { field: 'start', header: start },
+        { field: 'end', header: end },
+        { field: 'travelers', header: travelers },
+        { field: 'isConfirmed', header: confirmationState },
+        { field: 'agentName', header: agent }
       ]
     } else if (this.currentUser?.type == 'AGENT') {
       return [
-        { field: 'clientName', header: 'Cliente' },
-        { field: 'destination', header: 'Destino' },
-        { field: 'start', header: 'Fecha de inicio' },
-        { field: 'end', header: 'Fecha de fin' },
-        { field: 'travelers', header: 'Número de viajeros' },
-        { field: 'isConfirmed', header: 'Estado' }
+        { field: 'clientName', header: client },
+        { field: 'destination', header: destination },
+        { field: 'start', header: start },
+        { field: 'end', header: end },
+        { field: 'travelers', header: travelers },
+        { field: 'isConfirmed', header: confirmationState }
       ]
+    } else {
+      return [];
     }
-    return [];
   }
 
   private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow | null {

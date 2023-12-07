@@ -14,10 +14,45 @@
     },
     "login": "Login",
     "user": {
-        "top": "User",
-        "profile": "My profile",
-        "logout": "Log out",
-        "bookings": "My bookings"
+      "top": "User",
+      "profile": "My profile",
+      "logout": "Log out",
+      "bookings": "My bookings"
     }
+  },
+  "userForm": {
+    "loginHeader": "Login",
+    "registerHeader": "Register",
+    "agentRegisterHeader": "Register travel agent",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "repeatPassword": "Repeat password",
+    "name": "Name",
+    "surname": "Surname",
+    "nickname": "Nickname",
+    "profileBtn": "Update profile",
+    "agentBtn": "Edit agent",
+    "registerAgentBtn": "Register travel agent",
+    "getAccount": "Get an account",
+    "submitBtn": "Submit",
+    "registerBtn": "Register"
+  },
+  "bookingsPage": {
+    "confirmBtn": "Confirm",
+    "confirmedTag": "Confirmed",
+    "unconfirmedTag": "Unconfirmed",
+    "tableDestination": "Destination",
+    "tableStart": "Departure date",
+    "tableEnd": "Arrival date",
+    "tableTravelers": "Number of travelers",
+    "tableConfirmationState": "State",
+    "tableAgent": "Assigned travel agent",
+    "tableClient": "Client"
+  },
+  "bookingsForm": {
+    "dates": "Departure and arrival dates",
+    "travelers": "Number of travelers",
+    "acceptBtn": "Accept"
   }
 }

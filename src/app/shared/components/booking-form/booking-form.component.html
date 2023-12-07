@@ -1,5 +1,5 @@
 <form [formGroup]="bookingForm" (ngSubmit)="onAccept($event)">
-  <label htmlFor="travelers">Número de pasajeros:</label>
+  <label htmlFor="travelers">{{ "bookingsForm.travelers" | translate }}:</label>
   <p-inputNumber
     formControlName="travelers"
     inputId="travelers"
@@ -16,7 +16,7 @@
     [max]="10"
     [allowEmpty]="false"
   ></p-inputNumber>
-  <label htmlFor="dates">Fechas del viaje:</label>
+  <label htmlFor="dates">{{ "bookingsForm.dates" | translate }}:</label>
   <p-calendar
     formControlName="dates"
     inputId="dates"
@@ -25,7 +25,5 @@
     styleClass="calendar"
     dateFormat="dd-MM-yy"
   ></p-calendar>
-  <p-button type="submit">Aceptar</p-button>
+  <p-button type="submit">{{ "bookingsForm.acceptBtn" | translate }}</p-button>
 </form>
-
-

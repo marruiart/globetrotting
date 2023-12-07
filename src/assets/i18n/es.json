@@ -61,7 +61,9 @@
     "tableDimension": "Dimensión",
     "tablePrice": "Precio/persona/noche",
     "tableDescription": "Descripción",
-    "tableOptions": "Opciones"
+    "tableOptions": "Opciones",
+    "addDestinationBtn": "Añadir destino",
+    "editDestinationHeader": "Editar datos del destino"
   },
   "agentsManagement": {
     "tableId": "nº. identificación",
@@ -71,5 +73,13 @@
     "tableOptions": "Opciones",
     "addAgentBtn": "Añadir agente",
     "editAgentHeader": "Editar datos del agente"
+  },
+  "destinationForm": {
+    "destination": "Lugar de destino",
+    "type": "Tipo de destino",
+    "dimension": "Dimensión del destino",
+    "price": "Precio/noche/persona",
+    "description": "Descripción",
+    "submitBtn": "Aceptar"
   }
 }

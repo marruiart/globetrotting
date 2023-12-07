@@ -61,7 +61,9 @@
     "tableDimension": "Dimension",
     "tablePrice": "Price/person/night",
     "tableDescription": "Description",
-    "tableOptions": "Options"
+    "tableOptions": "Options",
+    "addDestinationBtn": "Add destination",
+    "editDestinationHeader": "Edit destination information"
   },
   "agentsManagement": {
     "tableId": "Id number",
@@ -69,6 +71,15 @@
     "tableSurname": "Surname",
     "tableEmail": "Email",
     "tableOptions": "Options",
-    "addAgentBtn": "Register agent"
+    "addAgentBtn": "Register agent",
+    "editAgentHeader": "Edit travel agent information"
+  },
+  "destinationForm": {
+    "destination": "Destination place",
+    "type": "Type of destination",
+    "dimension": "Dimension of destination",
+    "price": "Price/person/night",
+    "description": "Description",
+    "submitBtn": "Submit"
   }
 }

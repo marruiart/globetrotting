@@ -34,7 +34,7 @@
     <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
     <p-toast></p-toast>
     <p-dialog
-      header="Editar destino"
+      [header]="'destManagement.editDestinationHeader' | translate"
       [draggable]="false"
       [resizable]="false"
       [(visible)]="showEditForm"
@@ -50,7 +50,7 @@
       />
     </p-dialog>
     <p-button
-      label="Añadir destino"
+      [label]="'destManagement.addDestinationBtn' | translate"
       icon="pi pi-plus"
       styleClass="p-button-rounded floating-button"
       (click)="showDestinationForm()"

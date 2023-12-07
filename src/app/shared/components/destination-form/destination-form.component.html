@@ -2,15 +2,21 @@
   <span class="p-float-label">
     <input type="hidden" formControlName="id" />
     <input formControlName="name" pInputText id="name" />
-    <label htmlFor="name">Lugar de destino</label>
+    <label htmlFor="name">
+      {{ "destinationForm.destination" | translate }}
+    </label>
   </span>
   <span class="p-float-label">
     <input formControlName="type" pInputText id="type" />
-    <label htmlFor="type">Tipo de destino</label>
+    <label htmlFor="type">
+      {{ "destinationForm.type" | translate }}
+    </label>
   </span>
   <span class="p-float-label">
     <input formControlName="dimension" pInputText id="dimension" />
-    <label htmlFor="dimension">Dimensión del destino</label>
+    <label htmlFor="dimension">
+      {{ "destinationForm.dimension" | translate }}
+    </label>
   </span>
   <span class="p-float-label">
     <p-inputNumber
@@ -20,7 +26,9 @@
       currency="EUR"
       locale="es-ES"
     />
-    <label htmlFor="price">Precio/noche/persona</label>
+    <label htmlFor="price">
+      {{ "destinationForm.price" | translate }}
+    </label>
   </span>
   <span class="p-float-label">
     <input
@@ -30,7 +38,11 @@
       pInputTextarea
       id="description"
     />
-    <label htmlFor="description">Descripción</label>
+    <label htmlFor="description">
+      {{ "destinationForm.description" | translate }}
+    </label>
   </span>
-  <p-button type="submit">Aceptar</p-button>
+  <p-button type="submit">
+    {{ "destinationForm.submitBtn" | translate }}
+  </p-button>
 </form>

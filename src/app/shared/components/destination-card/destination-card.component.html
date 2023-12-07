@@ -22,7 +22,7 @@
       <ion-icon *ngIf="!fav" name="heart-outline" />
     </p-button>
   </ng-template>
-  <ng-template pTemplate="footer">
+  <ng-template pTemplate="footer" *ngIf="isClient">
     <p-button
     (click)="onBookNowClick($event)"
     icon="p-button-raised p-button-text p-button-secondary"

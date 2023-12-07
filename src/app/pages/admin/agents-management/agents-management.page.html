@@ -34,7 +34,7 @@
     <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
     <p-toast></p-toast>
     <p-dialog
-      header="Editar datos del agente"
+      [header]="'agentsManagement.editAgentHeader' | translate"
       [draggable]="false"
       [resizable]="false"
       [(visible)]="showEditForm"
@@ -52,7 +52,7 @@
       ></app-user-form>
     </p-dialog>
     <p-button
-      label="Añadir agente"
+      [label]="'agentsManagement.addAgentBtn' | translate"
       icon="pi pi-plus"
       styleClass="p-button-rounded floating-button"
       (click)="showAgentForm()"

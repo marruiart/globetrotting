@@ -55,7 +55,7 @@ export class BookingsPage implements OnInit {
     private clientSvc: ClientService,
     private userFacade: UserFacade,
     private subsSvc: SubscriptionsService,
-    private translate: CustomTranslateService,
+    private translate: CustomTranslateService
   ) {
     this.subsSvc.addSubscription({
       component: 'BookingsPage',

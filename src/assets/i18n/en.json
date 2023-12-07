@@ -62,5 +62,13 @@
     "tablePrice": "Price/person/night",
     "tableDescription": "Description",
     "tableOptions": "Options"
+  },
+  "agentsManagement": {
+    "tableId": "Id number",
+    "tableName": "Name",
+    "tableSurname": "Surname",
+    "tableEmail": "Email",
+    "tableOptions": "Options",
+    "addAgentBtn": "Register agent"
   }
 }

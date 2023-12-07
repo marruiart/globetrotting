@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, map, of, switchMap } from "rxjs";
+import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, map, of, switchMap, tap, zip } from "rxjs";
 import { UserFacade } from "src/app/core/libs/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
@@ -8,6 +8,7 @@ import { ExtUser, UserCredentials } from "src/app/core/models/globetrotting/user
 import { AgentService } from "src/app/core/services/api/agent.service";
 import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
+import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 
 
@@ -47,7 +48,8 @@ export class AgentsManagementPage implements OnInit {
     private userFacade: UserFacade,
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translate: CustomTranslateService
   ) {
     this.subsSvc.addSubscription({
       component: 'AgentsManagementPage',
@@ -58,7 +60,7 @@ export class AgentsManagementPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.cols = this.getCols();
+    this.getCols();
     if (this.currentUser?.type == 'AGENT') {
       let agents = await lastValueFrom(this.agentsSvc.getAllAgents());
       if (agents) {
@@ -71,13 +73,33 @@ export class AgentsManagementPage implements OnInit {
   }
 
   private getCols() {
+    const name$ = this.translate.getTranslation("agentsManagement.tableId");
+    const surname$ = this.translate.getTranslation("agentsManagement.tableName");
+    const email$ = this.translate.getTranslation("agentsManagement.tableSurname");
+    const options$ = this.translate.getTranslation("agentsManagement.tableEmail");
+    const identification$ = this.translate.getTranslation("agentsManagement.tableOptions");
+
+    const tableHeaders$ = zip(identification$, name$, surname$, email$, options$).pipe(
+      tap(([
+        identification,
+        name,
+        surname,
+        email,
+        options
+      ]) => {
+        this.cols = this.translateMenuItems(name, surname, email, options, identification);
+      }), catchError(err => of(err)));
+
+    tableHeaders$.subscribe();
+  }
+
+  private translateMenuItems(identification: string, name: string, surname: string, email: string, options: string) {
     return [
-      { field: 'agent_id', header: 'Identificador' },
-      { field: 'name', header: 'Nombre' },
-      { field: 'surname', header: 'Apellidos' },
-      { field: 'email', header: 'Email' },
-      { field: 'options', header: 'Opciones' }
-    ]
+      { field: 'agent_id', header: identification },
+      { field: 'name', header: name },
+      { field: 'surname', header: surname },
+      { field: 'email', header: email },
+      { field: 'options', header: options }]
   }
 
   private mapTableRow(agent: TravelAgent) {

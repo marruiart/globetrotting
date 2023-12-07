@@ -5,7 +5,7 @@ import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Client } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { AgentService } from 'src/app/core/services/api/agent.service';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
@@ -103,7 +103,7 @@ export class BookingsPage implements OnInit {
     return [];
   }
 
-  private mapTableRow(user: User | null, booking: Booking, destination: Destination): TableRow | null {
+  private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow | null {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       const clientTableRow: ClientTableRow = {
         booking_id: booking.id,

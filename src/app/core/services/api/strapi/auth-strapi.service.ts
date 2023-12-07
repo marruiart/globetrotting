@@ -1,19 +1,21 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { catchError, lastValueFrom, of, switchMap, tap } from 'rxjs';
-import { AgentRegisterInfo, NewUser, User, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
+import { catchError, lastValueFrom, of, switchMap, tap, throwError } from 'rxjs';
+import { AgentRegisterInfo, NewExtUser, ExtUser, UserCredentials, UserRegisterInfo } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
-import { Client, NewClient } from 'src/app/core/models/globetrotting/client.interface';
+import { NewClient } from 'src/app/core/models/globetrotting/client.interface';
 import { NewTravelAgent, TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { MappingService } from '../mapping.service';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
+  private mappingSvc = inject(MappingService);
   private clientSvc = inject(ClientService);
   private agentSvc = inject(AgentService);
   private authFacade = inject(AuthFacade);
@@ -32,7 +34,7 @@ export class AuthStrapiService extends AuthService {
   public login(credentials: UserCredentials): Observable<void> {
     let _credentials: StrapiLoginPayload = {
       identifier: credentials.username,
-      password: credentials.password
+      password: credentials.password ?? ""
     }
     return new Observable<void>(observer => {
       this.post<StrapiLoginResponse>("/api/auth/local", _credentials)
@@ -41,7 +43,6 @@ export class AuthStrapiService extends AuthService {
             if (auth) {
               await lastValueFrom(this.jwtSvc.saveToken(auth.jwt))
                 .catch(err => console.error(err));
-              this._isLogged.next(true);
               observer.next();
               observer.complete();
             } else {
@@ -56,11 +57,12 @@ export class AuthStrapiService extends AuthService {
   }
 
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<void> {
-    let nickname = registerInfo.nickname ?? registerInfo.username.slice(0, registerInfo.username.indexOf("@"));
+    let _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
+    let nickname = _agentInfo.nickname ?? registerInfo.username.slice(0, registerInfo.username.indexOf("@"));
     let _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.email,
       email: registerInfo.email,
-      password: registerInfo.password
+      password: registerInfo.password ?? ""
     }
     return new Observable<void>(observer => {
       this.post<StrapiRegisterResponse>("/api/auth/local/register", _registerInfo)
@@ -77,15 +79,14 @@ export class AuthStrapiService extends AuthService {
               }
 
               // Create related extended user
-              const user: NewUser = {
+              const user: NewExtUser = {
                 user_id: response.user.id,
-                name: registerInfo.name,
-                surname: registerInfo.surname,
+                name: _agentInfo?.name,
+                surname: _agentInfo?.surname,
                 nickname: nickname
               }
-              this._isLogged.next(true);
               const newUser = await lastValueFrom(this.userSvc.addUser(user)
-                .pipe(switchMap((newUser: User): Observable<User> => {
+                .pipe(switchMap((newUser: ExtUser): Observable<ExtUser> => {
                   if (isAgent) {
                     let _user: any = {
                       id: newUser.id,
@@ -160,12 +161,28 @@ export class AuthStrapiService extends AuthService {
             role: res.role.type.toUpperCase()
           }
           observer.next(authUser);
+          observer.complete();
         },
         error: err => {
           observer.error(err);
         }
       });
     })
+  }
+
+  public updateIdentifiers(user: UserCredentials): Observable<UserCredentials> {
+    if (user.id) {
+      return this.update("/api/users", user.id, user, this.mappingSvc.mapUserCredentials);
+    }
+    return throwError(() => "Usuario no actualizado: se desconoce el id del usuario");
+  }
+
+  public getUserIdentifiers(id: number): Observable<UserCredentials> {
+    return this.get<UserCredentials>("/api/users", id, this.mappingSvc.mapUserCredentials);
+  }
+
+  public deleteUser(id: number): Observable<UserCredentials> {
+    return this.delete<UserCredentials>("/api/users", this.mappingSvc.mapUserCredentials, id);
   }
 
 }

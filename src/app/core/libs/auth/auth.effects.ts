@@ -43,6 +43,21 @@ export class AuthEffects {
             )))
     );
 
+    register$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.register),
+            switchMap(props => this.authSvc.register(props.registerInfo).pipe(
+                map(() => AuthActions.registerSuccess()),
+                catchError(error => of(AuthActions.registerFailure({ error: error })))
+            )))
+    );
+
+    registerSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.registerSuccess),
+            switchMap(() => of(AuthActions.loginSuccess())))
+    );
+
     assignRole$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.loginSuccess),

@@ -4,7 +4,7 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewUser, PaginatedUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -81,7 +81,7 @@ export class MappingStrapiService extends MappingService {
 
   // USERS
 
-  private mapUserData = (data: StrapiData<StrapiExtendedUser>): User => {
+  private mapUserData = (data: StrapiData<StrapiExtendedUser>): ExtUser => {
     const user_id = (data.attributes.user as StrapiResponse<StrapiUser>)?.data?.id ?? null;
     if (!user_id) {
       console.info(`Usuario con id ${data.id} no asociado a un user_id`);
@@ -97,22 +97,34 @@ export class MappingStrapiService extends MappingService {
     }
   }
 
-  public mapUser = (res: StrapiResponse<StrapiExtendedUser>): User =>
+  public mapUser = (res: StrapiResponse<StrapiExtendedUser>): ExtUser =>
     this.mapUserData(res.data);
 
-  public mapUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): User[] =>
-    this.extractArrayData<User, StrapiExtendedUser>(res, this.mapUserData);
+  public mapUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): ExtUser[] =>
+    this.extractArrayData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
 
-  public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedUser =>
-    this.extractPaginatedData<User, StrapiExtendedUser>(res, this.mapUserData);
+  public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedExtUser =>
+    this.extractPaginatedData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
+
+  public mapUserCredentials = (res: StrapiUser): UserCredentials => {
+    const credentials: UserCredentials = {
+      id: res.id,
+      username: res.username,
+      email: res.email,
+      password: null
+    }
+    return credentials;
+  }
 
   // FAVORITES
 
   private mapFavData = (data: StrapiData<StrapiFav>): Fav => {
+    const destination_id = (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data?.id;
+    const client_id = (data.attributes.client as StrapiResponse<StrapiClient>)?.data?.id;
     return {
       id: data.id,
-      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data.id,
-      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data.id
+      destination_id: destination_id,
+      client_id: client_id
     }
   }
 
@@ -241,7 +253,7 @@ export class MappingStrapiService extends MappingService {
     }
   }
 
-  public mapExtendedUserPayload(user: NewUser): StrapiPayload<StrapiExtendedUser> {
+  public mapExtendedUserPayload(user: NewExtUser): StrapiPayload<StrapiExtendedUser> {
     return {
       data: {
         nickname: user.nickname,

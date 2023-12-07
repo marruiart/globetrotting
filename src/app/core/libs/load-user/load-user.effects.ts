@@ -8,7 +8,7 @@ import { AgentService } from "../../services/api/agent.service";
 import { TravelAgent } from "../../models/globetrotting/agent.interface";
 import { Client } from "../../models/globetrotting/client.interface";
 import { UsersService } from "../../services/api/users.service";
-import { User } from "../../models/globetrotting/user.interface";
+import { ExtUser } from "../../models/globetrotting/user.interface";
 import { UserFacade } from "./load-user.facade";
 
 @Injectable()
@@ -44,7 +44,7 @@ export class UserEffects {
             ofType(UserActions.loadExtendedUser),
             switchMap((props) => {
                 const user_id = props.user_id;
-                let user: User | null = null;
+                let user: ExtUser | null = null;
                 return this.userSvc.extendedMe(user_id).pipe(
                     map((extendedUser) => {
                         user = extendedUser;

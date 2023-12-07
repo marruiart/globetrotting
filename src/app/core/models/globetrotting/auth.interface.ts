@@ -1,4 +1,4 @@
-import { User } from "./user.interface"
+import { ExtUser } from "./user.interface"
 
 export interface Auth {
     jwt: string

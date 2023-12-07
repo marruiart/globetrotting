@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
+import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
 import { UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 
@@ -11,31 +11,14 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage {
-  public registerForm: FormGroup;
 
   constructor(
-    private fb: FormBuilder,
+    private authFacade: AuthFacade,
     private authSvc: AuthService,
     private router: Router
-  ) {
-    this.registerForm = this.fb.group({
-      email: ['', [
-        Validators.required,
-        Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-      ]],
-      password: ['', Validators.required],
-      passwordRepeat: ['', Validators.required]
-    });
-  }
+  ) {  }
 
-  public onRegister() {
-    const credentials: UserRegisterInfo = {
-      username: this.registerForm.value.email,
-      email: this.registerForm.value.email,
-      password: this.registerForm.value.password
-    }
-    lastValueFrom(this.authSvc.register(credentials))
-      .then(_ => this.router.navigate(['/home']))
-      .catch(err => console.error(err));
+  public doRegister(credentials: UserRegisterInfo) {
+    this.authFacade.register(credentials);
   }
 }

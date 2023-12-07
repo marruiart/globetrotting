@@ -5,30 +5,3 @@
     align-items: center;
     justify-content: center;
   }
-  
-  form {
-    background-color: var(--surface-ground);
-    display: flex;
-    flex-direction: column;
-    row-gap: 2.5rem;
-    padding: 3rem;
-    border-radius: 10px;
-  }
-  
-  .password {
-    display: flex;
-  }
-  
-  ::ng-deep {
-    .p-inputtext {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-    }
-  
-    .p-inputgroup-addon:last-child {
-      border-right: none;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-  }
-  

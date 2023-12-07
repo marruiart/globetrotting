@@ -1,0 +1,133 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit($event)">
+  <ng-container *ngTemplateOutlet="form" />
+
+  <ng-template #form [ngSwitch]="formType">
+    <h2 *ngSwitchCase="'LOGIN'">Inicio de sesión</h2>
+    <h2 *ngSwitchCase="'REGISTER'">Registro</h2>
+    <h2 *ngSwitchCase="'REGISTER_AGENT'">Alta de agente de viajes</h2>
+  </ng-template>
+  <!-- Username -->
+  <div class="p-inputgroup" *ngIf="formType == 'LOGIN'">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-user"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="username" formControlName="username" />
+      <label htmlFor="username">Usuario</label>
+    </span>
+  </div>
+  <!-- Email -->
+  <div
+    class="p-inputgroup"
+    *ngIf="formType == 'REGISTER' || formType == 'REGISTER_AGENT'"
+  >
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-at"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="email" formControlName="email" />
+      <label htmlFor="email">Email</label>
+    </span>
+  </div>
+  <!-- Password -->
+  <div class="password" *ngIf="!actionUpdate">
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
+    </div>
+    <span class="p-float-label">
+      <p-password
+        [feedback]="false"
+        id="password"
+        [toggleMask]="true"
+        formControlName="password"
+      ></p-password>
+      <label for="password">Contraseña</label>
+    </span>
+  </div>
+  <!-- Repeat password -->
+  <div
+    class="password"
+    *ngIf="
+      (formType == 'REGISTER' || formType == 'REGISTER_AGENT') && !actionUpdate
+    "
+  >
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
+    </div>
+    <span class="p-float-label">
+      <p-password
+        [feedback]="false"
+        id="password-repeat"
+        [toggleMask]="true"
+        formControlName="passwordRepeat"
+      ></p-password>
+      <label for="password-repeat">Repetir contraseña</label>
+    </span>
+  </div>
+  <!-- Name -->
+  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-id-card"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="name" formControlName="name" />
+      <label htmlFor="name">Nombre</label>
+    </span>
+  </div>
+  <!-- Surname -->
+  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-id-card"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="surname" formControlName="surname" />
+      <label htmlFor="surname">Apellidos</label>
+    </span>
+  </div>
+  <!-- Nickname -->
+  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+    <span class="p-inputgroup-addon">
+      <i class="pi pi-star"></i>
+    </span>
+    <span class="p-float-label">
+      <input pInputText id="nickname" formControlName="nickname" />
+      <label htmlFor="nickname">Nickname</label>
+    </span>
+  </div>
+
+  <p-button
+    *ngIf="formType == 'LOGIN'"
+    label="No tengo cuenta"
+    styleClass="p-button-link"
+    (click)="onNavigateToRegister()"
+  ></p-button>
+
+  <ng-container *ngIf="!actionUpdate">
+    <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
+  </ng-container>
+  <ng-template #submitBtn [ngSwitch]="formType">
+    <p-button type="submit" label="Entrar" *ngSwitchCase="'LOGIN'" />
+    <p-button type="submit" label="Registrarme" *ngSwitchCase="'REGISTER'" />
+    <p-button
+      type="submit"
+      label="Dar de alta agente"
+      *ngSwitchCase="'REGISTER_AGENT'"
+    />
+  </ng-template>
+
+  <ng-container *ngIf="actionUpdate">
+    <ng-container *ngTemplateOutlet="updateBtn"></ng-container>
+  </ng-container>
+  <ng-template #updateBtn [ngSwitch]="formType">
+    <p-button type="submit" label="Modificar perfil" *ngSwitchCase="'LOGIN'" />
+    <p-button
+      type="submit"
+      label="Modificar agente"
+      *ngSwitchCase="'REGISTER_AGENT'"
+    />
+  </ng-template>
+</form>

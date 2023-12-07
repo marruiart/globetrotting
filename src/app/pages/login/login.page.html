@@ -1,33 +1,5 @@
-<form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-  <h2>Inicio de sesión</h2>
-  <div class="p-inputgroup">
-    <span class="p-inputgroup-addon">
-      <i class="pi pi-user"></i>
-    </span>
-    <span class="p-float-label">
-      <input pInputText id="username" formControlName="username" />
-      <label htmlFor="username">Usuario</label>
-    </span>
-  </div>
-
-  <div class="password">
-    <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">
-        <i class="pi pi-key"></i>
-      </span>
-    </div>
-    <span class="p-float-label">
-      <p-password
-        [feedback]="false"
-        id="password"
-        [toggleMask]="true"
-        formControlName="password"
-      ></p-password>
-      <label for="password">Contraseña</label>
-    </span>
-  </div>
-
-  <p-button label="No tengo cuenta" styleClass="p-button-link" (click)="onCreateAccount()"></p-button>
-
-  <p-button type="submit" label="Entrar"></p-button>
-</form>
+<app-user-form
+  (onLoginClicked)="doLogin($event)"
+  (onNavigateToRegisterClicked)="navigateToRegister()"
+  [formType]="'LOGIN'"
+/>

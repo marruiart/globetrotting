@@ -12,7 +12,7 @@ import { FavPipe } from './pipes/fav.pipe';
 import { UserModule } from '../core/libs/load-user/load-user.module';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
 import { DestinationFormComponent } from './components/destination-form/destination-form.component';
-import { AgentFormComponent } from './components/agent-form/agent-form.component';
+import { UserFormComponent } from './components/user-form/user-form.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +22,7 @@ import { AgentFormComponent } from './components/agent-form/agent-form.component
     DestinationCardComponent,
     BookingFormComponent,
     DestinationFormComponent,
-    AgentFormComponent,
+    UserFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe
@@ -48,7 +48,7 @@ import { AgentFormComponent } from './components/agent-form/agent-form.component
     DestinationCardComponent,
     BookingFormComponent,
     DestinationFormComponent,
-    AgentFormComponent,
+    UserFormComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

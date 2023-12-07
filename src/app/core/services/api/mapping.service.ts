@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewUser, PaginatedUser, User } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
@@ -17,9 +17,10 @@ export abstract class MappingService {
   public abstract mapDestination(res: any): Destination
   public abstract mapPaginatedDestinations(res: any): PaginatedDestination
 
-  public abstract mapUser(res: any): User
-  public abstract mapUsers(res: any): User[]
-  public abstract mapPaginatedUsers(res: any): PaginatedUser
+  public abstract mapUser(res: any): ExtUser
+  public abstract mapUsers(res: any): ExtUser[]
+  public abstract mapPaginatedUsers(res: any): PaginatedExtUser
+  public abstract mapUserCredentials(res: any): UserCredentials
 
   public abstract mapFav(res: any): Fav
   public abstract mapFavs(res: any): Fav[]
@@ -41,7 +42,7 @@ export abstract class MappingService {
 
   public abstract mapDestinationPayload(destination: NewDestination): any;
   public abstract mapFavPayload(fav: NewFav): any;
-  public abstract mapExtendedUserPayload(user: NewUser): any;
+  public abstract mapExtendedUserPayload(user: NewExtUser): any;
   public abstract mapClientPayload(client: NewClient): any
   public abstract mapAgentPayload(client: NewTravelAgent): any
   public abstract mapBookingPayload(destination: NewBooking): any;

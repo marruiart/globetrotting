@@ -16,14 +16,14 @@
           <td *ngFor="let col of columns">
             <ng-container *ngIf="col.field === 'options'; else otherColumns">
               <p-button
-                icon="pi pi-pencil"
+                icon="pi pi-user-edit"
                 styleClass="p-button-rounded p-button-primary p-button-text"
-                (click)="showAgentForm(rowData)"
+                (click)="showAgentForm(rowData, true)"
               ></p-button>
               <p-button
                 icon="pi pi-trash"
                 styleClass="p-button-rounded p-button-danger p-button-text"
-                (click)="showConfirmDialog(rowData.id)"
+                (click)="showConfirmDialog(rowData)"
               ></p-button>
             </ng-container>
             <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
@@ -44,10 +44,12 @@
       styleClass="booking-form"
       contentStyleClass="booking-form-content"
     >
-      <app-agent-form
+      <app-user-form
         [agent]="selectedAgent"
-        (onAgentFormAccepted)="addOrEditAgent($event)"
-      />
+        (onRegisterAgentClicked)="addOrEditAgent($event)"
+        [formType]="'REGISTER_AGENT'"
+        [actionUpdate]="isUpdating"
+      ></app-user-form>
     </p-dialog>
     <p-button
       label="Añadir agente"

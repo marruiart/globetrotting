@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { NewUser, User } from '../../models/globetrotting/user.interface';
+import { NewExtUser, ExtUser } from '../../models/globetrotting/user.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
@@ -13,10 +13,10 @@ export class UserNotFoundException extends Error { }
 })
 export class UsersService extends ApiService {
   private path: string = "/api/extended-users";
-  private _users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
-  public users$: Observable<User[]> = this._users.asObservable();
-  private _extendedMe: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
-  public extendedMe$: Observable<User | null> = this._extendedMe.asObservable();
+  private _users: BehaviorSubject<ExtUser[]> = new BehaviorSubject<ExtUser[]>([]);
+  public users$: Observable<ExtUser[]> = this._users.asObservable();
+  private _extendedMe: BehaviorSubject<ExtUser | null> = new BehaviorSubject<ExtUser | null>(null);
+  public extendedMe$: Observable<ExtUser | null> = this._extendedMe.asObservable();
   public jwt: string = "";
   private queries: { [query: string]: string } = {
     "populate": "avatar,user"
@@ -28,26 +28,26 @@ export class UsersService extends ApiService {
     super();
   }
 
-  public getAllUsers(): Observable<User[]> {
-    return this.getAll<User[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
+  public getAllUsers(): Observable<ExtUser[]> {
+    return this.getAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
     }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
   }
 
-  public getUser(id: number): Observable<User> {
-    return this.get<User>(this.path, id, this.mapSvc.mapUser, this.queries)
+  public getUser(id: number): Observable<ExtUser> {
+    return this.get<ExtUser>(this.path, id, this.mapSvc.mapUser, this.queries)
       .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
   }
 
-  public getAgentUser(id: number | null): Observable<User | null> {
+  public getAgentUser(id: number | null): Observable<ExtUser | null> {
     return this.extendedMe(id);
   }
 
-  public getClientUser(id: number | null): Observable<User | null> {
+  public getClientUser(id: number | null): Observable<ExtUser | null> {
     return this.extendedMe(id);
   }
 
-  public extendedMe(id: number | null): Observable<User | null> {
+  public extendedMe(id: number | null): Observable<ExtUser | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${id}`;
@@ -66,24 +66,24 @@ export class UsersService extends ApiService {
     }
   }
 
-  public addUser(user: NewUser, updateObs: boolean = true): Observable<User> {
-    return this.add<User>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+  public addUser(user: NewExtUser, updateObs: boolean = true): Observable<ExtUser> {
+    return this.add<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
     }), catchError((err) => throwError(() => { 'No se ha podido añadir al usuario'; console.error(err) })));
   }
 
-  public updateUser(user: User, updateObs: boolean = true): Observable<User> {
-    return this.update<User>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+  public updateUser(user: ExtUser, updateObs: boolean = true): Observable<ExtUser> {
+    return this.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
     }), catchError((err) => throwError(() => { 'No se ha podido modificar el usuario'; console.error(err) })));
   }
 
-  public deleteUser(id: number): Observable<User> {
-    return this.delete<User>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
+  public deleteUser(id: number): Observable<ExtUser> {
+    return this.delete<ExtUser>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
       this.getAllUsers().subscribe();
     }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
   }

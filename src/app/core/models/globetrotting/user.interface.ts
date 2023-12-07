@@ -3,10 +3,10 @@ import { Client } from "./client.interface"
 import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
 
-export interface User extends NewUser {
+export interface ExtUser extends NewExtUser {
     id: number
 }
-export interface NewUser {
+export interface NewExtUser {
     nickname: string,
     avatar?: Media,
     name?: string,
@@ -27,23 +27,26 @@ export interface NewUser {
     }
 } */
 
-export type PaginatedUser = PaginatedData<User>
+export type PaginatedExtUser = PaginatedData<ExtUser>
 
 export interface UserCredentials {
+    /**
+     * id of the User-Permissions table
+     */
+    id?: number,
     username: string,
-    password: string
+    email?: string,
+    password: string | null
 }
 
-export interface UserRegisterInfo {
-    email: string,
-    username: string,
-    password: string,
-    name?: string,
-    surname?: string,
-    nickname?: string
+export interface UserRegisterInfo extends UserCredentials {
+    email: string
 }
 
 export interface AgentRegisterInfo extends UserRegisterInfo {
+    /**
+     * id of the Agent table
+     */
     id: number,
     name: string,
     surname: string,
@@ -52,6 +55,6 @@ export interface AgentRegisterInfo extends UserRegisterInfo {
 
 export interface FullUser {
     user?: UserCredentials | null
-    extendedUser: User | null
+    extendedUser: ExtUser | null
     specificUser: Client | TravelAgent | null
 }

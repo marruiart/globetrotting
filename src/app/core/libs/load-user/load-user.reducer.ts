@@ -2,13 +2,13 @@ import { createReducer, on } from '@ngrx/store';
 import * as UserActions from './load-user.actions';
 import * as AuthActions from '../auth/auth.actions';
 import { Client } from '../../models/globetrotting/client.interface';
-import { User } from '../../models/globetrotting/user.interface';
+import { ExtUser } from '../../models/globetrotting/user.interface';
 import { TravelAgent } from '../../models/globetrotting/agent.interface';
 
 export const USER_FEATURE_KEY = 'user'
 
 export interface UserState {
-    extendedUser: User | null,
+    extendedUser: ExtUser | null,
     specificUser: Client | TravelAgent | null
 }
 

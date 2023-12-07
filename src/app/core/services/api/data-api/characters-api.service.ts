@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { Character } from '../../../models/rick-morty-api/character.interface';
 import { HttpService } from '../../http/http.service';
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
-import { User, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { ExtUser, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { AuthService } from '../../auth/auth.service';
 
@@ -70,7 +70,7 @@ export class CharactersApiService {
     }
   }
 
-  public addCharacter(character: Character): Observable<User> {
+  public addCharacter(character: Character): Observable<ExtUser> {
     return this.authSvc.register(this.getCharacterCredentials(character));
   }
 

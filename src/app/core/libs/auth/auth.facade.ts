@@ -20,6 +20,10 @@ export class AuthFacade {
         this.store.dispatch(AuthAction.login({ credentials: credentials }));
     }
 
+    setLoginStateTrue() {
+        this.store.dispatch(AuthAction.loginSuccess());
+    }
+
     logout() {
         this.store.dispatch(AuthAction.logout());
     }

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 
-type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT";
+type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE";
 
 @Component({
   selector: 'app-user-form',
@@ -41,10 +41,22 @@ export class UserFormComponent implements OnDestroy {
       this.userForm.controls['nickname'].setValue(agent.nickname);
     }
   }
+  @Input() set user(fullUser: FullUser | null) {
+    if (fullUser) {
+      this.userForm.controls['id'].setValue(fullUser.extendedUser?.id);
+      this.userForm.controls['user_id'].setValue(fullUser.user?.id);
+      this.userForm.controls['email'].setValue(fullUser.user?.email);
+      this.userForm.controls['name'].setValue(fullUser.extendedUser?.name);
+      this.userForm.controls['surname'].setValue(fullUser.extendedUser?.surname);
+      this.userForm.controls['nickname'].setValue(fullUser.extendedUser?.nickname);
+    }
+  }
   @Output() onLoginClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterAgentClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onNavigateToRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() onUpdateProfileClicked: EventEmitter<any> = new EventEmitter<any>();
+
 
   constructor(
     private fb: FormBuilder
@@ -75,6 +87,18 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
+          email: [{ value: '', disabled: true }, [, Validators.required]],
+          password: ['', [Validators.required]],
+          passwordRepeat: ['', [Validators.required]],
+          name: ['', [Validators.required]],
+          surname: ['', [Validators.required]],
+          nickname: ['', [Validators.required]],
+        });
+        break;
+      case 'PROFILE':
+        this.userForm = this.fb.group({
+          id: [null],
+          user_id: [null],
           email: ['', [Validators.required]],
           password: ['', [Validators.required]],
           passwordRepeat: ['', [Validators.required]],
@@ -100,9 +124,32 @@ export class UserFormComponent implements OnDestroy {
       case 'REGISTER_AGENT':
         this.onRegisterAgent(event);
         break;
+      case 'PROFILE':
+        this.onUpdateProfile(event);
+        break;
       default:
         console.error("Error al enviar el formulario");
     }
+  }
+
+  private onUpdateProfile(event: Event) {
+    event.stopPropagation();
+    const fullUser: FullUser = {
+      user: {
+        id: this.userForm.value.user_id,
+        email: this.userForm.value.email,
+        username: this.userForm.value.username,
+        password: this.userForm.value.password
+      },
+      extendedUser: {
+        id: this.userForm.value.id,
+        nickname: this.userForm.value.nickname,
+        name: this.userForm.value.name,
+        surname: this.userForm.value.surname
+      },
+      specificUser: null
+    };
+    this.onUpdateProfileClicked.emit(fullUser);
   }
 
   private onRegisterAgent(event: Event) {

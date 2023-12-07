@@ -54,7 +54,7 @@ export interface AgentRegisterInfo extends UserRegisterInfo {
 }
 
 export interface FullUser {
-    user?: UserCredentials | null
+    user: UserCredentials | null
     extendedUser: ExtUser | null
     specificUser: Client | TravelAgent | null
 }

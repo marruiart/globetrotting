@@ -19,7 +19,11 @@
   <!-- Email -->
   <div
     class="p-inputgroup"
-    *ngIf="formType == 'REGISTER' || formType == 'REGISTER_AGENT'"
+    *ngIf="
+      formType == 'REGISTER' ||
+      formType == 'REGISTER_AGENT' ||
+      formType == 'PROFILE'
+    "
   >
     <span class="p-inputgroup-addon">
       <i class="pi pi-at"></i>
@@ -30,7 +34,7 @@
     </span>
   </div>
   <!-- Password -->
-  <div class="password" *ngIf="!actionUpdate">
+  <div class="password" *ngIf="!actionUpdate || formType == 'PROFILE'">
     <div class="p-inputgroup">
       <span class="p-inputgroup-addon">
         <i class="pi pi-key"></i>
@@ -50,7 +54,9 @@
   <div
     class="password"
     *ngIf="
-      (formType == 'REGISTER' || formType == 'REGISTER_AGENT') && !actionUpdate
+      (formType == ('REGISTER' || formType == 'REGISTER_AGENT') &&
+        !actionUpdate) ||
+      formType == 'PROFILE'
     "
   >
     <div class="p-inputgroup">
@@ -69,7 +75,10 @@
     </span>
   </div>
   <!-- Name -->
-  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+  <div
+    class="p-inputgroup"
+    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+  >
     <span class="p-inputgroup-addon">
       <i class="pi pi-id-card"></i>
     </span>
@@ -79,7 +88,10 @@
     </span>
   </div>
   <!-- Surname -->
-  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+  <div
+    class="p-inputgroup"
+    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+  >
     <span class="p-inputgroup-addon">
       <i class="pi pi-id-card"></i>
     </span>
@@ -89,7 +101,10 @@
     </span>
   </div>
   <!-- Nickname -->
-  <div class="p-inputgroup" *ngIf="formType == 'REGISTER_AGENT'">
+  <div
+    class="p-inputgroup"
+    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+  >
     <span class="p-inputgroup-addon">
       <i class="pi pi-star"></i>
     </span>
@@ -123,7 +138,11 @@
     <ng-container *ngTemplateOutlet="updateBtn"></ng-container>
   </ng-container>
   <ng-template #updateBtn [ngSwitch]="formType">
-    <p-button type="submit" label="Modificar perfil" *ngSwitchCase="'LOGIN'" />
+    <p-button
+      type="submit"
+      label="Modificar perfil"
+      *ngSwitchCase="'PROFILE'"
+    />
     <p-button
       type="submit"
       label="Modificar agente"

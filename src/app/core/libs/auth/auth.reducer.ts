@@ -4,7 +4,7 @@ import * as AuthAction from './auth.actions';
 export const AUTH_FEATURE_KEY = 'auth'
 
 export interface AuthState {
-    isLogged: Boolean,
+    isLogged: boolean,
     role: string | null,
     user_id: number | null,
     error: any | null

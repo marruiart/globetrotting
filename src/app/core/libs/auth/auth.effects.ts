@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { Router } from "@angular/router";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap } from "rxjs";
 import { MenuService } from "../../services/menu.service";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { UserFacade } from "../load-user/load-user.facade";
+import { Router } from "@angular/router";
+import { AuthFacade } from "./auth.facade";
 
 @Injectable()
 export class AuthEffects {
@@ -15,7 +16,8 @@ export class AuthEffects {
         private actions$: Actions,
         private authSvc: AuthService,
         private userFacade: UserFacade,
-        private menuSvc: MenuService
+        private menuSvc: MenuService,
+        private router: Router
     ) { }
 
     init$ = createEffect(() =>

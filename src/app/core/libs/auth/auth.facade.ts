@@ -9,6 +9,7 @@ export class AuthFacade {
 
     private readonly store = inject(Store);
     userId$ = this.store.pipe(select(AuthSelector.selectCurrentUserId));
+    isLogged$ = this.store.pipe(select(AuthSelector.selectLoggedState));
     role$ = this.store.pipe(select(AuthSelector.selectCurrentRole));
 
     init() {

@@ -5,6 +5,7 @@ import * as AuthSelector from './load-user.selectors'
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { Client } from "../../models/globetrotting/client.interface";
 import { TravelAgent } from "../../models/globetrotting/agent.interface";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class UserFacade {
@@ -18,8 +19,11 @@ export class UserFacade {
     bookings$ = this.store.pipe(select(AuthSelector.selectUserBookings));
     favorites$ = this.store.pipe(select(AuthSelector.selectUserFavorites));
 
+    constructor(private router: Router) { }
+
     init(user: AuthUser) {
-        this.store.dispatch(UserActions.loadUser({ user: user }));
+        console.log(this.router.url);
+        this.store.dispatch(UserActions.loadUser({ user: user, redirectUrl: this.router.url }));
     }
 
     loadExtendedUser(id: number) {

@@ -29,12 +29,12 @@ export class MenuService {
       {
         label: 'Gestionar reservas',
         icon: 'custom-icon calendar-outline',
-        routerLink: ['/bookings']
+        routerLink: ['/admin/bookings']
       },
       {
         label: 'Gestionar destinos',
         icon: 'custom-icon trail-sign-outline',
-        routerLink: ['/destinations-management']
+        routerLink: ['/admin/destinations-management']
       }
     ],
     styleClass: "login-btn"
@@ -49,7 +49,7 @@ export class MenuService {
       {
         label: 'Gestionar agentes',
         icon: 'custom-icon people-outline',
-        routerLink: ['/agents-management']
+        routerLink: ['/admin/agents-management']
       }
     ],
     styleClass: this.managingItem.styleClass

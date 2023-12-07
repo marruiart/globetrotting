@@ -7,7 +7,6 @@ export const login = createAction('[Auth API] Login', props<{ credentials: UserC
 export const loginSuccess = createAction('[Auth API] Login Success');
 export const loginFailure = createAction('[Auth API] Login Failure', props<{ error: any }>());
 export const assignRole = createAction('[Auth API] Assign Role', props<{ user: AuthUser }>());
-export const redirectRole = createAction('[Auth API] Redirect Role', props<{ redirectUrl: string }>());
 export const logout = createAction('[Auth API] Logout');
 export const logoutSuccess = createAction('[Auth API] Logout Success');
 export const logoutFailure = createAction('[Auth API] Logout Failure', props<{ error: any }>());

@@ -4,7 +4,7 @@ import { AuthUser } from '../../models/globetrotting/auth.interface';
 import { Client } from '../../models/globetrotting/client.interface';
 import { TravelAgent } from '../../models/globetrotting/agent.interface';
 
-export const loadUser = createAction('[Load User] Load User', props<{ user: AuthUser }>());
+export const loadUser = createAction('[Load User] Load User', props<{ user: AuthUser, redirectUrl: string }>());
 export const loadExtendedUser = createAction('[Load User] Load Extended User', props<{ user_id: number }>());
 export const loadSpecificUser = createAction('[Load User] Load Specific User', props<{ user_id: number, role: string }>());
 export const assignExtendedUser = createAction('[Load User] Assing Extended User', props<{ extendedUser: ExtUser | null }>());

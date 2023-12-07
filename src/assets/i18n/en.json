@@ -1,0 +1,23 @@
+{
+  "home": {
+    "heroMessage": "Discover your own adventure",
+    "heroButton": "Book yours now"
+  },
+  "menu": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "managing": {
+      "top": "Management",
+      "bookings": "Booking management",
+      "destinations": "Destinations management",
+      "agents": "Agents management"
+    },
+    "login": "Login",
+    "user": {
+        "top": "User",
+        "profile": "My profile",
+        "logout": "Log out",
+        "bookings": "My bookings"
+    }
+  }
+}

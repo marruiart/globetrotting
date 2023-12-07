@@ -3,9 +3,9 @@
   <section class="content hero-section">
     <div>
       <h1>
-        Descubre tu propia aventura
+        {{ "home.heroMessage" | translate }}
       </h1>
-      <p-button label="Reserva ya la tuya"></p-button>
+      <p-button [label]="this.translate.get('home.heroButton') | async"></p-button>
     </div>
     <div>
       <img src="/assets/home/hero.svg" alt="">

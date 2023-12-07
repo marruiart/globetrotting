@@ -1,0 +1,23 @@
+{
+  "home": {
+    "heroMessage": "Descubre tu propia aventura",
+    "heroButton": "Reserva ya la tuya"
+  },
+  "menu": {
+    "home": "Inicio",
+    "destinations": "Destinos",
+    "managing": {
+      "top": "Gestión",
+      "bookings": "Gestionar reservas",
+      "destinations": "Gestionar destinos",
+      "agents": "Gestionar agentes"
+    },
+    "login": "Login",
+    "user": {
+        "top": "Usuario",
+        "profile": "Mi perfil",
+        "logout": "Salir",
+        "bookings": "Mis reservas"
+    }
+  }
+}

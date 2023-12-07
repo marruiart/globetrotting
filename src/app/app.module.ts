@@ -21,6 +21,8 @@ import { AuthModule } from './core/libs/auth/auth.module';
 import { UserModule } from './core/libs/load-user/load-user.module';
 import { DatePipe } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
 @NgModule({
   declarations: [
@@ -34,6 +36,13 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     HttpClientModule,
     StoreModule.forRoot({}),
     EffectsModule.forRoot([]),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (translateLoaderFactory),
+        deps: [HttpClient]
+      }
+    }),
     AuthModule,
     UserModule
   ],

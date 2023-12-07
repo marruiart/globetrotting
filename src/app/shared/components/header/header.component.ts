@@ -35,7 +35,11 @@ export class HeaderComponent implements OnDestroy {
       })
     }, {
       component: 'HeaderComponent',
-      sub: combineLatest([this.menuSvc.menu$, this.userFacade.nickname$]).subscribe(([menu, nickname]) => this.menuSvc.setNickname(nickname ?? ''))
+      sub: combineLatest([this.menuSvc.menu$, this.userFacade.nickname$]).subscribe(([menu, nickname]) => {
+        if (nickname) {
+          this.menuSvc.setNickname(nickname);
+        }
+      })
     }])
   }
 

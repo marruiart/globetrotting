@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from 'src/app/core/services/theme.service';
 
 @Component({
@@ -21,7 +22,8 @@ export class HomePage {
   public selectedTheme: { code: string, name: string } = this.themes[0];
 
   constructor(
-    private themeSvc: ThemeService
+    private themeSvc: ThemeService,
+    public translate: TranslateService
   ) { }
 
   public changeTheme(themeCode: string) {

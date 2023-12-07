@@ -22,7 +22,6 @@ export class UserFacade {
     constructor(private router: Router) { }
 
     init(user: AuthUser) {
-        console.log(this.router.url);
         this.store.dispatch(UserActions.loadUser({ user: user, redirectUrl: this.router.url }));
     }
 

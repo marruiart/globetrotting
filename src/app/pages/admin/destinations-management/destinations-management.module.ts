@@ -4,11 +4,21 @@ import { DestinationsManagementPageRoutingModule } from './destinations-manageme
 
 import { DestinationsManagementPage } from './destinations-management.page';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { HttpClient } from '@angular/common/http';
+import { translateLoaderFactory } from 'src/app/core/factories/translate-loader.factory';
 
 @NgModule({
   imports: [
     SharedModule,
-    DestinationsManagementPageRoutingModule
+    DestinationsManagementPageRoutingModule,
+    TranslateModule.forChild({
+      loader: {
+        provide: TranslateLoader,
+        deps: [HttpClient],
+        useFactory: (translateLoaderFactory)
+      }
+    })
   ],
   declarations: [DestinationsManagementPage]
 })

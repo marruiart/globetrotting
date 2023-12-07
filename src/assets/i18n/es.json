@@ -54,5 +54,13 @@
     "dates": "Fechas de salida y llegada",
     "travelers": "Número de viajeros",
     "acceptBtn": "Aceptar"
+  },
+  "destManagement": {
+    "tableName": "Destino",
+    "tableType": "Tipo",
+    "tableDimension": "Dimensión",
+    "tablePrice": "Precio/persona/noche",
+    "tableDescription": "Descripción",
+    "tableOptions": "Opciones"
   }
 }

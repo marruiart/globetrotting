@@ -1,11 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, lastValueFrom } from "rxjs";
+import { BehaviorSubject, Observable, catchError, lastValueFrom, of, tap, zip } from "rxjs";
 import { UserFacade } from "src/app/core/libs/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
 import { Destination } from "src/app/core/models/globetrotting/destination.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
+import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 
 
@@ -38,7 +39,8 @@ export class DestinationsManagementPage implements OnInit {
     private userFacade: UserFacade,
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translate: CustomTranslateService
   ) {
     this.subsSvc.addSubscription({
       component: 'DestinationsPage',
@@ -50,7 +52,7 @@ export class DestinationsManagementPage implements OnInit {
 
 
   async ngOnInit() {
-    this.cols = this.getCols();
+    this.getCols();
     if (this.currentUser?.type == 'AGENT') {
       let destinations = await lastValueFrom(this.destinationsSvc.getAllDestinations());
       destinations.data.forEach(destination => {
@@ -61,13 +63,29 @@ export class DestinationsManagementPage implements OnInit {
   }
 
   private getCols() {
+    const name$ = this.translate.getTranslation("destManagement.tableName");
+    const type$ = this.translate.getTranslation("destManagement.tableType");
+    const dimension$ = this.translate.getTranslation("destManagement.tableDimension");
+    const price$ = this.translate.getTranslation("destManagement.tablePrice");
+    const description$ = this.translate.getTranslation("destManagement.tableDescription");
+    const options$ = this.translate.getTranslation("destManagement.tableOptions");
+
+    const tableHeaders$ = zip(name$, type$, dimension$, price$, description$, options$).pipe(
+      tap(([name, type, dimension, price, description, options]) => {
+        this.cols = this.translateMenuItems(name, type, dimension, price, description, options);
+      }), catchError(err => of(err)));
+
+    tableHeaders$.subscribe();
+  }
+
+  private translateMenuItems(name: string, type: string, dimension: string, price: string, description: string, options: string) {
     return [
-      { field: 'name', header: 'Destino' },
-      { field: 'type', header: 'Tipo' },
-      { field: 'dimension', header: 'Dimensión' },
-      { field: 'price', header: 'Precio' },
-      { field: 'description', header: 'Descripción' },
-      { field: 'options', header: 'Opciones' }
+      { field: 'name', header: name },
+      { field: 'type', header: type },
+      { field: 'dimension', header: dimension },
+      { field: 'price', header: price },
+      { field: 'description', header: description },
+      { field: 'options', header: options }
     ]
   }
 

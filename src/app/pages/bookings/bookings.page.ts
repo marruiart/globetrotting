@@ -92,25 +92,18 @@ export class BookingsPage implements OnInit {
     const agent$ = this.translate.getTranslation("bookingsPage.tableAgent");
     const client$ = this.translate.getTranslation("bookingsPage.tableClient");
 
-    const tableHeaders$ = zip(
-      destination$,
-      start$,
-      end$,
-      travelers$,
-      confirmationState$,
-      agent$,
-      client$
-    ).pipe(tap(([
-      destination,
-      start,
-      end,
-      travelers,
-      confirmationState,
-      agent,
-      client
-    ]) => {
-      this.cols = this.translateMenuItems(destination, start, end, travelers, confirmationState, agent, client);
-    }), catchError(err => of(err)));
+    const tableHeaders$ = zip(destination$, start$, end$, travelers$, confirmationState$, agent$, client$).pipe(
+      tap(([
+        destination,
+        start,
+        end,
+        travelers,
+        confirmationState,
+        agent,
+        client
+      ]) => {
+        this.cols = this.translateMenuItems(destination, start, end, travelers, confirmationState, agent, client);
+      }), catchError(err => of(err)));
 
     tableHeaders$.subscribe();
   }

@@ -33,7 +33,7 @@
               ></p-tag>
               <p-button
                 *ngIf="!rowData[col.field] && currentUser?.type == 'AGENT'"
-                [label]="'bookingsPage.confirmBtn' | translate"
+                [label]="'bookingsPage.confirmBtn' | translate | uppercase"
                 icon="pi pi-thumbs-up" 
                 styleClass="p-button-secondary p-button-rounded light-tag"
                 (click)="confirmBook(rowData.booking_id)"

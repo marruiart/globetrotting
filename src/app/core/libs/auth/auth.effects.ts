@@ -27,7 +27,6 @@ export class AuthEffects {
         private authSvc: AuthService,
         private userFacade: UserFacade,
         private authFacade: AuthFacade,
-        private menuSvc: MenuService,
     ) { }
 
     init$ = createEffect(() =>
@@ -43,13 +42,11 @@ export class AuthEffects {
                                     role: user.role
                                 }
                                 this.userFacade.init(user);
-                                this.menuSvc.selectMenu(user.role);
                                 return AuthActions.assignRole({ user: authUser });
                             }),
                             catchError(error => of(AuthActions.loginFailure({ error: error })))
                         )
                     } else {
-                        this.menuSvc.selectMenu('PUBLIC');
                         return of(AuthActions.loginFailure({ error: 'Usuario no loggeado' }));
                     }
                 })
@@ -87,7 +84,6 @@ export class AuthEffects {
             switchMap(() => this.authSvc.me().pipe(
                 map((user: AuthUser) => {
                     console.log(`id ${user.user_id}: ${user.role}`);
-                    this.menuSvc.selectMenu(user.role);
                     this.userFacade.init(user);
                     return AuthActions.assignRole({ user: user });
                 }), catchError(error => of(AuthActions.loginFailure({ error: error })))
@@ -99,7 +95,6 @@ export class AuthEffects {
             ofType(AuthActions.logout),
             switchMap(() => this.authSvc.logout().pipe(
                 map(() => {
-                    this.menuSvc.selectMenu('PUBLIC');
                     return AuthActions.logoutSuccess();
                 }),
                 catchError(error => of(AuthActions.logoutFailure({ error: error })))

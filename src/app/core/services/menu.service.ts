@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthFacade } from '../libs/auth/auth.facade';
-import { BehaviorSubject, catchError, map, of, zip } from 'rxjs';
+import { BehaviorSubject, catchError, map, of, switchMap, zip } from 'rxjs';
 import { CustomTranslateService } from './custom-translate.service';
 import { UserFacade } from '../libs/load-user/load-user.facade';
 
@@ -111,17 +111,15 @@ export class MenuService {
     private userFacade: UserFacade,
     private translate: CustomTranslateService
   ) {
-    this.translate.language$.subscribe(_ => {
-      this.selectMenu('PUBLIC');
-    });
-    this.userFacade.nickname$.subscribe(nickname => {
-      if (nickname) {
-        this.userProfileItem.label = nickname;
-      }
-    });
+    this.translate.language$.pipe(
+      switchMap((_: string) => this.userFacade.nickname$.pipe(
+        switchMap(nickname => this.selectMenu(nickname)),
+        catchError(err => of(err)))),
+      catchError(err => of(err)))
+      .subscribe((menu: any[]) => this._menu.next(menu));
   }
 
-  public selectMenu(role: string) {
+  public selectMenu(nickname?: string) {
     const homeItem$ = this.translate.getTranslation("menu.home");
     const destinationsItem$ = this.translate.getTranslation("menu.destinations");
     const managingItem$ = this.translate.getTranslation("menu.managing.top");
@@ -146,38 +144,29 @@ export class MenuService {
       userProfileItemProfile$,
       userProfileItemLogout$,
       clientProfileItem$)
-      .pipe(map(([
-        home,
-        destinations,
-        management,
-        managementBookings,
-        managementsDestination,
-        managementAgents,
-        login,
-        user,
-        profile,
-        logout,
-        mybookings
-      ]) => {
-        this.translateMenuItems(home, destinations, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings);
-        return this.createMenu();
-      }), catchError(err => of(err)));
+      .pipe(
+        switchMap(([
+          home,
+          destinations,
+          management,
+          managementBookings,
+          managementsDestination,
+          managementAgents,
+          login,
+          user,
+          profile,
+          logout,
+          mybookings
+        ]) => {
+          this.translateMenuItems(home, destinations, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings, nickname);
+          return this.authFacade.role$.pipe(
+            switchMap(role => {
+              return of(this.createMenu(role));
+            })
+          );
+        }), catchError(err => of(err)));
 
-    customMenu$.subscribe(menu => {
-      switch (role) {
-        case 'AUTHENTICATED':
-          this._menu.next(menu.client);
-          break;
-        case 'ADMIN':
-          this._menu.next(menu.admin);
-          break;
-        case 'AGENT':
-          this._menu.next(menu.agent);
-          break;
-        default:
-          this._menu.next(menu.public);
-      }
-    });
+    return customMenu$
   }
 
   private translateMenuItems(
@@ -191,7 +180,8 @@ export class MenuService {
     user: string,
     profile: string,
     logout: string,
-    mybookings: string
+    mybookings: string,
+    nickname?: string
   ) {
     this.homeItem.label = home;
     this.destinationsItem.label = destinations;
@@ -201,37 +191,41 @@ export class MenuService {
     this.managingItem.items[1].label = managementsDestination;
     this.adminManagingItem.items[2].label = managementAgents;
     this.loginItem.label = login;
-    this.userProfileItem.label = user;
+    this.userProfileItem.label = nickname ?? user;
+    this.clientProfileItem.label = nickname ?? user;
     this.userProfileItem.items[0].label = profile;
     this.userProfileItem.items[1].label = logout;
     this.clientProfileItem.items[1].label = mybookings;
   }
 
-  private createMenu(): CustomMenu {
-    return {
-      public: [
-        this.homeItem,
-        this.destinationsItem,
-        this.loginItem
-      ],
-      client: [
-        this.homeItem,
-        this.destinationsItem,
-        this.clientProfileItem
-      ],
-      agent: [
-        this.homeItem,
-        this.destinationsItem,
-        this.managingItem,
-        this.userProfileItem
-      ],
-      admin: [
-        this.homeItem,
-        this.destinationsItem,
-        this.adminManagingItem,
-        this.userProfileItem
-      ]
-    };
-
+  private createMenu(role: string | null): any[] {
+    switch (role) {
+      case 'AUTHENTICATED':
+        return [
+          this.homeItem,
+          this.destinationsItem,
+          this.clientProfileItem
+        ];
+      case 'ADMIN':
+        return [
+          this.homeItem,
+          this.destinationsItem,
+          this.adminManagingItem,
+          this.userProfileItem
+        ];
+      case 'AGENT':
+        return [
+          this.homeItem,
+          this.destinationsItem,
+          this.managingItem,
+          this.userProfileItem
+        ];
+      default:
+        return [
+          this.homeItem,
+          this.destinationsItem,
+          this.loginItem
+        ];
+    }
   }
 }

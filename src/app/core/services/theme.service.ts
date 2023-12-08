@@ -11,7 +11,7 @@ export class ThemeService {
     private rendererFactory: RendererFactory2
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    // Encuentra o crea un nuevo elemento <link> para los estilos del tema
+
     const linkElement = document.getElementById('app-theme') as HTMLLinkElement;
     if (linkElement) {
       this.themeLink = linkElement;

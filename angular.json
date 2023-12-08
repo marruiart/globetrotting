@@ -32,16 +32,50 @@
               }
             ],
             "styles": [
-              "src/global.scss", 
-              "src/theme/variables.scss",
+              "src/global.scss",
               {
-                "input": "src/themes/bootstrap4-dark-blue.css",
-                "bundleName": "bootstrap4-dark-blue",
+                "input": "src/theme/lara-dark-blue.scss",
+                "bundleName": "lara-dark-blue",
                 "inject": false
               },
               {
-                "input": "src/themes/lara-light-blue.css",
+                "input": "src/theme/lara-dark-indigo.scss",
+                "bundleName": "lara-dark-indigo",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-dark-purple.scss",
+                "bundleName": "lara-dark-purple",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-dark-teal.scss",
+                "bundleName": "lara-dark-teal",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-light-blue.scss",
                 "bundleName": "lara-light-blue",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-light-indigo.scss",
+                "bundleName": "lara-light-indigo",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-light-purple.scss",
+                "bundleName": "lara-light-purple",
+                "inject": false
+              },
+              {
+                "input": "src/theme/lara-light-teal.scss",
+                "bundleName": "lara-light-teal",
+                "inject": false
+              },
+              {
+                "input": "src/theme/my-theme.scss",
+                "bundleName": "my-theme",
                 "inject": false
               }
             ],

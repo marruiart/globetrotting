@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, map, of, tap, zip } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
 import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
 import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
@@ -39,9 +38,8 @@ interface AgentTableRow extends TableRow {
   templateUrl: './bookings.page.html',
   styleUrls: ['./bookings.page.scss'],
 })
-export class BookingsPage implements OnInit {
+export class BookingsPage {
   public currentUser: Client | TravelAgent | null = null;
-  private mappedBookings: TableRow[] = [];
   private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
   public data: ClientTableRow[] = [];
@@ -57,30 +55,58 @@ export class BookingsPage implements OnInit {
     private subsSvc: SubscriptionsService,
     private translate: CustomTranslateService
   ) {
-    this.subsSvc.addSubscription({
-      component: 'BookingsPage',
-      sub: this.userFacade.currentSpecificUser$.subscribe(currentUser => {
-        this.currentUser = currentUser;
-      })
-    })
+    this.subsSvc.addSubscriptions([
+      {
+        component: 'BookingsPage',
+        sub: this.userFacade.currentSpecificUser$.subscribe(currentUser => {
+          this.currentUser = currentUser;
+        })
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.translate.language$.pipe(
+          switchMap((_: string) => this.getCols()),
+          catchError(err => of(err)))
+          .subscribe()
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.translate.language$.pipe(
+          switchMap((_: string) => this.getCols()),
+          catchError(err => of(err)))
+          .subscribe()
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.displayTable().subscribe((table) => {
+          this._bookingTable.next(table);
+        })
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.bookingsSvc.getAllBookings().subscribe()
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.bookingsSvc.getAllUserBookings().subscribe()
+      }
+    ])
   }
 
-
-  async ngOnInit() {
-    let bookings: Booking[] = [];
+  private displayTable() {
     if (this.currentUser?.type == 'AUTHENTICATED') {
-      bookings = await lastValueFrom(this.bookingsSvc.getAllUserBookings());
+      return this.bookingsSvc.userBookings$.pipe(
+        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.displayClientBookings(bookings)),
+        catchError(err => of(err))
+      )
     } else if (this.currentUser?.type == 'AGENT') {
-      bookings = await lastValueFrom(this.bookingsSvc.getAllBookings());
+      return this.bookingsSvc.allBookings$.pipe(
+        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.displayAgentBookings(bookings)),
+        catchError(err => of(err))
+      )
+    } else {
+      return of([]);
     }
-    bookings.forEach(booking => {
-      if (this.currentUser?.type == 'AUTHENTICATED') {
-        this.displayClientBookings(booking);
-      } else if (this.currentUser?.type == 'AGENT') {
-        this.displayAgentBookings(booking);
-      }
-    })
-    this.getCols();
   }
 
   private getCols() {
@@ -105,7 +131,7 @@ export class BookingsPage implements OnInit {
         this.cols = this.translateMenuItems(destination, start, end, travelers, confirmationState, agent, client);
       }), catchError(err => of(err)));
 
-    tableHeaders$.subscribe();
+    return tableHeaders$;
   }
 
   private translateMenuItems(destination: string, start: string, end: string, travelers: string, confirmationState: string, agent: string, client: string) {
@@ -132,7 +158,7 @@ export class BookingsPage implements OnInit {
     }
   }
 
-  private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow | null {
+  private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       const clientTableRow: ClientTableRow = {
         booking_id: booking.id,
@@ -144,7 +170,7 @@ export class BookingsPage implements OnInit {
         isConfirmed: booking.isConfirmed ?? false
       }
       return clientTableRow;
-    } else if (this.currentUser?.type == 'AGENT') {
+    } else {
       const agentTableRow: AgentTableRow = {
         booking_id: booking.id,
         destination: destination ? destination.name : 'Desconocido',
@@ -156,72 +182,72 @@ export class BookingsPage implements OnInit {
       }
       return agentTableRow;
     }
-    return null;
   }
 
-  private async displayClientBookings(booking: Booking) {
-    const agent$ = booking.agent_id ? this.agentSvc.getAgent(booking.agent_id) : of(null);
-    const destination$ = this.destinationSvc.getDestination(booking.destination_id);
+  /**
+   * Receives an array of bookings and turn it into an array of rows ready to display on a table.
+   * @param bookings array of all the bookings
+   * @returns an observable with all the rows of the table to be displayed
+   */
+  private displayAgentBookings(bookings: Booking[]): Observable<TableRow[]> {
+    let tableRowObs: Observable<TableRow>[] = [];
 
-    this.subsSvc.addSubscription({
-      component: 'BookingsPage',
-      sub: zip(agent$, destination$).pipe(
-        concatMap(([agent, destination]): Observable<TableRow | null> => {
-          const userAgent$ = agent ? this.usersSvc.getAgentUser(agent.user_id) : of(null);
+    for (let booking of bookings) {
+      const client$ = booking.client_id ? this.clientSvc.getClient(booking.client_id) : of(null);
+      const destination$ = this.destinationSvc.getDestination(booking.destination_id);
 
-          return userAgent$.pipe(
-            concatMap(userAgent => {
-              let clientTableRow = this.mapTableRow(userAgent, booking, destination);
-              if (clientTableRow) {
-                this.mappedBookings.push(clientTableRow)
-              }
-              return this.mappedBookings;
-            }), catchError(err => {
-              console.error(err);
-              return of(null);
-            }))
-
-        }), catchError(err => {
-          console.error(err);
-          return of(null);
-        })
-      ).subscribe({
-        next: _ => this._bookingTable.next(this.mappedBookings),
-        error: err => console.error(err)
-      })
-    });
-  }
-
-  private async displayAgentBookings(booking: Booking) {
-    const client$ = booking.client_id ? this.clientSvc.getClient(booking.client_id) : of(null);
-    const destination$ = this.destinationSvc.getDestination(booking.destination_id);
-    this.subsSvc.addSubscription({
-      component: 'BookingsPage',
-      sub: zip(client$, destination$).pipe(
-        concatMap(([client, destination]): Observable<TableRow | null> => {
+      // For each booking, add a TableRow observable
+      tableRowObs.push(zip(client$, destination$).pipe(
+        switchMap(([client, destination]): Observable<TableRow> => {
           const userClient$ = client ? this.usersSvc.getClientUser(client.user_id) : of(null);
 
           return userClient$.pipe(
-            concatMap(userClient => {
-              let agentTableRow = this.mapTableRow(userClient, booking, destination);
-              if (agentTableRow) {
-                this.mappedBookings.push(agentTableRow)
-              }
-              return this.mappedBookings;
+            switchMap((userClient): Observable<TableRow> => {
+              return of(this.mapTableRow(userClient, booking, destination));
+            }), catchError(err => {
+              return of();
+            }))
+
+        }), catchError(err => {
+          return of();
+        })))
+    }
+    // ForkJoin the "array of observables" to return "an observable of an array"
+    return forkJoin(tableRowObs);
+  }
+
+  /**
+   * Receives an array of bookings and turn it into an array of rows ready to display on a table.
+   * @param bookings array of the current user bookings
+   * @returns an observable with all the rows of the table to be displayed
+   */
+  private displayClientBookings(bookings: Booking[]): Observable<TableRow[]> {
+    let tableRowObs: Observable<TableRow>[] = [];
+    for (let booking of bookings) {
+      const agent$ = booking.agent_id ? this.agentSvc.getAgent(booking.agent_id) : of(null);
+      const destination$ = this.destinationSvc.getDestination(booking.destination_id);
+
+      // For each booking, add a TableRow observable
+      tableRowObs.push(zip(agent$, destination$).pipe(
+        concatMap(([agent, destination]): Observable<TableRow> => {
+          const userAgent$ = agent ? this.usersSvc.getAgentUser(agent.user_id) : of(null);
+
+          return userAgent$.pipe(
+            concatMap((userAgent: ExtUser | null): Observable<TableRow> => {
+              return of(this.mapTableRow(userAgent, booking, destination));
             }), catchError(err => {
               console.error(err);
-              return of(null);
+              return of();
             }))
 
         }), catchError(err => {
           console.error(err);
-          return of(null);
+          return of();
         })
-      ).subscribe({
-        next: _ => this._bookingTable.next(this.mappedBookings),
-        error: err => console.error(err)
-      })
-    });
+      ))
+    }
+    // ForkJoin the "array of observables" to return "an observable of an array"
+    return forkJoin(tableRowObs);
   }
 
   public confirmBook(id: number) {
@@ -233,8 +259,10 @@ export class BookingsPage implements OnInit {
       }
     }
     lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking))
-      .catch(err => console.error(err));
-    console.log(JSON.stringify(id));
+      .then(_ => {
+        lastValueFrom(this.displayTable())
+          .catch(err => console.error(err));
+      }).catch(err => console.error(err));
   }
 
   ngOnDestroy() {

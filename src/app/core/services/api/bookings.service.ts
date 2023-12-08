@@ -21,6 +21,8 @@ export class BookingsService extends ApiService {
   private currentUser: Client | TravelAgent | null = null;
   private _userBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
   public userBookings$: Observable<Booking[]> = this._userBookings.asObservable();
+  private _allBookings: BehaviorSubject<Booking[]> = new BehaviorSubject<Booking[]>([]);
+  public allBookings$: Observable<Booking[]> = this._allBookings.asObservable();
 
   constructor(
     private userFacade: UserFacade,
@@ -33,7 +35,10 @@ export class BookingsService extends ApiService {
   }
 
   public getAllBookings(): Observable<Booking[]> {
-    return this.getAll<Booking[]>(this.path, this.queries, this.mapSvc.mapBookings);
+    return this.getAll<Booking[]>(this.path, this.queries, this.mapSvc.mapBookings)
+      .pipe(tap(res => {
+        this._allBookings.next(res);
+      }));
   }
 
   public getAllUserBookings(): Observable<Booking[]> {
@@ -78,8 +83,6 @@ export class BookingsService extends ApiService {
 
   private updateCurrentUserBookings() {
     if (this.currentUser?.type == 'AUTHENTICATED') {
-      this.getAllUserBookings().subscribe();
-    } else if (this.currentUser?.type == 'AGENT') {
       this.getAllUserBookings().subscribe();
     }
   }

@@ -51,16 +51,25 @@ export class AgentsManagementPage implements OnInit {
     private messageService: MessageService,
     private translate: CustomTranslateService
   ) {
-    this.subsSvc.addSubscription({
-      component: 'AgentsManagementPage',
-      sub: this.userFacade.currentSpecificUser$.subscribe(currentUser => {
-        this.currentUser = currentUser;
-      })
-    })
+    this.subsSvc.addSubscriptions([
+      {
+        component: 'AgentsManagementPage',
+        sub: this.userFacade.currentSpecificUser$
+          .subscribe(currentUser => {
+            this.currentUser = currentUser;
+          })
+      },
+      {
+        component: 'AgentsManagementPage',
+        sub: this.translate.language$.pipe(
+          switchMap((_: string) => this.getCols()),
+          catchError(err => of(err)))
+          .subscribe()
+      }
+    ])
   }
 
   async ngOnInit() {
-    this.getCols();
     if (this.currentUser?.type == 'AGENT') {
       let agents = await lastValueFrom(this.agentsSvc.getAllAgents());
       if (agents) {
@@ -90,7 +99,7 @@ export class AgentsManagementPage implements OnInit {
         this.cols = this.translateMenuItems(name, surname, email, options, identification);
       }), catchError(err => of(err)));
 
-    tableHeaders$.subscribe();
+    return tableHeaders$;
   }
 
   private translateMenuItems(identification: string, name: string, surname: string, email: string, options: string) {

@@ -4,7 +4,6 @@
     <p-table
       [columns]="cols"
       [value]="(bookingTable$ | async) ?? []"
-      [tableStyle]="{ 'min-width': '50rem' }"
     >
       <ng-template pTemplate="header" let-columns>
         <tr>

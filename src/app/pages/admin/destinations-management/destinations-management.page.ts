@@ -44,20 +44,22 @@ export class DestinationsManagementPage implements OnInit {
   ) {
 
 
-    this.subsSvc.addSubscriptions([{
-      component: 'DestinationsPage',
-      sub: this.userFacade.currentSpecificUser$
-      .subscribe(currentUser => {
-        this.currentUser = currentUser;
-      })
-    },
-    {
-      component: 'DestinationsPage',
-      sub: this.translate.language$.pipe(
-        switchMap((_: string) => this.getCols()),
-        catchError(err => of(err)))
-        .subscribe()
-    }])
+    this.subsSvc.addSubscriptions([
+      {
+        component: 'DestinationsPage',
+        sub: this.userFacade.currentSpecificUser$
+          .subscribe(currentUser => {
+            this.currentUser = currentUser;
+          })
+      },
+      {
+        component: 'DestinationsPage',
+        sub: this.translate.language$.pipe(
+          switchMap((_: string) => this.getCols()),
+          catchError(err => of(err)))
+          .subscribe()
+      }
+    ])
   }
 
 

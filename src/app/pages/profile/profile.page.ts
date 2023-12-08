@@ -69,9 +69,18 @@ export class ProfilePage {
         surname: fullUser.extendedUser.surname,
         nickname: fullUser.extendedUser.nickname
       }
-      const identifiers = {
-        id: fullUser.user.id,
-        email: fullUser.user.email,
+      let identifiers;
+      if (fullUser.user.password) {
+        identifiers = {
+          id: fullUser.user.id,
+          email: fullUser.user.email,
+          password: fullUser.user.password
+        }
+      } else {
+        identifiers = {
+          id: fullUser.user.id,
+          email: fullUser.user.email,
+        }
       }
       lastValueFrom(this.userSvc.updateUser(extUser))
         .catch(err => console.error(err));

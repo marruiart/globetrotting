@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { PasswordValidator } from 'src/app/core/validators/password.validator';
 
 type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE";
 
@@ -36,6 +37,7 @@ export class UserFormComponent implements OnDestroy {
     if (agent) {
       this.userForm.controls['id'].setValue(agent.id);
       this.userForm.controls['user_id'].setValue(agent.user_id);
+      this.userForm.controls['username'].setValue(agent.username);
       this.userForm.controls['email'].setValue(agent.email);
       this.userForm.controls['name'].setValue(agent.name);
       this.userForm.controls['surname'].setValue(agent.surname);
@@ -45,6 +47,7 @@ export class UserFormComponent implements OnDestroy {
   @Input() set user(fullUser: FullUser | null) {
     if (fullUser) {
       this.userForm.controls['id'].setValue(fullUser.extendedUser?.id);
+      this.userForm.controls['username'].setValue(fullUser.user?.username);
       this.userForm.controls['user_id'].setValue(fullUser.user?.id);
       this.userForm.controls['email'].setValue(fullUser.user?.email);
       this.userForm.controls['name'].setValue(fullUser.extendedUser?.name);
@@ -68,46 +71,41 @@ export class UserFormComponent implements OnDestroy {
     switch (this.formType) {
       case 'LOGIN':
         this.userForm = this.fb.group({
-          username: ['', [
-            Validators.required,
-            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-          ]],
-          password: ['', Validators.required]
+          username: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]]
         });
         break;
       case 'REGISTER':
         this.userForm = this.fb.group({
-          email: ['', [
-            Validators.required,
-            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-          ]],
-          password: ['', Validators.required],
-          passwordRepeat: ['', Validators.required]
-        });
+          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]]
+        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'REGISTER_AGENT':
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          email: [{ value: '', disabled: true }, [, Validators.required]],
-          password: ['', [Validators.required]],
-          passwordRepeat: ['', [Validators.required]],
+          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required]],
           surname: ['', [Validators.required]],
           nickname: ['', [Validators.required]],
-        });
+        }, { validator: [PasswordValidator.passwordMatch('password', 'confirm')] } as AbstractControlOptions);
         break;
       case 'PROFILE':
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
+          username: [{ value: '', disabled: true }],
           email: ['', [Validators.required]],
-          password: ['', [Validators.required]],
-          passwordRepeat: ['', [Validators.required]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required]],
           surname: ['', [Validators.required]],
           nickname: ['', [Validators.required]],
-        });
+        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       default:
         this.userForm = this.fb.group({});

@@ -111,7 +111,9 @@ export class MenuService {
     private userFacade: UserFacade,
     private translate: CustomTranslateService
   ) {
-    this.selectMenu('PUBLIC');
+    this.translate.language$.subscribe(_ => {
+      this.selectMenu('PUBLIC');
+    });
     this.userFacade.nickname$.subscribe(nickname => {
       if (nickname) {
         this.userProfileItem.label = nickname;

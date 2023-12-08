@@ -1,14 +1,19 @@
 @import "src/styles/custom-icons.scss";
 
+[styleclass*="translation-btn"] {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+}
+
 ::ng-deep {
-    angledownicon {
-      display: none;
-    }
-  
-    .login-btn {
-      .person-outline {
-        margin: 0;
-      }
+  angledownicon {
+    display: none;
+  }
+
+  .login-btn {
+    .person-outline {
+      margin: 0;
     }
   }
-  
+}

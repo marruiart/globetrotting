@@ -24,6 +24,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
+import { ButtonModule } from 'primeng/button';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -32,6 +34,7 @@ import { translateLoaderFactory } from './core/factories/translate-loader.factor
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),
+    ButtonModule,
     AppRoutingModule,
     HttpClientModule,
     StoreModule.forRoot({}),

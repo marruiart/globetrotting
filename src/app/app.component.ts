@@ -26,7 +26,7 @@ export class AppComponent {
       lastValueFrom(this.charactersApiSvc.getAllFromApi()).catch(err => console.error(err));
       lastValueFrom(this.locationsApiSvc.getAllFromApi()).catch(err => console.error(err));
     }
-    this.translate.changeLanguage('en');
+    this.translate.changeLanguage('es');
   }
 
   public onTranslate() {
@@ -35,6 +35,6 @@ export class AppComponent {
     } else {
       this.language = 'es';
     }
-    this.translate.changeLanguage(this.language).subscribe(); // TODO cambiar esto con promesas
+    lastValueFrom(this.translate.changeLanguage(this.language));
   }
 }

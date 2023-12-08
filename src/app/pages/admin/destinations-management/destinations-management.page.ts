@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, lastValueFrom, of, tap, zip } from "rxjs";
+import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
 import { UserFacade } from "src/app/core/libs/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
@@ -42,17 +42,26 @@ export class DestinationsManagementPage implements OnInit {
     private messageService: MessageService,
     private translate: CustomTranslateService
   ) {
-    this.subsSvc.addSubscription({
+
+
+    this.subsSvc.addSubscriptions([{
       component: 'DestinationsPage',
-      sub: this.userFacade.currentSpecificUser$.subscribe(currentUser => {
+      sub: this.userFacade.currentSpecificUser$
+      .subscribe(currentUser => {
         this.currentUser = currentUser;
       })
-    })
+    },
+    {
+      component: 'DestinationsPage',
+      sub: this.translate.language$.pipe(
+        switchMap((_: string) => this.getCols()),
+        catchError(err => of(err)))
+        .subscribe()
+    }])
   }
 
 
   async ngOnInit() {
-    this.getCols();
     if (this.currentUser?.type == 'AGENT') {
       let destinations = await lastValueFrom(this.destinationsSvc.getAllDestinations());
       destinations.data.forEach(destination => {
@@ -75,7 +84,7 @@ export class DestinationsManagementPage implements OnInit {
         this.cols = this.translateMenuItems(name, type, dimension, price, description, options);
       }), catchError(err => of(err)));
 
-    tableHeaders$.subscribe();
+    return tableHeaders$;
   }
 
   private translateMenuItems(name: string, type: string, dimension: string, price: string, description: string, options: string) {

@@ -81,5 +81,8 @@
     "price": "Price/person/night",
     "description": "Description",
     "submitBtn": "Submit"
+  },
+  "destinationCard": {
+    "reserveBtn": "Book now"
   }
 }

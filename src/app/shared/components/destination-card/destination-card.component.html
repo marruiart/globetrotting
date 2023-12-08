@@ -24,9 +24,9 @@
   </ng-template>
   <ng-template pTemplate="footer" *ngIf="isClient">
     <p-button
-    (click)="onBookNowClick($event)"
-    icon="p-button-raised p-button-text p-button-secondary"
-    label="Reservar"
-  ></p-button>
+      (click)="onBookNowClick($event)"
+      icon="p-button-raised p-button-text p-button-secondary"
+      [label]="'destinationCard.reserveBtn' | translate"
+    ></p-button>
   </ng-template>
 </p-card>

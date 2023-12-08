@@ -16,6 +16,8 @@ import { UserFormComponent } from './components/user-form/user-form.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { translateLoaderFactory } from '../core/factories/translate-loader.factory';
+import { ThemeSelectableComponent } from './components/theme-selector/theme-selectable.component';
+import { ThemeSelectableItemComponent } from './components/theme-selector/theme-selectable-item/theme-selectable-item.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import { translateLoaderFactory } from '../core/factories/translate-loader.facto
     BookingFormComponent,
     DestinationFormComponent,
     UserFormComponent,
+    ThemeSelectableComponent,
+    ThemeSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe
@@ -59,6 +63,8 @@ import { translateLoaderFactory } from '../core/factories/translate-loader.facto
     BookingFormComponent,
     DestinationFormComponent,
     UserFormComponent,
+    ThemeSelectableComponent,
+    ThemeSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

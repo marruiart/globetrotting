@@ -90,5 +90,9 @@
     "jobPosition": "Frontend Developer Jr.",
     "imageAlt": "Formal photography of Marina Ruiz",
     "description": "I am good at Java, HTML, CSS, JavaScript and SQL. I have some knowledge of PHP, Python and C. I have used technologies such as Android, AWS, mongoDB, Node.js and Angular."
+  },
+  "themeSelectable": {
+    "header": "Choose the page theme",
+    "button": "Change theme"
   }
 }

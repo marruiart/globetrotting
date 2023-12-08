@@ -2,24 +2,17 @@
 <main>
   <section class="content hero-section">
     <div>
-      <h1>
-        {{ "home.heroMessage" | translate }}
-      </h1>
-      <p-button [label]="this.translate.get('home.heroButton') | async"></p-button>
+      <h1>{{ "home.heroMessage" | translate }}</h1>
+      <p-button
+        [label]="this.translate.get('home.heroButton') | async"
+      ></p-button>
     </div>
     <div>
-      <img src="/assets/home/hero.svg" alt="">
+      <img src="/assets/home/hero.svg" alt="" />
     </div>
   </section>
   <section class="content">
-    <p-dropdown
-      [options]="themes"
-      [(ngModel)]="selectedTheme"
-      optionLabel="name"
-      placeholder="Selecciona el tema"
-      (onChange)="changeTheme(selectedTheme.code)"
-    ></p-dropdown>
-    <app-theme-selector-item></app-theme-selector-item>
+    <app-theme-selectable></app-theme-selectable>
   </section>
 </main>
 <app-footer></app-footer>

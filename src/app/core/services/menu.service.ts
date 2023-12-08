@@ -33,7 +33,7 @@ export class MenuService {
 
   private aboutItem =
     {
-      label: 'Conócenos',
+      label: 'Sobre mí',
       icon: 'custom-icon cafe-outline',
       routerLink: ['/about']
     }
@@ -129,6 +129,7 @@ export class MenuService {
   public selectMenu(nickname?: string) {
     const homeItem$ = this.translate.getTranslation("menu.home");
     const destinationsItem$ = this.translate.getTranslation("menu.destinations");
+    const aboutItem$ = this.translate.getTranslation("menu.about");
     const managingItem$ = this.translate.getTranslation("menu.managing.top");
     const managingItemBookings$ = this.translate.getTranslation("menu.managing.bookings");
     const managingItemDestinations$ = this.translate.getTranslation("menu.managing.destinations");
@@ -142,6 +143,7 @@ export class MenuService {
     const customMenu$ = zip(
       homeItem$,
       destinationsItem$,
+      aboutItem$,
       managingItem$,
       managingItemBookings$,
       managingItemDestinations$,
@@ -155,6 +157,7 @@ export class MenuService {
         switchMap(([
           home,
           destinations,
+          about,
           management,
           managementBookings,
           managementsDestination,
@@ -165,7 +168,7 @@ export class MenuService {
           logout,
           mybookings
         ]) => {
-          this.translateMenuItems(home, destinations, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings, nickname);
+          this.translateMenuItems(home, destinations, about, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings, nickname);
           return this.authFacade.role$.pipe(
             switchMap(role => {
               return of(this.createMenu(role));
@@ -179,6 +182,7 @@ export class MenuService {
   private translateMenuItems(
     home: string,
     destinations: string,
+    about: string,
     management: string,
     managementBookings: string,
     managementsDestination: string,
@@ -192,6 +196,7 @@ export class MenuService {
   ) {
     this.homeItem.label = home;
     this.destinationsItem.label = destinations;
+    this.aboutItem.label = about;
     this.managingItem.label = management;
     this.adminManagingItem.label = management;
     this.managingItem.items[0].label = managementBookings;

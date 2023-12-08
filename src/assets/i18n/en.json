@@ -6,6 +6,7 @@
   "menu": {
     "home": "Home",
     "destinations": "Destinations",
+    "about": "About me",
     "managing": {
       "top": "Management",
       "bookings": "Booking management",

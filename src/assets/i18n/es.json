@@ -84,5 +84,10 @@
   },
   "destinationCard": {
     "reserveBtn": "Reservar"
+  },
+  "about": {
+    "jobPosition": "Frontend Developer Jr.",
+    "imageAlt": "Fotografía formal de Marina Ruiz",
+    "description": "Me desenvuelvo bien en Java, HTML, CSS, JavaScript y SQL. Tengo conocimientos de PHP, Python y C. He utilizado tecnologias como Android, AWS, mongoDB, Node.js y Angular."
   }
 }

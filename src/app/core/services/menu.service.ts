@@ -31,6 +31,13 @@ export class MenuService {
       routerLink: ['/destinations']
     }
 
+  private aboutItem =
+    {
+      label: 'Conócenos',
+      icon: 'custom-icon cafe-outline',
+      routerLink: ['/about']
+    }
+
   private managingItem = {
     label: 'Gestión',
     icon: 'custom-icon briefcase-outline',
@@ -204,12 +211,14 @@ export class MenuService {
         return [
           this.homeItem,
           this.destinationsItem,
+          this.aboutItem,
           this.clientProfileItem
         ];
       case 'ADMIN':
         return [
           this.homeItem,
           this.destinationsItem,
+          this.aboutItem,
           this.adminManagingItem,
           this.userProfileItem
         ];
@@ -217,6 +226,7 @@ export class MenuService {
         return [
           this.homeItem,
           this.destinationsItem,
+          this.aboutItem,
           this.managingItem,
           this.userProfileItem
         ];
@@ -224,6 +234,7 @@ export class MenuService {
         return [
           this.homeItem,
           this.destinationsItem,
+          this.aboutItem,
           this.loginItem
         ];
     }

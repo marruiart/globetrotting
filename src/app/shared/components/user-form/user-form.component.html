@@ -1,39 +1,36 @@
 <form [formGroup]="userForm" (ngSubmit)="onSubmit($event)">
-  <ng-container *ngTemplateOutlet="form" />
+  <ng-container *ngTemplateOutlet="formUpdateHeader" />
+  <ng-container *ngTemplateOutlet="formRegisterHeader" />
 
   <!-- Header -->
-  <ng-template #form [ngSwitch]="formType">
-    <ng-container *ngIf="!actionUpdate">
-      <h2 *ngSwitchCase="'LOGIN'">
-        {{ "userForm.loginHeader" | translate }}
-      </h2>
-      <h2 *ngSwitchCase="'REGISTER'">
-        {{ "userForm.registerHeader" | translate }}
-      </h2>
-      <h2 *ngSwitchCase="'REGISTER_AGENT'">
-        {{ "userForm.agentRegisterHeader" | translate }}
-      </h2>
-    </ng-container>
+  <ng-template #formRegisterHeader [ngSwitch]="formType">
+    <h2 *ngSwitchCase="'LOGIN'">
+      {{ "userForm.loginHeader" | translate }}
+    </h2>
+    <h2 *ngSwitchCase="'REGISTER'">
+      {{ "userForm.registerHeader" | translate }}
+    </h2>
+    <h2 *ngSwitchCase="'REGISTER_AGENT'">
+      {{ "userForm.agentRegisterHeader" | translate }}
+    </h2>
+    <h2 *ngSwitchCase="'UPDATE_AGENT'">
+      {{ "userForm.agentUpdateHeader" | translate }}
+    </h2>
   </ng-template>
 
-  <ng-template #form [ngSwitch]="formType">
+  <ng-template #formUpdateHeader [ngSwitch]="formType">
     <ng-container *ngIf="actionUpdate">
-      <h2 *ngSwitchCase="'LOGIN'">
-        {{ "userForm.loginHeader" | translate }}
-      </h2>
-      <h2 *ngSwitchCase="'REGISTER'">
-        {{ "userForm.registerHeader" | translate }}
-      </h2>
-      <h2 *ngSwitchCase="'REGISTER_AGENT'">
-        {{ "userForm.agentRegisterHeader" | translate }}
-      </h2>
+      <h2 *ngSwitchCase="'LOGIN'">//TODO CAMBIAR PRUEBA LOGIN</h2>
+      <h2 *ngSwitchCase="'REGISTER'">//TODO CAMBIAR PRUEBA REGISTRO</h2>
     </ng-container>
   </ng-template>
 
   <!-- Username -->
   <div
     class="p-inputgroup"
-    *ngIf="formType == 'LOGIN' || formType == 'PROFILE'"
+    *ngIf="
+      formType == 'LOGIN' || formType == 'PROFILE' || formType == 'UPDATE_AGENT'
+    "
   >
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
@@ -44,14 +41,7 @@
     </span>
   </div>
   <!-- Email -->
-  <div
-    class="p-inputgroup"
-    *ngIf="
-      formType == 'REGISTER' ||
-      formType == 'REGISTER_AGENT' ||
-      formType == 'PROFILE'
-    "
-  >
+  <div class="p-inputgroup" *ngIf="formType != 'LOGIN'">
     <span class="p-inputgroup-addon">
       <i class="pi pi-at"></i>
     </span>
@@ -106,7 +96,11 @@
   <!-- Name -->
   <div
     class="p-inputgroup"
-    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+    *ngIf="
+      formType == 'REGISTER_AGENT' ||
+      formType == 'PROFILE' ||
+      formType == 'UPDATE_AGENT'
+    "
   >
     <span class="p-inputgroup-addon">
       <i class="pi pi-id-card"></i>
@@ -121,7 +115,11 @@
   <!-- Surname -->
   <div
     class="p-inputgroup"
-    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+    *ngIf="
+      formType == 'REGISTER_AGENT' ||
+      formType == 'PROFILE' ||
+      formType == 'UPDATE_AGENT'
+    "
   >
     <span class="p-inputgroup-addon">
       <i class="pi pi-id-card"></i>
@@ -136,7 +134,11 @@
   <!-- Nickname -->
   <div
     class="p-inputgroup"
-    *ngIf="formType == 'REGISTER_AGENT' || formType == 'PROFILE'"
+    *ngIf="
+      formType == 'REGISTER_AGENT' ||
+      formType == 'PROFILE' ||
+      formType == 'UPDATE_AGENT'
+    "
   >
     <span class="p-inputgroup-addon">
       <i class="pi pi-star"></i>
@@ -156,47 +158,37 @@
     (click)="onNavigateToRegister()"
   ></p-button>
 
-  <!-- CREATION -->
-  <ng-container *ngIf="!actionUpdate">
-    <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
-  </ng-container>
+  <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
   <ng-template #submitBtn [ngSwitch]="formType">
     <p-button
+      *ngSwitchCase="'LOGIN'"
       type="submit"
       [label]="'userForm.submitBtn' | translate"
       [disabled]="!userForm.valid"
-      *ngSwitchCase="'LOGIN'"
     />
     <p-button
+      *ngSwitchCase="'REGISTER'"
       type="submit"
       [label]="'userForm.registerBtn' | translate"
       [disabled]="!userForm.valid"
-      *ngSwitchCase="'REGISTER'"
     />
     <p-button
+      *ngSwitchCase="'REGISTER_AGENT'"
       type="submit"
       [label]="'userForm.registerAgentBtn' | translate"
       [disabled]="!userForm.valid"
-      *ngSwitchCase="'REGISTER_AGENT'"
     />
-  </ng-template>
-
-  <!-- UPDATE -->
-  <ng-container *ngIf="actionUpdate">
-    <ng-container *ngTemplateOutlet="updateBtn"></ng-container>
-  </ng-container>
-  <ng-template #updateBtn [ngSwitch]="formType">
     <p-button
+      *ngSwitchCase="'PROFILE'"
       type="submit"
       [label]="'userForm.profileBtn' | translate"
       [disabled]="!userForm.valid"
-      *ngSwitchCase="'PROFILE'"
     />
     <p-button
+      *ngSwitchCase="'UPDATE_AGENT'"
       type="submit"
-      [label]="'userForm.agentBtn' | translate"
+      [label]="'userForm.updateAgentBtn' | translate"
       [disabled]="!userForm.valid"
-      *ngSwitchCase="'REGISTER_AGENT'"
     />
   </ng-template>
 </form>

@@ -20,7 +20,7 @@
                 [label]="'agentsManagement.addAgentBtn' | translate"
                 icon="pi pi-plus"
                 styleClass="p-button-rounded"
-                (click)="showAgentForm()"
+                (click)="showAgentForm('REGISTER_AGENT')"
               />
             </th>
           </tr>
@@ -47,7 +47,7 @@
                   <p-button
                     icon="pi pi-user-edit"
                     styleClass="p-button-rounded p-button-primary p-button-text"
-                    (click)="showAgentForm(agent, true)"
+                    (click)="showAgentForm('UPDATE_AGENT', agent, true)"
                   ></p-button>
                   <p-button
                     icon="pi pi-trash"
@@ -97,9 +97,10 @@
       <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
       <p-toast></p-toast>
       <p-dialog
+        *ngIf="formType"
         [draggable]="false"
         [resizable]="false"
-        [(visible)]="showEditForm"
+        [(visible)]="showForm"
         [modal]="true"
         [blockScroll]="true"
         [dismissableMask]="true"
@@ -107,10 +108,10 @@
         contentStyleClass="agent-form-content"
       >
         <app-user-form
+          [formType]="formType"
           [agent]="selectedAgent"
-          (onRegisterAgentClicked)="addOrEditAgent($event)"
-          [formType]="'REGISTER_AGENT'"
           [actionUpdate]="isUpdating"
+          (onRegisterAgentClicked)="addOrEditAgent($event)"
         ></app-user-form>
       </p-dialog>
     </div>

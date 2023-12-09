@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 
-type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE";
+export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
 
 @Component({
   selector: 'app-user-form',
@@ -86,6 +86,7 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
+          username: [{ value: '', disabled: true }],
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
@@ -107,6 +108,17 @@ export class UserFormComponent implements OnDestroy {
           nickname: ['', [Validators.required]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
+      case 'UPDATE_AGENT':
+        this.userForm = this.fb.group({
+          id: [null],
+          user_id: [null],
+          username: [{ value: '', disabled: true }],
+          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          name: ['', [Validators.required]],
+          surname: ['', [Validators.required]],
+          nickname: ['', [Validators.required]],
+        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
+        break;
       default:
         this.userForm = this.fb.group({});
         console.error("Error al asignar el formulario");
@@ -122,6 +134,7 @@ export class UserFormComponent implements OnDestroy {
         this.onRegister(event);
         break;
       case 'REGISTER_AGENT':
+      case 'UPDATE_AGENT':
         this.onRegisterAgent(event);
         break;
       case 'PROFILE':

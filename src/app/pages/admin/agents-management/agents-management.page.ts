@@ -10,6 +10,7 @@ import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
+import { FormType } from "src/app/shared/components/user-form/user-form.component";
 
 
 interface TableRow {
@@ -30,14 +31,14 @@ interface TableRow {
   styleUrls: ['./agents-management.page.scss'],
 })
 export class AgentsManagementPage {
-  private mappedAgents: TableRow[] = [];
   private _agentTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public agentTable$: Observable<TableRow[]> = this._agentTable.asObservable();
 
   public selectedAgent: TableRow | null = null;
   public isUpdating: boolean = false;
+  public formType!: FormType;
   public currentUser: Client | TravelAgent | null = null;
-  public showEditForm: boolean = false;
+  public showForm: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
 
@@ -169,16 +170,17 @@ export class AgentsManagementPage {
     return forkJoin(tableRowObs);
   }
 
-  public showAgentForm(tableRow?: TableRow, actionUpdate: boolean = false) {
+  public showAgentForm(formType: FormType, tableRow?: TableRow, actionUpdate: boolean = false) {
     if (tableRow && tableRow.user_id) {
       this.selectedAgent = tableRow;
     }
+    this.formType = formType;
     this.isUpdating = actionUpdate;
-    this.showEditForm = true;
+    this.showForm = true;
   }
 
   private hideAgentForm() {
-    this.showEditForm = false;
+    this.showForm = false;
   }
 
   public addOrEditAgent(agent: any) {

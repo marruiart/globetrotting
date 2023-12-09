@@ -46,14 +46,14 @@
     "tableDestination": "Destino",
     "tableStart": "Fecha de salida",
     "tableEnd": "Fecha de llegada",
-    "tableTravelers": "Número de viajeros",
+    "tableTravelers": "nº. de viajeros",
     "tableConfirmationState": "Estado",
     "tableAgent": "Agente de viajes asignado",
     "tableClient": "Cliente"
   },
   "bookingsForm": {
     "dates": "Fechas de salida y llegada",
-    "travelers": "Número de viajeros",
+    "travelers": "nº. de viajeros",
     "acceptBtn": "Aceptar"
   },
   "destManagement": {

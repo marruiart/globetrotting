@@ -56,7 +56,10 @@
       <ng-template pTemplate="rowexpansion" let-booking let-columns="columns">
         <tr styleClass="expansion-row">
           <td *ngFor="let col of columns" styleClass="expansion-td">
+
+            <!-- Container to display the row depending on the switch condition -->
             <ng-container *ngTemplateOutlet="field" />
+            
             <ng-template #field [ngSwitch]="col.field">
               <ng-container *ngSwitchCase="'clientName'">
                 <p-chip

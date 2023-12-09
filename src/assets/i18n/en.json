@@ -73,6 +73,7 @@
     "editDestinationHeader": "Edit destination information"
   },
   "agentsManagement": {
+    "tableHeader": "Travel agents management",
     "tableId": "Id number",
     "tableName": "Name",
     "tableSurname": "Surname",

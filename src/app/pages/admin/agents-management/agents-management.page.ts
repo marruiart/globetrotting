@@ -40,6 +40,7 @@ export class AgentsManagementPage {
   public showEditForm: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
+  public loading: boolean = true;
 
   constructor(
     private agentsSvc: AgentService,
@@ -74,6 +75,7 @@ export class AgentsManagementPage {
         component: 'AgentsManagementPage',
         sub: this.displayTable().subscribe((table: TableRow[]) => {
           this._agentTable.next(table);
+          this.loading = false;
         })
       }
     ])

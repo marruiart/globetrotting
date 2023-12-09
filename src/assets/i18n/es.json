@@ -73,6 +73,7 @@
     "editDestinationHeader": "Editar datos del destino"
   },
   "agentsManagement": {
+    "tableHeader": "Gestión de agentes de viaje",
     "tableId": "nº. identificación",
     "tableName": "Nombre",
     "tableSurname": "Apellidos",

@@ -1,44 +1,83 @@
 <ion-content>
   <app-header></app-header>
-  <main>
+  <main class="content">
     <p-table
+      styleClass="agents-table"
       [columns]="cols"
       [value]="(agentTable$ | async) ?? []"
       [lazy]="true"
+      dataKey="agent_id"
+      rowGroupMode="subheader"
+      groupRowsBy="agent_id"
     >
       <ng-template pTemplate="header" let-columns>
-        <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
+        <tr styleClass="table-header">
+          <th colspan="6" styleClass="table-header__th">
+            {{ "agentsManagement.tableHeader" | translate | uppercase }}
+          </th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
-        <tr>
-          <td *ngFor="let col of columns">
+      <ng-template
+        pTemplate="groupheader"
+        let-agent
+        let-columns="columns"
+        let-rowIndex="rowIndex"
+        let-expanded="expanded"
+      >
+        <tr *ngIf="loading" style="height: 46px">
+          <td colspan="6">
+            <p-skeleton></p-skeleton>
+          </td>
+        </tr>
+        <ng-container *ngIf="!loading">
+          <tr styleClass="group-row">
+            <td colspan="6">
+              <button
+                type="button"
+                pButton
+                [pRowToggler]="agent"
+                class="p-button-text p-button-rounded p-button-plain"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              ></button>
+              <p-avatar
+                image="https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png"
+                size="large"
+                shape="circle"
+              ></p-avatar>
+              <span> {{ "agentsManagement.tableName" | translate }}: </span>
+              <span class="group-name">{{ agent?.name | uppercase }}</span>
+            </td>
+          </tr>
+          <tr *ngIf="expanded" styleClass="expansion-header expansion-row">
+            <th *ngFor="let col of columns" styleClass="expansion-td">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-container>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-agent let-columns="columns">
+        <tr styleClass="expansion-row">
+          <td *ngFor="let col of columns" styleClass="expansion-td">
             <ng-container *ngIf="col.field === 'options'; else otherColumns">
               <p-button
                 icon="pi pi-user-edit"
                 styleClass="p-button-rounded p-button-primary p-button-text"
-                (click)="showAgentForm(rowData, true)"
+                (click)="showAgentForm(agent, true)"
               ></p-button>
               <p-button
                 icon="pi pi-trash"
                 styleClass="p-button-rounded p-button-danger p-button-text"
-                (click)="showConfirmDialog(rowData)"
+                (click)="showConfirmDialog(agent)"
               ></p-button>
             </ng-container>
-            <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
+            <ng-template #otherColumns> {{ agent[col.field] }} </ng-template>
           </td>
         </tr>
       </ng-template>
-      <ng-template pTemplate="loadingbody" let-columns="columns">
-        <tr style="height: 46px">
-          <td *ngFor="let col of columns">
-            <p-skeleton></p-skeleton>
-          </td>
-        </tr>
+      <ng-template pTemplate="summary">
+        <div styleClass="table-footer"></div>
       </ng-template>
     </p-table>
-
     <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
     <p-toast></p-toast>
     <p-dialog
@@ -49,8 +88,8 @@
       [modal]="true"
       [blockScroll]="true"
       [dismissableMask]="true"
-      styleClass="booking-form"
-      contentStyleClass="booking-form-content"
+      styleClass="agent-form"
+      contentStyleClass="agent-form-content"
     >
       <app-user-form
         [agent]="selectedAgent"

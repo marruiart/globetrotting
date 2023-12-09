@@ -31,7 +31,7 @@ interface TableRow {
 })
 export class AgentsManagementPage implements OnInit {
   private mappedAgents: TableRow[] = [];
-  private _agentTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
+  private _agentTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public agentTable$: Observable<TableRow[]> = this._agentTable.asObservable();
 
   public selectedAgent: TableRow | null = null;

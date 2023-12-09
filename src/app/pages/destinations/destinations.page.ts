@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
 import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';

@@ -4,6 +4,7 @@
     <p-table
       [columns]="cols"
       [value]="(bookingTable$ | async) ?? []"
+      [lazy]="true"
     >
       <ng-template pTemplate="header" let-columns>
         <tr>
@@ -40,6 +41,13 @@
             </ng-container>
             <!-- Otherwise, display the content of the field -->
             <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody" let-columns="columns">
+        <tr style="height: 46px">
+          <td *ngFor="let col of columns">
+            <p-skeleton></p-skeleton>
           </td>
         </tr>
       </ng-template>

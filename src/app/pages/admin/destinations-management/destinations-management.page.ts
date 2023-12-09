@@ -25,14 +25,14 @@ interface TableRow {
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage implements OnInit {
-  public selectedDestination: Destination | null = null;
-  public currentUser: Client | TravelAgent | null = null;
-  private mappedDestinations: TableRow[] = [];
-  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
-  public showEditForm: boolean = false;
-  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
   public data: TableRow[] = [];
   public cols: any[] = [];
+  public currentUser: Client | TravelAgent | null = null;
+  public showEditForm: boolean = false;
+  public selectedDestination: Destination | null = null;
+  private mappedDestinations: TableRow[] = [];
+  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
+  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
 
   constructor(
     private destinationsSvc: DestinationsService,

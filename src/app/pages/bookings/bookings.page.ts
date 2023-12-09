@@ -40,7 +40,7 @@ interface AgentTableRow extends TableRow {
 })
 export class BookingsPage {
   public currentUser: Client | TravelAgent | null = null;
-  private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>([]);
+  private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
   public data: ClientTableRow[] = [];
   public cols: any[] = [];
@@ -78,7 +78,7 @@ export class BookingsPage {
       },
       {
         component: 'BookingsPage',
-        sub: this.displayTable().subscribe((table) => {
+        sub: this.displayTable().subscribe((table: TableRow[]) => {
           this._bookingTable.next(table);
         })
       },
@@ -223,6 +223,7 @@ export class BookingsPage {
    */
   private displayClientBookings(bookings: Booking[]): Observable<TableRow[]> {
     let tableRowObs: Observable<TableRow>[] = [];
+
     for (let booking of bookings) {
       const agent$ = booking.agent_id ? this.agentSvc.getAgent(booking.agent_id) : of(null);
       const destination$ = this.destinationSvc.getDestination(booking.destination_id);

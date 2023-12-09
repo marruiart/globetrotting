@@ -93,15 +93,20 @@ export class BookingsPage {
     ])
   }
 
-  private displayTable() {
+  /**
+   * Obtains from the bookings service an array of Booking and maps each of them into a TableRow. 
+   * It takes into account if the TableRow to be displayed is for a client or an agent/admin.
+   * @returns an observable of an array of TableRow.
+   */
+  private displayTable(): Observable<TableRow[]> {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       return this.bookingsSvc.userBookings$.pipe(
-        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.displayClientBookings(bookings)),
+        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.mapClientBookingsRows(bookings)),
         catchError(err => of(err))
       )
     } else if (this.currentUser?.type == 'AGENT') {
       return this.bookingsSvc.allBookings$.pipe(
-        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.displayAgentBookings(bookings)),
+        switchMap((bookings: Booking[]): Observable<TableRow[]> => this.mapAgentBookingsRows(bookings)),
         catchError(err => of(err))
       )
     } else {
@@ -189,7 +194,7 @@ export class BookingsPage {
    * @param bookings array of all the bookings
    * @returns an observable with all the rows of the table to be displayed
    */
-  private displayAgentBookings(bookings: Booking[]): Observable<TableRow[]> {
+  private mapAgentBookingsRows(bookings: Booking[]): Observable<TableRow[]> {
     let tableRowObs: Observable<TableRow>[] = [];
 
     for (let booking of bookings) {
@@ -205,11 +210,10 @@ export class BookingsPage {
             switchMap((userClient): Observable<TableRow> => {
               return of(this.mapTableRow(userClient, booking, destination));
             }), catchError(err => {
-              return of();
+              return of(err);
             }))
-
         }), catchError(err => {
-          return of();
+          return of(err);
         })))
     }
     // ForkJoin the "array of observables" to return "an observable of an array"
@@ -221,7 +225,7 @@ export class BookingsPage {
    * @param bookings array of the current user bookings
    * @returns an observable with all the rows of the table to be displayed
    */
-  private displayClientBookings(bookings: Booking[]): Observable<TableRow[]> {
+  private mapClientBookingsRows(bookings: Booking[]): Observable<TableRow[]> {
     let tableRowObs: Observable<TableRow>[] = [];
 
     for (let booking of bookings) {
@@ -237,13 +241,11 @@ export class BookingsPage {
             concatMap((userAgent: ExtUser | null): Observable<TableRow> => {
               return of(this.mapTableRow(userAgent, booking, destination));
             }), catchError(err => {
-              console.error(err);
-              return of();
+              return of(err);
             }))
 
         }), catchError(err => {
-          console.error(err);
-          return of();
+          return of(err);
         })
       ))
     }

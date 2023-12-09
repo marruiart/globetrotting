@@ -1,6 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, concatMap, lastValueFrom, map, of, switchMap, tap, zip } from "rxjs";
+import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, throwError, zip } from "rxjs";
 import { UserFacade } from "src/app/core/libs/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
@@ -29,7 +29,7 @@ interface TableRow {
   templateUrl: './agents-management.page.html',
   styleUrls: ['./agents-management.page.scss'],
 })
-export class AgentsManagementPage implements OnInit {
+export class AgentsManagementPage {
   private mappedAgents: TableRow[] = [];
   private _agentTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public agentTable$: Observable<TableRow[]> = this._agentTable.asObservable();
@@ -65,19 +65,32 @@ export class AgentsManagementPage implements OnInit {
           switchMap((_: string) => this.getCols()),
           catchError(err => of(err)))
           .subscribe()
+      },
+      {
+        component: 'AgentsManagementPage',
+        sub: this.agentsSvc.getAllAgents().subscribe()
+      },
+      {
+        component: 'AgentsManagementPage',
+        sub: this.displayTable().subscribe((table: TableRow[]) => {
+          this._agentTable.next(table);
+        })
       }
     ])
   }
 
-  async ngOnInit() {
+  /**
+   * Obtains from the agent service an array of agents and maps each of them into a TableRow.
+   * @returns an observable of an array of TableRow.
+   */
+  private displayTable(): Observable<TableRow[]> {
     if (this.currentUser?.type == 'AGENT') {
-      let agents = await lastValueFrom(this.agentsSvc.getAllAgents());
-      if (agents) {
-        agents.data.forEach(agent => {
-          this.mapTableRow(agent);
-        })
-      }
-      this._agentTable.next(this.mappedAgents);
+      return this.agentsSvc.agents$.pipe(
+        switchMap((agents: TravelAgent[]): Observable<TableRow[]> => this.mapAgentsRows(agents)),
+        catchError(err => of(err))
+      )
+    } else {
+      return of([]);
     }
   }
 
@@ -111,47 +124,50 @@ export class AgentsManagementPage implements OnInit {
       { field: 'options', header: options }]
   }
 
-  private mapTableRow(agent: TravelAgent) {
-    const extUser$ = this.userSvc.getAgentUser(agent.user_id);
+  private mapTableRow(agent: TravelAgent, extUser: ExtUser, user: UserCredentials): TableRow {
+    return {
+      id: extUser.id,
+      user_id: user.id,
+      agent_id: agent.id,
+      name: extUser.name ?? "",
+      surname: extUser.surname ?? "",
+      email: user.email ?? "",
+      username: user.username,
+      nickname: extUser.nickname
+    }
+  }
 
-    this.subsSvc.addSubscription({
-      component: 'AgentsManagementPage',
-      sub: extUser$.pipe(
-        concatMap((extUser: ExtUser | null): Observable<TableRow | null> => {
+  /**
+ * Receives an array of travel agents and turn it into an array of rows ready to display on a table.
+ * @param agents array of all the travel agents
+ * @returns an observable with all the rows of the table to be displayed
+ */
+  private mapAgentsRows(agents: TravelAgent[]): Observable<TableRow[]> {
+    let tableRowObs: Observable<TableRow>[] = [];
+
+    for (let agent of agents) {
+      const extUser$ = this.userSvc.getAgentUser(agent.user_id);
+
+      // For each booking, add a TableRow observable
+      tableRowObs.push(extUser$.pipe(
+        switchMap((extUser): Observable<TableRow> => {
           if (extUser && extUser.user_id) {
             return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
-              concatMap((user: UserCredentials): Observable<TableRow | null> => {
+              switchMap((user: UserCredentials): Observable<TableRow> => {
                 if (user) {
-                  const tableRow: TableRow = {
-                    id: extUser.id,
-                    user_id: user.id,
-                    agent_id: agent.id,
-                    name: extUser.name ?? "",
-                    surname: extUser.surname ?? "",
-                    email: user.email ?? "",
-                    username: user.username,
-                    nickname: extUser.nickname
-                  }
-                  return of(tableRow);
+                  return of(this.mapTableRow(agent, extUser, user));
                 }
-                return of(null);
-              }), catchError(err => {
-                console.error(err);
-                return of(null);
+                return throwError(() => "No se han podido obtener las credenciales del usuario");
               })
-            );
+            )
           }
-          return of(null);
+          return throwError(() => "No se han podido obtener los datos del extended user");
         }), catchError(err => {
-          console.error(err);
-          return of(null);
-        })).subscribe((tableRow: TableRow | null) => {
-          if (tableRow) {
-            this.mappedAgents.push(tableRow);
-          }
-          return this.mappedAgents;
-        })
-    });
+          return of(err);
+        })))
+    }
+    // ForkJoin the "array of observables" to return "an observable of an array"
+    return forkJoin(tableRowObs);
   }
 
   public showAgentForm(tableRow?: TableRow, actionUpdate: boolean = false) {

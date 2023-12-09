@@ -1,0 +1,61 @@
+::ng-deep {
+  .bookings-table {
+    min-width: 80vw;
+    border-radius: 30px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+
+    [styleClass="table-header"] {
+      > [styleClass*="table-header__th"] {
+        padding: 50px;
+        color: var(--primary-700);
+        font-size: 1.3rem;
+      }
+    }
+
+    [styleClass="group-row"] {
+      td {
+        background-color: var(--surface-ground);
+
+        > * {
+          margin-inline: 7px;
+          vertical-align: middle;
+        }
+
+        > span.group-name {
+          font-weight: bold;
+        }
+      }
+    }
+
+    [styleClass="expansion-header expansion-row"] {
+      padding: 30px 0;
+    }
+
+    [styleClass*="expansion-row"] [styleClass="expansion-td"] {
+      padding: 10px 0;
+      text-align: center;
+
+      > * {
+        vertical-align: middle;
+      }
+
+      .dates-align {
+        margin: auto;
+        width: fit-content;
+
+        * {
+          text-align: left;
+        }
+
+        span.date {
+          font-weight: bold;
+        }
+      }
+    }
+
+    [styleClass="table-footer"] {
+      height: 50px;
+    }
+  }
+}

@@ -1,55 +1,120 @@
 <ion-content>
   <app-header></app-header>
-  <main>
+  <main class="content">
     <p-table
+      styleClass="bookings-table"
       [columns]="cols"
       [value]="(bookingTable$ | async) ?? []"
       [lazy]="true"
+      sortMode="single"
+      dataKey="destination"
+      rowGroupMode="subheader"
+      groupRowsBy="destination"
     >
       <ng-template pTemplate="header" let-columns>
-        <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
+        <tr styleClass="table-header">
+          <th colspan="6" styleClass="table-header__th">
+            {{ "bookingsPage.tableHeader" | translate | uppercase }}
+          </th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
-        <tr>
-          <td *ngFor="let col of columns">
-            <!-- If is isConfirmed column, display a tag content -->
-            <ng-container
-              *ngIf="col.field === 'isConfirmed'; else otherColumns"
-            >
-              <p-tag
-                *ngIf="rowData[col.field]"
-                [value]="'bookingsPage.confirmedTag' | translate | uppercase"
-                severity="success"
-                [rounded]="true"
-                icon="pi pi-check"
-              ></p-tag>
-              <p-tag
-                *ngIf="!rowData[col.field] && currentUser?.type == 'AUTHENTICATED'"
-                [value]="'bookingsPage.unconfirmedTag' | translate | uppercase"
-                severity="danger"
-                [rounded]="true"
-              ></p-tag>
-              <p-button
-                *ngIf="!rowData[col.field] && currentUser?.type == 'AGENT'"
-                [label]="'bookingsPage.confirmBtn' | translate | uppercase"
-                icon="pi pi-thumbs-up" 
-                styleClass="p-button-secondary p-button-rounded light-tag"
-                (click)="confirmBook(rowData.booking_id)"
-              ></p-button>
-            </ng-container>
-            <!-- Otherwise, display the content of the field -->
-            <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody" let-columns="columns">
-        <tr style="height: 46px">
-          <td *ngFor="let col of columns">
+      <ng-template
+        pTemplate="groupheader"
+        let-booking
+        let-columns="columns"
+        let-rowIndex="rowIndex"
+        let-expanded="expanded"
+      >
+        <tr *ngIf="loading" style="height: 46px">
+          <td colspan="6">
             <p-skeleton></p-skeleton>
           </td>
         </tr>
+        <ng-container *ngIf="!loading">
+          <tr styleClass="group-row">
+            <td colspan="6">
+              <button
+                type="button"
+                pButton
+                [pRowToggler]="booking"
+                class="p-button-text p-button-rounded p-button-plain"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              ></button>
+              <span> {{ "bookingsPage.tableDestination" | translate }}: </span>
+              <span class="group-name"
+                >{{ booking?.destination | uppercase }}</span
+              >
+            </td>
+          </tr>
+          <tr *ngIf="expanded" styleClass="expansion-header expansion-row">
+            <th *ngFor="let col of columns" styleClass="expansion-td">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-container>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-booking let-columns="columns">
+        <tr styleClass="expansion-row">
+          <td *ngFor="let col of columns" styleClass="expansion-td">
+            <ng-container *ngTemplateOutlet="field" />
+            <ng-template #field [ngSwitch]="col.field">
+              <ng-container *ngSwitchCase="'clientName'">
+                <p-chip
+                  [label]="booking[col.field]"
+                  image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                ></p-chip>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'dates'">
+                <div class="dates-align">
+                  <div>
+                    <span class="date">
+                      {{ "bookingsPage.tableDeparture" | translate }}:
+                    </span>
+                    <span> {{ booking.start | date : "dd MMM YY" }} </span>
+                  </div>
+                  <div>
+                    <span class="date">
+                      {{ "bookingsPage.tableArrival" | translate }}:
+                    </span>
+                    <span> {{ booking.end | date : "dd MMM YY" }} </span>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'isConfirmed'">
+                <p-tag
+                  *ngIf="booking[col.field]"
+                  [value]="'bookingsPage.confirmedTag' | translate | uppercase"
+                  severity="success"
+                  [rounded]="true"
+                  icon="pi pi-check"
+                ></p-tag>
+                <p-tag
+                  *ngIf="!booking[col.field] && currentUser?.type == 'AUTHENTICATED'"
+                  [value]="'bookingsPage.unconfirmedTag' | translate | uppercase"
+                  severity="danger"
+                  [rounded]="true"
+                ></p-tag>
+                <p-button
+                  *ngIf="!booking[col.field] && currentUser?.type == 'AGENT'"
+                  [label]="'bookingsPage.confirmBtn' | translate | uppercase"
+                  icon="pi pi-thumbs-up"
+                  styleClass="p-button-secondary p-button-rounded light-tag"
+                  (click)="confirmBook(booking.booking_id)"
+                ></p-button>
+              </ng-container>
+
+              <!-- Otherwise, display the content of the field -->
+              <ng-container *ngSwitchDefault>
+                {{ booking[col.field] }}
+              </ng-container>
+            </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        <div styleClass="table-footer"></div>
       </ng-template>
     </p-table>
   </main>

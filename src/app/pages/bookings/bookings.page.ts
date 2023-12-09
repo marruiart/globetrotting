@@ -30,7 +30,11 @@ interface ClientTableRow extends TableRow {
 
 interface AgentTableRow extends TableRow {
   clientName: string,
+}
 
+interface AdminTableRow extends TableRow {
+  agentName: string | null
+  clientName: string,
 }
 
 @Component({
@@ -44,6 +48,7 @@ export class BookingsPage {
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
   public data: ClientTableRow[] = [];
   public cols: any[] = [];
+  public loading: boolean = true;
 
   constructor(
     private bookingsSvc: BookingsService,
@@ -80,6 +85,7 @@ export class BookingsPage {
         component: 'BookingsPage',
         sub: this.displayTable().subscribe((table: TableRow[]) => {
           this._bookingTable.next(table);
+          this.loading = false;
         })
       },
       {
@@ -115,46 +121,44 @@ export class BookingsPage {
   }
 
   private getCols() {
+    const bookingId$ = this.translate.getTranslation("bookingsPage.tableBookingId");
     const destination$ = this.translate.getTranslation("bookingsPage.tableDestination");
-    const start$ = this.translate.getTranslation("bookingsPage.tableStart");
-    const end$ = this.translate.getTranslation("bookingsPage.tableEnd");
+    const dates$ = this.translate.getTranslation("bookingsPage.tableDates");
     const travelers$ = this.translate.getTranslation("bookingsPage.tableTravelers");
     const confirmationState$ = this.translate.getTranslation("bookingsPage.tableConfirmationState");
     const agent$ = this.translate.getTranslation("bookingsPage.tableAgent");
     const client$ = this.translate.getTranslation("bookingsPage.tableClient");
 
-    const tableHeaders$ = zip(destination$, start$, end$, travelers$, confirmationState$, agent$, client$).pipe(
+    const tableHeaders$ = zip(bookingId$, destination$, dates$, travelers$, confirmationState$, agent$, client$).pipe(
       tap(([
+        bookingId,
         destination,
-        start,
-        end,
+        dates,
         travelers,
         confirmationState,
         agent,
         client
       ]) => {
-        this.cols = this.translateMenuItems(destination, start, end, travelers, confirmationState, agent, client);
+        this.cols = this.translateMenuItems(bookingId, destination, dates, travelers, confirmationState, agent, client);
       }), catchError(err => of(err)));
 
     return tableHeaders$;
   }
 
-  private translateMenuItems(destination: string, start: string, end: string, travelers: string, confirmationState: string, agent: string, client: string) {
+  private translateMenuItems(bookingId: string, destination: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       return [
         { field: 'destination', header: destination },
-        { field: 'start', header: start },
-        { field: 'end', header: end },
+        { field: 'dates', header: dates },
         { field: 'travelers', header: travelers },
         { field: 'isConfirmed', header: confirmationState },
         { field: 'agentName', header: agent }
       ]
     } else if (this.currentUser?.type == 'AGENT') {
       return [
+        { field: 'booking_id', header: bookingId },
         { field: 'clientName', header: client },
-        { field: 'destination', header: destination },
-        { field: 'start', header: start },
-        { field: 'end', header: end },
+        { field: 'dates', header: dates },
         { field: 'travelers', header: travelers },
         { field: 'isConfirmed', header: confirmationState }
       ]

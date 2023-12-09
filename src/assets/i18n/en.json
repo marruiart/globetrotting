@@ -43,13 +43,19 @@
     "confirmBtn": "Confirm",
     "confirmedTag": "Confirmed",
     "unconfirmedTag": "Unconfirmed",
+    "tableHeader": "Travel bookings",
+    "tableBookingId": "Booking id",
     "tableDestination": "Destination",
+    "tableDates": "Dates",
+    "tableDeparture": "Departure",
+    "tableArrival": "Arrival",
     "tableStart": "Departure date",
     "tableEnd": "Arrival date",
     "tableTravelers": "no. of travelers",
     "tableConfirmationState": "State",
     "tableAgent": "Assigned travel agent",
-    "tableClient": "Client"
+    "tableClient": "Customer",
+    "tableClientName": "Customer name"
   },
   "bookingsForm": {
     "dates": "Departure and arrival dates",

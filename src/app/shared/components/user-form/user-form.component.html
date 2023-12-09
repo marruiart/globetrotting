@@ -1,15 +1,35 @@
 <form [formGroup]="userForm" (ngSubmit)="onSubmit($event)">
   <ng-container *ngTemplateOutlet="form" />
 
+  <!-- Header -->
   <ng-template #form [ngSwitch]="formType">
-    <h2 *ngSwitchCase="'LOGIN'">{{ "userForm.loginHeader" | translate }}</h2>
-    <h2 *ngSwitchCase="'REGISTER'">
-      {{ "userForm.registerHeader" | translate }}
-    </h2>
-    <h2 *ngSwitchCase="'REGISTER_AGENT'">
-      {{ "userForm.agentRegisterHeader" | translate }}
-    </h2>
+    <ng-container *ngIf="!actionUpdate">
+      <h2 *ngSwitchCase="'LOGIN'">
+        {{ "userForm.loginHeader" | translate }}
+      </h2>
+      <h2 *ngSwitchCase="'REGISTER'">
+        {{ "userForm.registerHeader" | translate }}
+      </h2>
+      <h2 *ngSwitchCase="'REGISTER_AGENT'">
+        {{ "userForm.agentRegisterHeader" | translate }}
+      </h2>
+    </ng-container>
   </ng-template>
+
+  <ng-template #form [ngSwitch]="formType">
+    <ng-container *ngIf="actionUpdate">
+      <h2 *ngSwitchCase="'LOGIN'">
+        {{ "userForm.loginHeader" | translate }}
+      </h2>
+      <h2 *ngSwitchCase="'REGISTER'">
+        {{ "userForm.registerHeader" | translate }}
+      </h2>
+      <h2 *ngSwitchCase="'REGISTER_AGENT'">
+        {{ "userForm.agentRegisterHeader" | translate }}
+      </h2>
+    </ng-container>
+  </ng-template>
+
   <!-- Username -->
   <div
     class="p-inputgroup"
@@ -136,6 +156,7 @@
     (click)="onNavigateToRegister()"
   ></p-button>
 
+  <!-- CREATION -->
   <ng-container *ngIf="!actionUpdate">
     <ng-container *ngTemplateOutlet="submitBtn"></ng-container>
   </ng-container>
@@ -160,6 +181,7 @@
     />
   </ng-template>
 
+  <!-- UPDATE -->
   <ng-container *ngIf="actionUpdate">
     <ng-container *ngTemplateOutlet="updateBtn"></ng-container>
   </ng-container>

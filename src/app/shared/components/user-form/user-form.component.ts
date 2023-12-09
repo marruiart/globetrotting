@@ -92,7 +92,7 @@ export class UserFormComponent implements OnDestroy {
           name: ['', [Validators.required]],
           surname: ['', [Validators.required]],
           nickname: ['', [Validators.required]],
-        }, { validator: [PasswordValidator.passwordMatch('password', 'confirm')] } as AbstractControlOptions);
+        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'PROFILE':
         this.userForm = this.fb.group({

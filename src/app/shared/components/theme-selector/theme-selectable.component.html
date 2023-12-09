@@ -11,6 +11,7 @@
 >
   <app-theme-selectable-item
     *ngFor="let theme of themes"
+    [themeColors]="theme.code"
     [theme]="theme"
     [isActiveTheme]="theme == selectedTheme"
     (onThemeSelected)="selectTheme($event)"

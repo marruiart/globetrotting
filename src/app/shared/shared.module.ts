@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { translateLoaderFactory } from '../core/factories/translate-loader.factory';
 import { ThemeSelectableComponent } from './components/theme-selector/theme-selectable.component';
 import { ThemeSelectableItemComponent } from './components/theme-selector/theme-selectable-item/theme-selectable-item.component';
+import { ThemeColorsDirective } from './directives/theme-colors.directive';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { ThemeSelectableItemComponent } from './components/theme-selector/theme-
     ThemeSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
-    FavPipe
+    FavPipe,
+    ThemeColorsDirective
   ],
   imports: [
     CommonModule,

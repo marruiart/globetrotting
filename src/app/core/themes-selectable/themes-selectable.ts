@@ -34,7 +34,7 @@ export const themes: ThemeItem[] = [
         name: "Lara Light Teal"
     },
     {
-        code: "my-theme",
-        name: "My Theme"
+        code: "my-light-theme",
+        name: "My Light Theme"
     }
 ];

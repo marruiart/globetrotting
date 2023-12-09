@@ -74,8 +74,8 @@
                 "inject": false
               },
               {
-                "input": "src/theme/my-theme.scss",
-                "bundleName": "my-theme",
+                "input": "src/theme/my-light-theme.scss",
+                "bundleName": "my-light-theme",
                 "inject": false
               }
             ],

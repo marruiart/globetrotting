@@ -1,3 +1,115 @@
+:host {
+  &.lara-light-blue {
+    .primary {
+      background-color: #3b82f6;
+    }
+  }
+
+  &.lara-light-indigo {
+    .primary {
+      background-color: #6366f1;
+    }
+  }
+
+  &.lara-light-purple {
+    .primary {
+      background-color: #8b5cf6;
+    }
+  }
+
+  &.lara-light-teal {
+    .primary {
+      background-color: #14b8a6;
+    }
+  }
+
+  &.lara-dark-blue {
+    .primary {
+      background-color: #93c5fd;
+    }
+  }
+
+  &.lara-dark-indigo {
+    .primary {
+      background-color: #a5b4fc;
+    }
+  }
+
+  &.lara-dark-purple {
+    .primary {
+      background-color: #c4b5fd;
+    }
+  }
+
+  &.lara-dark-teal {
+    .primary {
+      background-color: #5eead4;
+    }
+  }
+
+  &.my-light-theme {
+    .primary {
+      background-color: #e66757;
+    }
+  }
+
+  &.light {
+    > .item {
+      > .theme-colors {
+        border: 1px solid #dee2e6;
+        background-color: rgb(255, 255, 255);
+
+        > * {
+          border: 1px solid #dee2e6;
+        }
+
+        > .text {
+          background-color: #ffffff;
+          color: #495057;
+        }
+
+        > .primary {
+          color: #ffffff;
+        }
+
+        > .secondary {
+          background-color: #64748b;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  &.dark {
+    >.item {
+
+      > .theme-colors {
+        border: 1px solid #0b213f;
+        background-color: rgb(18, 18, 18);
+
+        > * {
+          border: 1px solid #0b213f;
+        }
+
+        > .text {
+          background-color: #121212;
+          color: #ffffffde;
+        }
+  
+        > .primary {
+          color: #1c2127;
+        }
+  
+        > .secondary {
+          background-color: #cbd5e1;
+          color: #1c2127;
+        }
+      }
+
+    }
+  }
+}
+
 .item {
   display: flex;
   align-items: center;
@@ -20,14 +132,6 @@
   margin: 10px;
 }
 
-.theme-colors.light {
-  background-color: rgb(255, 255, 255, 0.5);
-}
-
-.theme-colors.dark {
-  background-color: rgb(18, 18, 18, 0.5);
-}
-
 .color {
   display: flex;
   align-items: center;
@@ -37,42 +141,4 @@
   font-size: 0.8rem;
   margin-inline: 3px;
   border-radius: 100%;
-}
-
-.light {
-  border: 1px solid #dee2e6;
-}
-
-.dark {
-  border: 1px solid #0b213f;
-}
-
-.text.light {
-  background-color: #ffffff;
-  color: #495057;
-}
-
-.primary.light {
-  background-color: #3b82f6;
-  color: #ffffff;
-}
-
-.secondary.light {
-  background-color: #64748b;
-  color: #ffffff;
-}
-
-.text.dark {
-  background-color: #121212;
-  color: #ffffffde;
-}
-
-.primary.dark {
-  background-color: #93c5fd;
-  color: #1c2127;
-}
-
-.secondary.dark {
-  background-color: #cbd5e1;
-  color: #1c2127;
 }

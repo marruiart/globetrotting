@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LazyLoadEvent } from 'primeng/api';
+import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
 import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
@@ -58,7 +59,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
     });
   }
 
-  public loadDestinations(event?: LazyLoadEvent) {
+  public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {
     if (event && event.first != undefined && event.rows != undefined && event.rows != 0 && event.last != undefined) {
       const visibleEnd = event.last >= this.destinationsSvc.itemsCount;
       if (visibleEnd) {

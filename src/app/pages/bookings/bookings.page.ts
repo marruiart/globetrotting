@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Table } from 'primeng/table';
 import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
 import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
 import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
@@ -49,6 +50,12 @@ export class BookingsPage {
   public data: ClientTableRow[] = [];
   public cols: any[] = [];
   public loading: boolean = true;
+  isResponsive: boolean = false;
+  @HostListener('window:resize', ['$event'])
+
+  onResize(event: Event) {
+    this.isResponsive = window.innerWidth < 960; 
+  }
 
   constructor(
     private bookingsSvc: BookingsService,
@@ -60,6 +67,7 @@ export class BookingsPage {
     private subsSvc: SubscriptionsService,
     private translate: CustomTranslateService
   ) {
+    this.isResponsive = window.innerWidth < 960; 
     this.subsSvc.addSubscriptions([
       {
         component: 'BookingsPage',
@@ -122,33 +130,30 @@ export class BookingsPage {
 
   private getCols() {
     const bookingId$ = this.translate.getTranslation("bookingsPage.tableBookingId");
-    const destination$ = this.translate.getTranslation("bookingsPage.tableDestination");
     const dates$ = this.translate.getTranslation("bookingsPage.tableDates");
     const travelers$ = this.translate.getTranslation("bookingsPage.tableTravelers");
     const confirmationState$ = this.translate.getTranslation("bookingsPage.tableConfirmationState");
     const agent$ = this.translate.getTranslation("bookingsPage.tableAgent");
     const client$ = this.translate.getTranslation("bookingsPage.tableClient");
 
-    const tableHeaders$ = zip(bookingId$, destination$, dates$, travelers$, confirmationState$, agent$, client$).pipe(
+    const tableHeaders$ = zip(bookingId$, dates$, travelers$, confirmationState$, agent$, client$).pipe(
       tap(([
         bookingId,
-        destination,
         dates,
         travelers,
         confirmationState,
         agent,
         client
       ]) => {
-        this.cols = this.translateMenuItems(bookingId, destination, dates, travelers, confirmationState, agent, client);
+        this.cols = this.translateMenuItems(bookingId, dates, travelers, confirmationState, agent, client);
       }), catchError(err => of(err)));
 
     return tableHeaders$;
   }
 
-  private translateMenuItems(bookingId: string, destination: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
+  private translateMenuItems(bookingId: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
     if (this.currentUser?.type == 'AUTHENTICATED') {
       return [
-        { field: 'destination', header: destination },
         { field: 'dates', header: dates },
         { field: 'travelers', header: travelers },
         { field: 'isConfirmed', header: confirmationState },

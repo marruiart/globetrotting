@@ -54,7 +54,7 @@
     "tableEnd": "Arrival date",
     "tableTravelers": "no. of travelers",
     "tableConfirmationState": "State",
-    "tableAgent": "Assigned travel agent",
+    "tableAgent": "Assigned agent",
     "tableClient": "Customer",
     "tableClientName": "Customer name"
   },

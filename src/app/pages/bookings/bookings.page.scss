@@ -1,13 +1,13 @@
 ::ng-deep {
   .bookings-table {
-    min-width: 80vw;
+    min-width: 100%;
     border-radius: 30px;
     border: 1px solid #dee2e6;
     overflow: hidden;
 
-    [styleClass="table-header"] {
-      > [styleClass*="table-header__th"] {
-        padding: 50px;
+    [styleClass="table-caption"] {
+      > [styleClass*="table-caption__th"] {
+        padding: 30px;
         color: var(--primary-700);
         font-size: 1.3rem;
       }
@@ -33,8 +33,14 @@
     }
 
     [styleClass*="expansion-row"] [styleClass="expansion-td"] {
-      padding: 10px 0;
+      padding: 10px 1rem;
       text-align: center;
+      justify-content: left !important;
+      column-gap: 16px !important;
+
+      span.p-column-title {
+        font-weight: bold;
+      }
 
       > * {
         vertical-align: middle;
@@ -43,6 +49,10 @@
       .dates-align {
         margin: auto;
         width: fit-content;
+
+        &.responsive {
+          margin: 0;
+        }
 
         * {
           text-align: left;

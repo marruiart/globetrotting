@@ -40,7 +40,6 @@ export class AgentsManagementPage {
   public showEditForm: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
-  public loading: boolean = true;
 
   constructor(
     private agentsSvc: AgentService,
@@ -75,7 +74,6 @@ export class AgentsManagementPage {
         component: 'AgentsManagementPage',
         sub: this.displayTable().subscribe((table: TableRow[]) => {
           this._agentTable.next(table);
-          this.loading = false;
         })
       }
     ])
@@ -121,7 +119,6 @@ export class AgentsManagementPage {
     return [
       { field: 'agent_id', header: identification },
       { field: 'name', header: name },
-      { field: 'surname', header: surname },
       { field: 'email', header: email },
       { field: 'options', header: options }]
   }

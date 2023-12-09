@@ -1,109 +1,120 @@
 <ion-content>
   <app-header></app-header>
-  <main class="content">
-    <p-table
-      styleClass="agents-table"
-      [columns]="cols"
-      [value]="(agentTable$ | async) ?? []"
-      [lazy]="true"
-      dataKey="agent_id"
-      rowGroupMode="subheader"
-      groupRowsBy="agent_id"
-    >
-      <ng-template pTemplate="header" let-columns>
-        <tr styleClass="table-header">
-          <th colspan="6" styleClass="table-header__th">
-            {{ "agentsManagement.tableHeader" | translate | uppercase }}
-          </th>
-        </tr>
-      </ng-template>
-      <ng-template
-        pTemplate="groupheader"
-        let-agent
-        let-columns="columns"
-        let-rowIndex="rowIndex"
-        let-expanded="expanded"
+  <main>
+    <div class="content">
+      <p-table
+        responsiveLayout="stack"
+        [breakpoint]="'960px'"
+        styleClass="agents-table"
+        [columns]="cols"
+        [value]="(agentTable$ | async) ?? []"
+        [lazy]="true"
       >
-        <tr *ngIf="loading" style="height: 46px">
-          <td colspan="6">
-            <p-skeleton></p-skeleton>
-          </td>
-        </tr>
-        <ng-container *ngIf="!loading">
-          <tr styleClass="group-row">
-            <td colspan="6">
-              <button
-                type="button"
-                pButton
-                [pRowToggler]="agent"
-                class="p-button-text p-button-rounded p-button-plain"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              ></button>
-              <p-avatar
-                image="https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png"
-                size="large"
-                shape="circle"
-              ></p-avatar>
-              <span> {{ "agentsManagement.tableName" | translate }}: </span>
-              <span class="group-name">{{ agent?.name | uppercase }}</span>
-            </td>
-          </tr>
-          <tr *ngIf="expanded" styleClass="expansion-header expansion-row">
-            <th *ngFor="let col of columns" styleClass="expansion-td">
-              {{ col.header }}
+        <ng-template pTemplate="caption" let-columns>
+          <tr styleClass="table-caption">
+            <th colspan="6" styleClass="table-header__th">
+              {{ "agentsManagement.tableHeader" | translate | uppercase }}
+            </th>
+            <th>
+              <p-button
+                [label]="'agentsManagement.addAgentBtn' | translate"
+                icon="pi pi-plus"
+                styleClass="p-button-rounded"
+                (click)="showAgentForm()"
+              />
             </th>
           </tr>
-        </ng-container>
-      </ng-template>
-      <ng-template pTemplate="rowexpansion" let-agent let-columns="columns">
-        <tr styleClass="expansion-row">
-          <td *ngFor="let col of columns" styleClass="expansion-td">
-            <ng-container *ngIf="col.field === 'options'; else otherColumns">
-              <p-button
-                icon="pi pi-user-edit"
-                styleClass="p-button-rounded p-button-primary p-button-text"
-                (click)="showAgentForm(agent, true)"
-              ></p-button>
-              <p-button
-                icon="pi pi-trash"
-                styleClass="p-button-rounded p-button-danger p-button-text"
-                (click)="showConfirmDialog(agent)"
-              ></p-button>
-            </ng-container>
-            <ng-template #otherColumns> {{ agent[col.field] }} </ng-template>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="summary">
-        <div styleClass="table-footer"></div>
-      </ng-template>
-    </p-table>
-    <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
-    <p-toast></p-toast>
-    <p-dialog
-      [header]="'agentsManagement.editAgentHeader' | translate"
-      [draggable]="false"
-      [resizable]="false"
-      [(visible)]="showEditForm"
-      [modal]="true"
-      [blockScroll]="true"
-      [dismissableMask]="true"
-      styleClass="agent-form"
-      contentStyleClass="agent-form-content"
-    >
-      <app-user-form
-        [agent]="selectedAgent"
-        (onRegisterAgentClicked)="addOrEditAgent($event)"
-        [formType]="'REGISTER_AGENT'"
-        [actionUpdate]="isUpdating"
-      ></app-user-form>
-    </p-dialog>
-    <p-button
-      [label]="'agentsManagement.addAgentBtn' | translate"
-      icon="pi pi-plus"
-      styleClass="p-button-rounded floating-button"
-      (click)="showAgentForm()"
-    />
+        </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+          <tr styleClass="table-header">
+            <th *ngFor="let col of columns" styleClass="table-header__th">
+              {{ col.header | uppercase }}
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-agent let-columns="columns">
+          <tr styleClass="body-row">
+            <td *ngFor="let col of columns" styleClass="body-td">
+              <ng-container *ngTemplateOutlet="field"> </ng-container>
+
+              <ng-template #field [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'options'">
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  <p-button
+                    icon="pi pi-user-edit"
+                    styleClass="p-button-rounded p-button-primary p-button-text"
+                    (click)="showAgentForm(agent, true)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    styleClass="p-button-rounded p-button-danger p-button-text"
+                    (click)="showConfirmDialog(agent)"
+                  ></p-button>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'name'">
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  <p-avatar
+                    image="https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png"
+                    size="large"
+                    shape="circle"
+                  ></p-avatar>
+                  <span class="group-name">
+                    {{ agent?.name }} {{ agent?.surname }}
+                  </span>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  {{ agent[col.field] }}
+                </ng-container>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="summary">
+          <div styleClass="table-footer"></div>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody" let-columns="columns">
+          <tr style="height: 46px">
+            <td *ngFor="let col of columns">
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+      <p-toast></p-toast>
+      <p-dialog
+        [header]="'agentsManagement.editAgentHeader' | translate"
+        [draggable]="false"
+        [resizable]="false"
+        [(visible)]="showEditForm"
+        [modal]="true"
+        [blockScroll]="true"
+        [dismissableMask]="true"
+        styleClass="agent-form"
+        contentStyleClass="agent-form-content"
+      >
+        <app-user-form
+          [agent]="selectedAgent"
+          (onRegisterAgentClicked)="addOrEditAgent($event)"
+          [formType]="'REGISTER_AGENT'"
+          [actionUpdate]="isUpdating"
+        ></app-user-form>
+      </p-dialog>
+    </div>
   </main>
   <app-footer></app-footer>
 </ion-content>

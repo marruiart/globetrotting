@@ -1,67 +1,103 @@
 <ion-content>
   <app-header></app-header>
   <main>
-    <p-table
-      [columns]="cols"
-      [value]="(destinationTable$ | async) ?? []"
-      [lazy]="true"
-    >
-      <ng-template pTemplate="header" let-columns>
-        <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
-        <tr>
-          <td *ngFor="let col of columns">
-            <ng-container *ngIf="col.field === 'options'; else otherColumns">
+    <div class="content">
+      <p-table
+        responsiveLayout="stack"
+        [breakpoint]="'960px'"
+        styleClass="destinations-table"
+        [columns]="cols"
+        [value]="(destinationTable$ | async) ?? []"
+        [lazy]="true"
+      >
+        <ng-template pTemplate="caption" let-columns>
+          <tr styleClass="table-caption">
+            <th colspan="6" styleClass="table-header__th">
+              {{ "agentsManagement.tableHeader" | translate | uppercase }}
+            </th>
+            <th>
               <p-button
-                icon="pi pi-pencil"
-                styleClass="p-button-rounded p-button-primary p-button-text"
-                (click)="showDestinationForm(rowData)"
-              ></p-button>
-              <p-button
-                icon="pi pi-trash"
-                styleClass="p-button-rounded p-button-danger p-button-text"
-                (click)="showConfirmDialog(rowData.id)"
-              ></p-button>
-            </ng-container>
-            <ng-template #otherColumns> {{ rowData[col.field] }} </ng-template>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="loadingbody" let-columns="columns">
-        <tr style="height: 46px">
-          <td *ngFor="let col of columns">
-            <p-skeleton></p-skeleton>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-    <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
-    <p-toast></p-toast>
-    <p-dialog
-      [header]="'destManagement.editDestinationHeader' | translate"
-      [draggable]="false"
-      [resizable]="false"
-      [(visible)]="showEditForm"
-      [modal]="true"
-      [blockScroll]="true"
-      [dismissableMask]="true"
-      styleClass="booking-form"
-      contentStyleClass="booking-form-content"
-    >
-      <app-destination-form
-        [destination]="selectedDestination"
-        (onDestinationFormAccepted)="addOrEditDestination($event)"
-      />
-    </p-dialog>
-    <p-button
-      [label]="'destManagement.addDestinationBtn' | translate"
-      icon="pi pi-plus"
-      styleClass="p-button-rounded floating-button"
-      (click)="showDestinationForm()"
-    />
+                [label]="'destManagement.addDestinationBtn' | translate"
+                icon="pi pi-plus"
+                styleClass="p-button-rounded floating-button"
+                (click)="showDestinationForm()"
+              />
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" styleClass="table-header__th">
+              {{ col.header | uppercase }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr styleClass="body-row">
+            <td *ngFor="let col of columns" styleClass="body-td">
+              <ng-container *ngTemplateOutlet="field"> </ng-container>
+
+              <ng-template #field [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'options'">
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  <p-button
+                    icon="pi pi-pencil"
+                    styleClass="p-button-rounded p-button-primary p-button-text"
+                    (click)="showDestinationForm(rowData)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    styleClass="p-button-rounded p-button-danger p-button-text"
+                    (click)="showConfirmDialog(rowData.id)"
+                  ></p-button>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  {{ rowData[col.field] }}
+                </ng-container>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="summary">
+          <div styleClass="table-footer"></div>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody" let-columns="columns">
+          <tr style="height: 46px">
+            <td *ngFor="let col of columns">
+              <p-skeleton></p-skeleton>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+      <p-toast></p-toast>
+      <p-dialog
+        [header]="'destManagement.editDestinationHeader' | translate"
+        [draggable]="false"
+        [resizable]="false"
+        [(visible)]="showEditForm"
+        [modal]="true"
+        [blockScroll]="true"
+        [dismissableMask]="true"
+        styleClass="booking-form"
+        contentStyleClass="booking-form-content"
+      >
+        <app-destination-form
+          [destination]="selectedDestination"
+          (onDestinationFormAccepted)="addOrEditDestination($event)"
+        />
+      </p-dialog>
+    </div>
   </main>
   <app-footer></app-footer>
 </ion-content>

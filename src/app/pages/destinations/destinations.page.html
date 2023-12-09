@@ -1,7 +1,7 @@
 <app-header></app-header>
 <main>
   <p-virtualScroller
-    class="content"
+    class="content virtualScroller"
     [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:(userFacade.currentSpecificUser$ | async)| virtualItems | async) ?? []"
     [itemSize]="itemSize"
     [lazy]="true"

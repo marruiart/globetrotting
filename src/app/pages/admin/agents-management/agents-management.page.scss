@@ -1,8 +1,41 @@
 ::ng-deep {
-    .floating-button {
-        position: fixed;
-        bottom: 20px;
-        right: 50px;
-        z-index: 1000;
+  .agents-table {
+    min-width: 100%;
+    border-radius: 30px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+
+    [styleClass="table-caption"] {
+      > [styleClass*="table-header__th"] {
+        padding: 30px;
+        color: var(--primary-700);
+        font-size: 1.3rem;
       }
+    }
+
+    [styleClass="table-header"] {
+      > [styleClass*="table-header__th"] {
+        text-align: center;
+      }
+    }
+
+    [styleClass*="body-row"] [styleClass="body-td"] {
+      padding: 10px 1rem;
+      text-align: center;
+      justify-content: left !important;
+      column-gap: 16px !important;
+
+      span.p-column-title {
+        font-weight: bold;
+      }
+
+      > * {
+        vertical-align: middle;
+      }
+    }
+
+    [styleClass="table-footer"] {
+      height: 50px;
+    }
+  }
 }

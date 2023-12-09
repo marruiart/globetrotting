@@ -7,6 +7,7 @@ import { MenuService } from "../../services/menu.service";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { UserFacade } from "../load-user/load-user.facade";
 import { AuthFacade } from "./auth.facade";
+import { Router } from "@angular/router";
 
 /* 
 '(isLogged: boolean) => Observable<({ user: AuthUser; } & TypedAction<"[Auth API] Assign Role">) | ({ error: any; } & TypedAction<"[Auth API] Login Failure">)> | null'
@@ -27,6 +28,7 @@ export class AuthEffects {
         private authSvc: AuthService,
         private userFacade: UserFacade,
         private authFacade: AuthFacade,
+        private router: Router
     ) { }
 
     init$ = createEffect(() =>
@@ -95,6 +97,7 @@ export class AuthEffects {
             ofType(AuthActions.logout),
             switchMap(() => this.authSvc.logout().pipe(
                 map(() => {
+                    this.router.navigate(['/home']);
                     return AuthActions.logoutSuccess();
                 }),
                 catchError(error => of(AuthActions.logoutFailure({ error: error })))

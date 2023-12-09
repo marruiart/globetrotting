@@ -58,6 +58,7 @@ import { ThemeColorsDirective } from './directives/theme-colors.directive';
     IonicModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslateModule,
     // Components
     HeaderComponent,
     FooterComponent,

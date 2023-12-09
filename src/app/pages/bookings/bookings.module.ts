@@ -11,14 +11,7 @@ import { HttpClient } from '@angular/common/http';
 @NgModule({
   imports: [
     BookingsPageRoutingModule,
-    SharedModule,
-    TranslateModule.forChild({
-      loader: {
-        provide: TranslateLoader,
-        deps: [HttpClient],
-        useFactory: (translateLoaderFactory)
-      }
-    })
+    SharedModule
   ],
   declarations: [BookingsPage]
 })

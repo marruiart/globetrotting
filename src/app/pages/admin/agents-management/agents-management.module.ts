@@ -10,14 +10,7 @@ import { translateLoaderFactory } from 'src/app/core/factories/translate-loader.
 @NgModule({
   imports: [
     SharedModule,
-    AgentsManagementPageRoutingModule,
-    TranslateModule.forChild({
-      loader: {
-        provide: TranslateLoader,
-        deps: [HttpClient],
-        useFactory: (translateLoaderFactory)
-      }
-    })
+    AgentsManagementPageRoutingModule
   ],
   declarations: [AgentsManagementPage]
 })

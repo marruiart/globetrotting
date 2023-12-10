@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
 import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
@@ -100,10 +101,6 @@ export class DestinationsPage implements OnInit, OnDestroy {
   private hideDialog() {
     this._selectedDestination = null;
     this.showDialog = false;
-  }
-
-  public saveDestination() {
-    console.log("guardar destination");
   }
 
   public onBookingAccepted(booking: BookingForm) {

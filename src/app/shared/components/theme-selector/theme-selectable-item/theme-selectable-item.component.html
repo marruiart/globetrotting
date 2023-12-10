@@ -1,4 +1,8 @@
-<div class="item" (click)="onThemeClicked()">
+<div
+  class="item"
+  (click)="onThemeClicked()"
+  [ngClass]="{ 'active': isActiveTheme }"
+>
   <div class="theme-colors">
     <div class="color text">Aa</div>
     <div class="color primary">Aa</div>

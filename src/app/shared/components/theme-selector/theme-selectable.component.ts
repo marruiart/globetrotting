@@ -1,6 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { lastValueFrom } from 'rxjs';
 import { ThemeService } from 'src/app/core/services/theme.service';
 import { ThemeItem, themes } from 'src/app/core/themes-selectable/themes-selectable';
 
@@ -12,9 +11,10 @@ import { ThemeItem, themes } from 'src/app/core/themes-selectable/themes-selecta
 export class ThemeSelectableComponent implements ControlValueAccessor {
   public themes = themes;
   public showSelectable: boolean = false;
-  public selectedTheme: ThemeItem | null = null;
+  public selectedTheme: ThemeItem = themes[4];
   public disabled: boolean = true;
   private _theme: string | null = null;
+  public position: "topright" = 'topright';
 
   @Input() set theme(_theme: string | null) {
     this._theme = _theme;
@@ -74,8 +74,9 @@ export class ThemeSelectableComponent implements ControlValueAccessor {
       this.themeSvc.switchTheme(theme.code);
       this.selectedTheme = theme;
     }
-    else
-      this.selectedTheme = null;
+    else {
+      this.selectedTheme = themes[4];
+    }
     if (propagate) {
       this.propagateChange(theme);
     }

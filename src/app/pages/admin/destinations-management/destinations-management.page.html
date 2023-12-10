@@ -19,7 +19,7 @@
               <p-button
                 [label]="'destManagement.addDestinationBtn' | translate"
                 icon="pi pi-plus"
-                styleClass="p-button-rounded floating-button"
+                styleClass="p-button-rounded"
                 (click)="showDestinationForm()"
               />
             </div>
@@ -100,6 +100,7 @@
         contentStyleClass="booking-form-content"
       >
         <app-destination-form
+          *ngIf="showEditForm"
           [destination]="selectedDestination"
           (onDestinationFormAccepted)="addOrEditDestination($event)"
         />

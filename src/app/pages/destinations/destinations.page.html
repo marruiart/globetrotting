@@ -36,7 +36,6 @@
   [dismissableMask]="true"
   styleClass="booking-form"
   contentStyleClass="booking-form-content"
-  (onShow)="saveDestination()"
 >
-  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" />
+  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" *ngIf="showDialog"/>
 </p-dialog>

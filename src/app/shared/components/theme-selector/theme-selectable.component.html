@@ -1,4 +1,5 @@
 <p-dialog
+  [position]="position"
   [header]="'themeSelectable.header' | translate"
   [draggable]="false"
   [resizable]="false"
@@ -9,16 +10,18 @@
   styleClass="booking-form"
   contentStyleClass="booking-form-content"
 >
-  <app-theme-selectable-item
-    *ngFor="let theme of themes"
-    [themeColors]="theme.code"
-    [theme]="theme"
-    [isActiveTheme]="theme == selectedTheme"
-    (onThemeSelected)="selectTheme($event)"
-  ></app-theme-selectable-item>
+  <ng-container *ngIf="showSelectable">
+    <app-theme-selectable-item
+      *ngFor="let theme of themes"
+      [themeColors]="theme.code"
+      [theme]="theme"
+      [isActiveTheme]="theme == selectedTheme"
+      (onThemeSelected)="selectTheme($event)"
+    ></app-theme-selectable-item>
+  </ng-container>
 </p-dialog>
 <p-button
   [label]="'themeSelectable.button' | translate"
-  styleClass="p-button-rounded floating-button"
+  styleClass="p-button-raised p-button-text"
   (click)="showThemeSelectable()"
 />

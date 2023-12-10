@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from 'src/app/core/services/theme.service';
 import { ThemeItem, themes } from 'src/app/core/themes-selectable/themes-selectable';
@@ -14,7 +15,8 @@ export class HomePage {
 
   constructor(
     private themeSvc: ThemeService,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private router: Router
   ) { }
 
   public changeTheme(themeCode: string) {
@@ -23,4 +25,7 @@ export class HomePage {
     }
   }
 
+  public navigateDestinations() {
+    this.router.navigate(['/destinations']);
+  }
 }

@@ -26,12 +26,7 @@
   </ng-template>
 
   <!-- Username -->
-  <div
-    class="p-inputgroup"
-    *ngIf="
-      formType == 'LOGIN' || formType == 'PROFILE' || formType == 'UPDATE_AGENT'
-    "
-  >
+  <div class="p-inputgroup">
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
     </span>
@@ -41,7 +36,7 @@
     </span>
   </div>
   <!-- Email -->
-  <div class="p-inputgroup" *ngIf="formType != 'LOGIN'">
+  <div class="p-inputgroup">
     <span class="p-inputgroup-addon">
       <i class="pi pi-at"></i>
     </span>

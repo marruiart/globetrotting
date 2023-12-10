@@ -3,6 +3,7 @@ import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@ang
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 
 export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
@@ -71,12 +72,14 @@ export class UserFormComponent implements OnDestroy {
     switch (this.formType) {
       case 'LOGIN':
         this.userForm = this.fb.group({
-          username: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          email: ['', [Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          username: ['', [Validators.pattern("^[A-Za-z0-9._-]+$")]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]]
-        });
+        }, { validator: [IdentifierValidator.identifierRequired('email', 'username')] } as AbstractControlOptions);
         break;
       case 'REGISTER':
         this.userForm = this.fb.group({
+          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]]
@@ -90,9 +93,9 @@ export class UserFormComponent implements OnDestroy {
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required]],
-          surname: ['', [Validators.required]],
-          nickname: ['', [Validators.required]],
+          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'PROFILE':
@@ -103,9 +106,9 @@ export class UserFormComponent implements OnDestroy {
           email: ['', [Validators.required]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required]],
-          surname: ['', [Validators.required]],
-          nickname: ['', [Validators.required]],
+          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'UPDATE_AGENT':
@@ -114,9 +117,9 @@ export class UserFormComponent implements OnDestroy {
           user_id: [null],
           username: [{ value: '', disabled: true }],
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-          name: ['', [Validators.required]],
-          surname: ['', [Validators.required]],
-          nickname: ['', [Validators.required]],
+          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
+          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       default:
@@ -192,9 +195,18 @@ export class UserFormComponent implements OnDestroy {
 
   private onLogin(event: Event) {
     event.stopPropagation();
-    const credentials: UserCredentials = {
-      username: this.userForm.value.username,
-      password: this.userForm.value.password
+    let credentials: UserCredentials;
+    
+    if (this.userForm.value.username) {
+      credentials = {
+        username: this.userForm.value.username,
+        password: this.userForm.value.password
+      }
+    } else {
+      credentials = {
+        username: this.userForm.value.email,
+        password: this.userForm.value.password
+      }
     }
     this.onLoginClicked.emit(credentials);
   }

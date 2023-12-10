@@ -1,20 +1,20 @@
 <ion-content>
   <app-header></app-header>
   <main>
-    <section class="content hero-section">
-      <div>
-        <h1>{{ "home.heroMessage" | translate }}</h1>
-        <p-button
-          [label]="this.translate.get('home.heroButton') | async"
-        ></p-button>
-      </div>
-      <div>
-        <img src="/assets/home/hero.svg" alt="" />
-      </div>
-    </section>
-    <section class="content">
-      
-    </section>
+    <div class="content">
+      <section class="hero-section">
+        <div class="hero-image">
+          <img src="/assets/home/hero.svg" alt="" />
+        </div>
+        <div class="hero-message">
+          <h1>{{ "home.heroMessage" | translate | uppercase }}</h1>
+          <p>{{ "home.heroDescription" | translate }}</p>
+          <p-button
+            [label]="this.translate.get('home.heroButton') | async"
+          ></p-button>
+        </div>
+      </section>
+      <section class="content"></section>
+    </div>
   </main>
-  <app-footer></app-footer>
 </ion-content>

@@ -2,7 +2,6 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { HeaderComponent } from './components/header/header.component';
-import { FooterComponent } from './components/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PrimengModule } from './primeng.module';
 import { DestinationCardComponent } from './components/destination-card/destination-card.component';
@@ -24,7 +23,6 @@ import { ThemeColorsDirective } from './directives/theme-colors.directive';
   declarations: [
     // Components
     HeaderComponent,
-    FooterComponent,
     DestinationCardComponent,
     BookingFormComponent,
     DestinationFormComponent,
@@ -61,7 +59,6 @@ import { ThemeColorsDirective } from './directives/theme-colors.directive';
     TranslateModule,
     // Components
     HeaderComponent,
-    FooterComponent,
     DestinationCardComponent,
     BookingFormComponent,
     DestinationFormComponent,

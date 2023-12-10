@@ -1,4 +1,4 @@
-import { AbstractControl, FormControl, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
 
 export class PasswordValidator {
 
@@ -7,6 +7,9 @@ export class PasswordValidator {
             let password = '';
             if (control instanceof FormControl) {
                 password = control?.value;
+                if (!control.hasValidator(Validators.required)) {
+                    return null;
+                }
             } else {
                 password = control.get(controlName)?.value;
             }
@@ -17,12 +20,20 @@ export class PasswordValidator {
             }
         }
     }
+
     public static passwordMatch(passwordControlName: string, confirmControlName: string): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
-            const password = control.get(passwordControlName)?.value;
-            const confirmPassword = control.get(confirmControlName)?.value;
+            const password = control.get(passwordControlName);
+            const confirmPassword = control.get(confirmControlName);
 
-            if (password != confirmPassword) {
+            if (password && confirmPassword && !password.hasValidator(Validators.required) && !confirmPassword.hasValidator(Validators.required)) {
+                if (password.value == '' && confirmPassword.value == '') {
+                    console.log("da igual que no sean iguales");
+                    return null;
+                }
+            }
+
+            if (password?.value != confirmPassword?.value) {
                 let errors = control?.errors;
                 if (errors && typeof errors === 'object') {
                     Object.assign(errors, {
@@ -34,8 +45,7 @@ export class PasswordValidator {
                     };
                 }
                 return errors;
-            }
-            else {
+            } else {
                 let errors = control?.errors;
                 if (errors && typeof errors === 'object') {
                     if (errors['passwordMatch'])

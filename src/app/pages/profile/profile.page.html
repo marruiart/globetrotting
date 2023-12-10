@@ -1,5 +1,9 @@
 <app-header></app-header>
 <main>
-    <app-user-form (onUpdateProfileClicked)="updateProfile($event)" [formType]="'PROFILE'" [actionUpdate]="true" [user]="user" />
+  <app-user-form
+    (onUpdateProfileClicked)="updateProfile($event)"
+    [formType]="'PROFILE'"
+    [actionUpdate]="true"
+    [user]="user"
+  />
 </main>
-

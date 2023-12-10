@@ -159,31 +159,31 @@
       *ngSwitchCase="'LOGIN'"
       type="submit"
       [label]="'userForm.submitBtn' | translate"
-      [disabled]="!userForm.valid"
+      [disabled]="!userForm.valid || !userForm.dirty"
     />
     <p-button
       *ngSwitchCase="'REGISTER'"
       type="submit"
       [label]="'userForm.registerBtn' | translate"
-      [disabled]="!userForm.valid"
+      [disabled]="!userForm.valid || !userForm.dirty"
     />
     <p-button
       *ngSwitchCase="'REGISTER_AGENT'"
       type="submit"
       [label]="'userForm.registerAgentBtn' | translate"
-      [disabled]="!userForm.valid"
+      [disabled]="!userForm.valid || !userForm.dirty"
     />
     <p-button
       *ngSwitchCase="'PROFILE'"
       type="submit"
       [label]="'userForm.profileBtn' | translate"
-      [disabled]="!userForm.valid"
+      [disabled]="!userForm.valid || !userForm.dirty"
     />
     <p-button
       *ngSwitchCase="'UPDATE_AGENT'"
       type="submit"
       [label]="'userForm.updateAgentBtn' | translate"
-      [disabled]="!userForm.valid"
+      [disabled]="!userForm.valid || !userForm.dirty"
     />
   </ng-template>
 </form>

@@ -95,7 +95,7 @@ export class UserFormComponent implements OnDestroy {
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
           surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
+          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'PROFILE':
@@ -104,11 +104,11 @@ export class UserFormComponent implements OnDestroy {
           user_id: [null],
           username: [{ value: '', disabled: true }],
           email: ['', [Validators.required]],
-          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
-          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
+          password: ['', [PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
           surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
+          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'UPDATE_AGENT':
@@ -119,7 +119,7 @@ export class UserFormComponent implements OnDestroy {
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
           name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
           surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required], Validators.pattern("^[A-Za-z0-9._-]+$")],
+          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       default:

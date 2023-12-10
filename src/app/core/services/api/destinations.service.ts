@@ -11,7 +11,7 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.i
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
-  private queries: { [query: string]: string } = {}
+  private queries: { [query: string]: string } = { 'sort': 'name' }
 
   private endOfData = false;
   public itemsCount: number = 0;
@@ -28,27 +28,29 @@ export class DestinationsService extends ApiService {
     super();
   }
 
-  public getAllDestinations(page: number | null | undefined = undefined): Observable<PaginatedDestination> {
+  public getAllDestinations(page: number | null | undefined = 1): Observable<PaginatedDestination> {
     if (page) {
       this.queries["pagination[page]"] = `${page}`;
+    } else {
+      page = 1;
     }
     return this.getAll<PaginatedDestination>(this.path, this.queries, this.mapSvc.mapPaginatedDestinations).pipe(tap(res => {
       if (res.data.length > 0) {
         this.endOfData = false;
-        let _destinations: Destination[] = [...res.data].reduce((
-          prev: Destination[], data: Destination): Destination[] => {
-          // Check if each of the new elements already existed, if not, push them into _destinations
-          if (!this._destinations.value.includes(data)) {
-            prev.push(data);
+        let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations.value));
+        res.data.forEach(destData => {
+          let foundDest: Destination | undefined = this._destinations.value.find(dest => dest.name == destData.name);
+          if (!foundDest) {
+            _newDestinations.push(destData);
           }
-          return prev;
-        }, [...this._destinations.value]);
-        this.itemsCount = _destinations.length;
+        })
+        this.itemsCount = _newDestinations.length;
+        console.log(this.itemsCount);
         let _pagination = {
-          data: _destinations,
+          data: res.data,
           pagination: res.pagination
         }
-        this._destinations.next(_destinations);
+        this._destinations.next(_newDestinations);
         this._destinationsPage.next(_pagination);
       } else {
         this.endOfData = true;

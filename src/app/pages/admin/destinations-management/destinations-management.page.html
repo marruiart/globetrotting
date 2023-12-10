@@ -39,6 +39,13 @@
               <ng-container *ngTemplateOutlet="field"> </ng-container>
 
               <ng-template #field [ngSwitch]="col.field">
+                <ng-container *ngSwitchCase="'price'">
+                  <span class="p-column-title"
+                    >{{ col.header | uppercase }}:
+                  </span>
+                  {{ rowData[col.field] }}
+                  <ng-container *ngIf="rowData[col.field]">€</ng-container>
+                </ng-container>
                 <ng-container *ngSwitchCase="'options'">
                   <span class="p-column-title"
                     >{{ col.header | uppercase }}:

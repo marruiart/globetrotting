@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, 
 import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
-import { Destination } from "src/app/core/models/globetrotting/destination.interface";
+import { Destination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
@@ -79,8 +79,8 @@ export class DestinationsManagementPage {
 */
   private displayTable(): Observable<TableRow[]> {
     if (this.currentUser?.type == 'AGENT') {
-      return this.destinationsSvc.destinations$.pipe(
-        switchMap((destinations: Destination[]): Observable<TableRow[]> => this.mapDestinationsRows(destinations)),
+      return this.destinationsSvc.destinationsPage$.pipe(
+        switchMap((page: PaginatedDestination): Observable<TableRow[]> => this.mapDestinationsRows(page.data)),
         catchError(err => of(err))
       )
     } else {

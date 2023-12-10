@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/internal/operators/tap';
 import { Auth } from '../../models/globetrotting/auth.interface';
 import { StorageService } from '../storage.service';
-import { AuthFacade } from '../../libs/auth/auth.facade';
+import { AuthFacade } from '../../+state/auth/auth.facade';
 
 @Injectable({
   providedIn: 'root'

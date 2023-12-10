@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable, catchError, lastValueFrom, of, switchMap } from 'rxjs';
-import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
+import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
 import { FullUser } from 'src/app/core/models/globetrotting/user.interface';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';

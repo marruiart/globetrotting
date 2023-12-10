@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { Booking, NewBooking } from '../../models/globetrotting/booking.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { UserFacade } from '../../libs/load-user/load-user.facade';
+import { UserFacade } from '../../+state/load-user/load-user.facade';
 import { Client } from '../../models/globetrotting/client.interface';
 import { TravelAgent } from '../../models/globetrotting/agent.interface';
 import { StrapiPayload } from '../../models/strapi-interfaces/strapi-data.interface';

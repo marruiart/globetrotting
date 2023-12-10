@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
-import { UserFacade } from "src/app/core/libs/load-user/load-user.facade";
+import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
 import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
 import { Destination } from "src/app/core/models/globetrotting/destination.interface";

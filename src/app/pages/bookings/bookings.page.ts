@@ -1,7 +1,7 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
-import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
+import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
 import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Client } from 'src/app/core/models/globetrotting/client.interface';

@@ -6,7 +6,7 @@ import { AgentRegisterInfo, NewExtUser, ExtUser, UserCredentials, UserRegisterIn
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
-import { AuthFacade } from 'src/app/core/libs/auth/auth.facade';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
 import { NewClient } from 'src/app/core/models/globetrotting/client.interface';

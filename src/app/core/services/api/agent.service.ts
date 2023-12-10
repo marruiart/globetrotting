@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
-import { UserFacade } from '../../libs/load-user/load-user.facade';
+import { UserFacade } from '../../+state/load-user/load-user.facade';
 
 @Injectable({
   providedIn: 'root'

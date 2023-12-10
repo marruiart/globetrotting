@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { AuthFacade } from '../../libs/auth/auth.facade';
+import { AuthFacade } from '../../+state/auth/auth.facade';
 
 @Injectable({
   providedIn: 'root'

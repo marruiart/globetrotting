@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
-import { UserFacade } from 'src/app/core/libs/load-user/load-user.facade';
+import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';

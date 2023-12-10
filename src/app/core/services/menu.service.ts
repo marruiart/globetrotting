@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AuthFacade } from '../libs/auth/auth.facade';
+import { AuthFacade } from '../+state/auth/auth.facade';
 import { BehaviorSubject, catchError, map, of, switchMap, zip } from 'rxjs';
 import { CustomTranslateService } from './custom-translate.service';
-import { UserFacade } from '../libs/load-user/load-user.facade';
+import { UserFacade } from '../+state/load-user/load-user.facade';
 
 interface CustomMenu {
   public: any[],

@@ -4,14 +4,15 @@
     <div class="content">
       <section class="hero-section">
         <div class="hero-image">
-          <img src="/assets/home/hero.svg" alt="" />
+          <img src="/assets/home/hero.svg" alt="Hero section image" />
         </div>
         <div class="hero-message">
           <h1>{{ "home.heroMessage" | translate | uppercase }}</h1>
           <p>{{ "home.heroDescription" | translate }}</p>
           <p-button
+          (onClick)="navigateDestinations()"
             [label]="this.translate.get('home.heroButton') | async"
-          ></p-button>
+          />
         </div>
       </section>
       <section class="content"></section>

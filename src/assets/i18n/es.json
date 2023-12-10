@@ -54,7 +54,7 @@
     "tableEnd": "Fecha de llegada",
     "tableTravelers": "nº. de viajeros",
     "tableConfirmationState": "Estado",
-    "tableAgent": "Agente de viajes asignado",
+    "tableAgent": "Agente asignado",
     "tableClient": "Cliente",
     "tableClientName": "Nombre del cliente"
   },

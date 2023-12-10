@@ -11,7 +11,7 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.i
 export class DestinationsService extends ApiService {
   private path: string = "/api/destinations";
   private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
-  private queries: { [query: string]: string } = { "populate": "image" }
+  private queries: { [query: string]: string } = {}
 
   private endOfData = false;
   public itemsCount: number = 0;

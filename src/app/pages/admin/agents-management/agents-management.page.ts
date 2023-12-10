@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, throwError, zip } from "rxjs";
+import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, map, of, switchMap, tap, throwError, zip } from "rxjs";
 import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
-import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
+import { PaginatedAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Client } from "src/app/core/models/globetrotting/client.interface";
 import { ExtUser, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
 import { AgentService } from "src/app/core/services/api/agent.service";
@@ -86,8 +86,8 @@ export class AgentsManagementPage {
    */
   private displayTable(): Observable<TableRow[]> {
     if (this.currentUser?.type == 'AGENT') {
-      return this.agentsSvc.agents$.pipe(
-        switchMap((agents: TravelAgent[]): Observable<TableRow[]> => this.mapAgentsRows(agents)),
+      return this.agentsSvc.agentsPage$.pipe(
+        switchMap((page: PaginatedAgent | null): Observable<TableRow[]> => this.mapAgentsRows(page?.data ?? [])),
         catchError(err => of(err))
       )
     } else {
@@ -199,6 +199,8 @@ export class AgentsManagementPage {
         .catch(err => console.error(err));
       lastValueFrom(this.authSvc.updateIdentifiers(identifiers))
         .catch(err => console.error(err));
+      lastValueFrom(this.agentsSvc.getAllAgents())
+        .catch(err => console.error(err));
     } else {
       lastValueFrom(this.authSvc.register(agent, true))
         .catch(err => console.error(err));
@@ -209,9 +211,9 @@ export class AgentsManagementPage {
   private deleteAgent(agent_id: number, extuser_id: number, user_id: number) {
     lastValueFrom(this.agentsSvc.deleteAgent(agent_id))
       .catch(err => console.error(err));
+      lastValueFrom(this.authSvc.deleteUser(user_id))
+        .catch(err => console.error(err));
     lastValueFrom(this.userSvc.deleteUser(extuser_id))
-      .catch(err => console.error(err));
-    lastValueFrom(this.authSvc.deleteUser(user_id))
       .catch(err => console.error(err));
   }
 

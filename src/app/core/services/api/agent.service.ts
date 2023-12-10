@@ -11,8 +11,8 @@ import { UserFacade } from '../../+state/load-user/load-user.facade';
 export class AgentService extends ApiService {
   private path: string = "/api/agents";
 
-  private _page: BehaviorSubject<PaginatedAgent | null> = new BehaviorSubject<PaginatedAgent | null>(null);
-  public page$: Observable<PaginatedAgent | null> = this._page.asObservable();
+  private _agentsPage: BehaviorSubject<PaginatedAgent | null> = new BehaviorSubject<PaginatedAgent | null>(null);
+  public agentsPage$: Observable<PaginatedAgent | null> = this._agentsPage.asObservable();
   private _agents: BehaviorSubject<TravelAgent[]> = new BehaviorSubject<TravelAgent[]>([]);
   public agents$: Observable<TravelAgent[]> = this._agents.asObservable();
   private queries: { [query: string]: string } = {
@@ -36,16 +36,17 @@ export class AgentService extends ApiService {
     return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
       .pipe(tap((page: PaginatedAgent) => {
         if (page.data.length > 0) {
-          let _agents: TravelAgent[] = JSON.parse(JSON.stringify(page.data))
+          let _newAgents: TravelAgent[] = JSON.parse(JSON.stringify(page.data))
             .reduce((prev: TravelAgent[], data: TravelAgent): TravelAgent[] => {
               // Check if each of the new elements already existed, if not, push them into _agents
-              if (this._agents.value.find(c => c.id == data.id) == undefined) {
+              let foundAgent = this._agents.value.find(agent => agent.id == data.id);
+              if (!foundAgent) {
                 prev.push(data);
               }
               return prev;
             }, JSON.parse(JSON.stringify(this._agents.value)));
-          this._agents.next(_agents);
-          this._page.next(page);
+          this._agents.next(_newAgents);
+          this._agentsPage.next(page);
         }
       }));
   }
@@ -90,9 +91,21 @@ export class AgentService extends ApiService {
   }
 
   public deleteAgent(id: number): Observable<TravelAgent> {
-    return this.delete<TravelAgent>(this.path, this.mapSvc.mapAgent, id).pipe(tap(_ => {
+    return this.delete<TravelAgent>(this.path, this.mapSvc.mapAgent, id).pipe(tap(res => {
+      let _newAgents = JSON.parse(JSON.stringify(this._agents.value));
+      let index = -1;
+      this._agents.value.forEach((agent, i) => {
+        if (res.id == agent.id) {
+          index = i;
+          return;
+        }
+      });
+      if (index != -1) {
+        _newAgents.splice(index, 1);
+        this._agents.next(_newAgents);
+      }
       this.getAllAgents().subscribe();
-    }));;
+    }));
   }
 
 }

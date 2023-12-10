@@ -15,7 +15,8 @@ export class BookingsService extends ApiService {
   private path: string = "/api/bookings";
   private body = (booking: NewBooking) => this.mapSvc.mapBookingPayload(booking);
   private queries: { [query: string]: string } = {
-    "populate": "destination,client,agent"
+    "populate": "destination,client,agent",
+    "sort": "destination.name"
   }
 
   private currentUser: Client | TravelAgent | null = null;

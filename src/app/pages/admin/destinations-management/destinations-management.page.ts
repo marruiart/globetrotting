@@ -24,16 +24,16 @@ interface TableRow {
   templateUrl: './destinations-management.page.html',
   styleUrls: ['./destinations-management.page.scss'],
 })
-export class DestinationsManagementPage implements OnInit {
+export class DestinationsManagementPage {
+  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
+  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
+
   public loading: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
   public currentUser: Client | TravelAgent | null = null;
   public showEditForm: boolean = false;
   public selectedDestination: Destination | null = null;
-  private mappedDestinations: TableRow[] = [];
-  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
-  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
 
   constructor(
     private destinationsSvc: DestinationsService,
@@ -59,20 +59,35 @@ export class DestinationsManagementPage implements OnInit {
           switchMap((_: string) => this.getCols()),
           catchError(err => of(err)))
           .subscribe()
+      },
+      {
+        component: 'DestinationsPage',
+        sub: this.destinationsSvc.getAllDestinations().subscribe()
+      },
+      {
+        component: 'DestinationsPage',
+        sub: this.displayTable().subscribe((table: TableRow[]) => {
+          this._destinationTable.next(table);
+        })
       }
     ])
   }
 
-
-  async ngOnInit() {
+  /**
+* Obtains from the agent service an array of destinations and maps each of them into a TableRow.
+* @returns an observable of an array of TableRow.
+*/
+  private displayTable(): Observable<TableRow[]> {
     if (this.currentUser?.type == 'AGENT') {
-      let destinations = await lastValueFrom(this.destinationsSvc.getAllDestinations());
-      destinations.data.forEach(destination => {
-        this.mapTableRow(destination);
-      })
-      this._destinationTable.next(this.mappedDestinations);
+      return this.destinationsSvc.destinations$.pipe(
+        switchMap((destinations: Destination[]): Observable<TableRow[]> => this.mapDestinationsRows(destinations)),
+        catchError(err => of(err))
+      )
+    } else {
+      return of([]);
     }
   }
+
 
   private getCols() {
     const name$ = this.translate.getTranslation("destManagement.tableName");
@@ -102,15 +117,23 @@ export class DestinationsManagementPage implements OnInit {
   }
 
   private mapTableRow(destination: Destination) {
-    const clientTableRow: TableRow = {
+    return {
       id: destination.id,
       name: destination.name,
       type: destination.type,
-      dimension: destination.dimension,
+      dimension: destination.dimension == 'unknown' ? '' : destination.dimension,
       price: destination.price,
       description: destination.description
     }
-    this.mappedDestinations.push(clientTableRow);
+  }
+
+  /**
+  * Receives an array of destinations and turn it into an array of rows ready to display on a table.
+  * @param destinations array of all the destinations
+  * @returns an observable with all the rows of the table to be displayed
+  */
+  private mapDestinationsRows(destinations: Destination[]): Observable<TableRow[]> {
+    return of(destinations.map((destination: Destination) => this.mapTableRow(destination)));
   }
 
   public showDestinationForm(destination?: Destination) {

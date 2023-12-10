@@ -1,51 +1,57 @@
 ::ng-deep {
-    .destinations-table {
-      min-width: 100%;
-      border-radius: 30px;
-      border: 1px solid #dee2e6;
-      overflow: hidden;
+  .destinations-table {
+    min-width: 100%;
+    border-radius: 30px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
 
-      [styleClass="table-caption"] {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    [styleClass="table-caption"] {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-        > [styleClass*="table-caption__th"] {
-          padding: 30px;
-          color: var(--primary-700);
-          font-size: 1.3rem;
-          vertical-align: middle;
+      > [styleClass*="table-caption__th"] {
+        padding: 30px;
+        color: var(--primary-700);
+        font-size: 1.3rem;
+        vertical-align: middle;
+
+        p-button button {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
         }
       }
+    }
 
-      [styleClass="table-header"] {
-        > [styleClass*="table-header__th"] {
-          text-align: center;
-        }
-      }
-
-      [styleClass*="body-row"] [styleClass="body-td"] {
-        padding: 10px 1rem;
+    [styleClass="table-header"] {
+      > [styleClass*="table-header__th"] {
         text-align: center;
-        justify-content: left !important;
-        column-gap: 16px !important;
-
-        span.p-column-title {
-          font-weight: bold;
-        }
-
-        > * {
-          vertical-align: middle;
-        }
-      }
-
-      [styleClass="table-footer"] {
-        height: 50px;
       }
     }
 
-    .destinations-form {
-      width: 100%;
-      max-width: 500px;
+    [styleClass*="body-row"] [styleClass="body-td"] {
+      padding: 10px 1rem;
+      text-align: center;
+      justify-content: left !important;
+      column-gap: 16px !important;
+
+      span.p-column-title {
+        font-weight: bold;
+      }
+
+      > * {
+        vertical-align: middle;
+      }
     }
+
+    [styleClass="table-footer"] {
+      height: 50px;
+    }
+  }
+
+  .destinations-form {
+    width: 100%;
+    max-width: 500px;
+  }
 }

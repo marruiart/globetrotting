@@ -4,6 +4,9 @@
     "heroDescription": "Explore stunning destinations, immerse yourself in unique cultures, and create unforgettable memories as you travel the world with us. Make your travel dreams come true with our expert guidance and personalized experiences!",
     "heroButton": "Book yours now"
   },
+  "destinationsPage": {
+    "booking": "Booking details"
+  },
   "menu": {
     "home": "Home",
     "destinations": "Destinations",

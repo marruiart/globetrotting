@@ -4,6 +4,9 @@
     "heroDescription": "Explora destinos asombrosos, sumérgete en culturas únicas y crea recuerdos inolvidables mientras viajas por el mundo con nosotros. ¡Haz realidad tus sueños de viaje con nuestra guía experta y nuestras experiencias personalizadas!",
     "heroButton": "Reserva ya la tuya"
   },
+  "destinationsPage": {
+    "booking": "Datos de la reserva"
+  },
   "menu": {
     "home": "Inicio",
     "destinations": "Destinos",

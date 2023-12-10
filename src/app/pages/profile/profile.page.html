@@ -1,9 +1,11 @@
-<app-header></app-header>
-<main>
-  <app-user-form
-    (onUpdateProfileClicked)="updateProfile($event)"
-    [formType]="'PROFILE'"
-    [actionUpdate]="true"
-    [user]="user"
-  />
-</main>
+<ion-content>
+  <app-header></app-header>
+  <main>
+    <app-user-form
+      (onUpdateProfileClicked)="updateProfile($event)"
+      [formType]="'PROFILE'"
+      [actionUpdate]="true"
+      [user]="user"
+    />
+  </main>
+</ion-content>

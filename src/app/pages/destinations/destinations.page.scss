@@ -16,14 +16,18 @@
   }
   
   .booking-form {
+    width: 100%;
+    max-width: 500px;
     height: fit-content;
-    width: fit-content;
+
+    * {
+      width: 100%;
+    }
   }
 
   .p-dialog-content.booking-form-content {
     overflow: visible;
     height: fit-content;
-    width: fit-content;
   }
 
 /*   .p-scroller-content {

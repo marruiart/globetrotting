@@ -19,7 +19,7 @@ export class UsersService extends ApiService {
   public extendedMe$: Observable<ExtUser | null> = this._extendedMe.asObservable();
   public jwt: string = "";
   private queries: { [query: string]: string } = {
-    "populate": "avatar,user"
+    "populate": "user"
   }
 
   constructor(

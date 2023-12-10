@@ -58,7 +58,7 @@ export class AuthStrapiService extends AuthService {
 
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<void> {
     let _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
-    let nickname = _agentInfo.nickname ?? registerInfo.username.slice(0, registerInfo.username.indexOf("@"));
+    let nickname = _agentInfo.nickname ?? registerInfo.username;
     let _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.email,
       email: registerInfo.email,

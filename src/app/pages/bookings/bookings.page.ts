@@ -196,7 +196,7 @@ export class BookingsPage {
         start: booking.start,
         end: booking.end,
         travelers: booking.travelers,
-        clientName: `${user?.name ?? "-"} ${user?.surname ?? ""}`,
+        clientName: `${user?.name ?? user?.nickname} ${user?.surname ?? ""}`,
         isConfirmed: booking.isConfirmed ?? false
       }
       return agentTableRow;

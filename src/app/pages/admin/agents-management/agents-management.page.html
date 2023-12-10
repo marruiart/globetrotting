@@ -60,14 +60,10 @@
                   <span class="p-column-title"
                     >{{ col.header | uppercase }}:
                   </span>
-                  <p-avatar
-                    image="https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png"
-                    size="large"
-                    shape="circle"
-                  ></p-avatar>
-                  <span class="group-name">
-                    {{ agent?.name }} {{ agent?.surname }}
-                  </span>
+                  <p-chip
+                    [label]="agent?.name + ' ' +  agent?.surname"
+                    image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  ></p-chip>
                 </ng-container>
 
                 <ng-container *ngSwitchDefault>
@@ -117,5 +113,4 @@
       </p-dialog>
     </div>
   </main>
-  
 </ion-content>

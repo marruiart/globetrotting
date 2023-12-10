@@ -7,10 +7,9 @@
         [columns]="cols"
         [value]="(bookingTable$ | async) ?? []"
         [lazy]="true"
-        sortMode="single"
-        dataKey="destination"
+        dataKey="destination_id"
         rowGroupMode="subheader"
-        groupRowsBy="destination"
+        groupRowsBy="destination_id"
         responsiveLayout="stack"
         [breakpoint]="'960px'"
       >

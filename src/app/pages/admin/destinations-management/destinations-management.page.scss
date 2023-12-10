@@ -1,5 +1,4 @@
 ::ng-deep {
-  ::ng-deep {
     .destinations-table {
       min-width: 100%;
       border-radius: 30px;
@@ -7,10 +6,15 @@
       overflow: hidden;
 
       [styleClass="table-caption"] {
-        > [styleClass*="table-header__th"] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        > [styleClass*="table-caption__th"] {
           padding: 30px;
           color: var(--primary-700);
           font-size: 1.3rem;
+          vertical-align: middle;
         }
       }
 
@@ -39,5 +43,4 @@
         height: 50px;
       }
     }
-  }
 }

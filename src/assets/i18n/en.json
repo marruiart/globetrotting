@@ -64,6 +64,7 @@
     "acceptBtn": "Accept"
   },
   "destManagement": {
+    "tableHeader": "Destinations management",
     "tableName": "Destination",
     "tableType": "Type",
     "tableDimension": "Dimension",

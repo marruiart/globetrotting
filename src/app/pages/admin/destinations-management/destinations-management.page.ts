@@ -25,6 +25,7 @@ interface TableRow {
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage implements OnInit {
+  public loading: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
   public currentUser: Client | TravelAgent | null = null;

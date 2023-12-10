@@ -64,6 +64,7 @@
     "acceptBtn": "Aceptar"
   },
   "destManagement": {
+    "tableHeader": "Gestión de destinos",
     "tableName": "Destino",
     "tableType": "Tipo",
     "tableDimension": "Dimensión",

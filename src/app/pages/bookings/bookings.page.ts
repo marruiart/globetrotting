@@ -18,6 +18,7 @@ import { SubscriptionsService } from 'src/app/core/services/subscriptions.servic
 
 interface TableRow {
   booking_id: number,
+  destination_id: number,
   destination: string,
   start: string | null,
   end: string | null,
@@ -54,7 +55,7 @@ export class BookingsPage {
   @HostListener('window:resize', ['$event'])
 
   onResize(event: Event) {
-    this.isResponsive = window.innerWidth < 960; 
+    this.isResponsive = window.innerWidth < 960;
   }
 
   constructor(
@@ -67,7 +68,7 @@ export class BookingsPage {
     private subsSvc: SubscriptionsService,
     private translate: CustomTranslateService
   ) {
-    this.isResponsive = window.innerWidth < 960; 
+    this.isResponsive = window.innerWidth < 960;
     this.subsSvc.addSubscriptions([
       {
         component: 'BookingsPage',
@@ -174,8 +175,10 @@ export class BookingsPage {
 
   private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow {
     if (this.currentUser?.type == 'AUTHENTICATED') {
+      console.log(`${destination.name}: ${destination.id}`);
       const clientTableRow: ClientTableRow = {
         booking_id: booking.id,
+        destination_id: destination.id ?? 0,
         destination: destination ? destination.name : 'Desconocido',
         start: booking.start,
         end: booking.end,
@@ -185,8 +188,10 @@ export class BookingsPage {
       }
       return clientTableRow;
     } else {
+      console.log(`${destination.name}: ${destination.id}`);
       const agentTableRow: AgentTableRow = {
         booking_id: booking.id,
+        destination_id: destination.id ?? 0,
         destination: destination ? destination.name : 'Desconocido',
         start: booking.start,
         end: booking.end,

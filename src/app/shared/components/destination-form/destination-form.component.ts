@@ -17,7 +17,7 @@ export class DestinationFormComponent {
             this.form.controls['name'].setValue(destination.name);
             this.form.controls['type'].setValue(destination.type);
             this.form.controls['dimension'].setValue(destination.dimension);
-            this.form.controls['price'].setValue(destination.price);
+            this.form.controls['price'].setValue(destination.price ?? 0);
             this.form.controls['description'].setValue(destination.description);
         }
     }
@@ -32,7 +32,7 @@ export class DestinationFormComponent {
             name: ['', [Validators.required]],
             type: ['', [Validators.required]],
             dimension: ['', [Validators.required]],
-            price: ['', [Validators.required]],
+            price: [0, [Validators.required]],
             description: ['', [Validators.required]]
         });
     }

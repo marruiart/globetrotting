@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
 import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';

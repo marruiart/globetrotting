@@ -28,7 +28,6 @@ export class PasswordValidator {
 
             if (password && confirmPassword && !password.hasValidator(Validators.required) && !confirmPassword.hasValidator(Validators.required)) {
                 if (password.value == '' && confirmPassword.value == '') {
-                    console.log("da igual que no sean iguales");
                     return null;
                 }
             }

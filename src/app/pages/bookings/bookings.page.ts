@@ -1,9 +1,9 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
-import { Table } from 'primeng/table';
+import { DatePipe } from '@angular/common';
+import { Component, HostListener } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
 import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
 import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
-import { Booking } from 'src/app/core/models/globetrotting/booking.interface';
+import { Booking, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Client } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
@@ -45,13 +45,16 @@ interface AdminTableRow extends TableRow {
   styleUrls: ['./bookings.page.scss'],
 })
 export class BookingsPage {
+  public destinations: Destination[] = [];
+  public clientsExtUsers: ExtUser[] = [];
   public currentUser: Client | TravelAgent | null = null;
   private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
   public data: ClientTableRow[] = [];
   public cols: any[] = [];
   public loading: boolean = true;
-  isResponsive: boolean = false;
+  public showForm: boolean = false;
+  public isResponsive: boolean = false;
   @HostListener('window:resize', ['$event'])
 
   onResize(event: Event) {
@@ -66,7 +69,8 @@ export class BookingsPage {
     private clientSvc: ClientService,
     private userFacade: UserFacade,
     private subsSvc: SubscriptionsService,
-    private translate: CustomTranslateService
+    private translate: CustomTranslateService,
+    private datePipe: DatePipe
   ) {
     this.isResponsive = window.innerWidth < 960;
     this.subsSvc.addSubscriptions([
@@ -104,6 +108,13 @@ export class BookingsPage {
       {
         component: 'BookingsPage',
         sub: this.bookingsSvc.getAllUserBookings().subscribe()
+      },
+      {
+        component: 'BookingsPage',
+        sub: this.destinationSvc.getAllDestinations()
+          .subscribe((destinations) => {
+            this.destinations = destinations?.data ?? [];
+          })
       }
     ])
   }
@@ -175,7 +186,6 @@ export class BookingsPage {
 
   private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow {
     if (this.currentUser?.type == 'AUTHENTICATED') {
-      console.log(`${destination.name}: ${destination.id}`);
       const clientTableRow: ClientTableRow = {
         booking_id: booking.id,
         destination_id: destination.id ?? 0,
@@ -188,7 +198,6 @@ export class BookingsPage {
       }
       return clientTableRow;
     } else {
-      console.log(`${destination.name}: ${destination.id}`);
       const agentTableRow: AgentTableRow = {
         booking_id: booking.id,
         destination_id: destination.id ?? 0,
@@ -280,6 +289,29 @@ export class BookingsPage {
         lastValueFrom(this.displayTable())
           .catch(err => console.error(err));
       }).catch(err => console.error(err));
+  }
+
+  public addBooking(booking: any) {
+    let _booking: NewBooking = {
+      start: this.datePipe.transform(booking.start, 'yyyy-MM-dd'),
+      end: this.datePipe.transform(booking.end, 'yyyy-MM-dd'),
+      travelers: booking.travelers,
+      isConfirmed: true,
+      agent_id: this.currentUser?.id,
+      client_id: booking.client_id,
+      destination_id: booking.destination_id
+    }
+
+    lastValueFrom(this.bookingsSvc.addBooking(_booking)).catch(err => console.error(err));
+    this.hideBookingForm();
+  }
+
+  private hideBookingForm() {
+    this.showForm = false;
+  }
+
+  public showBookingForm() {
+    this.showForm = true;
   }
 
   ngOnDestroy() {

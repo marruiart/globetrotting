@@ -50,6 +50,7 @@
   },
   "bookingsPage": {
     "confirmBtn": "Confirmar",
+    "addBookingnBtn": "Añadir reserva",
     "confirmedTag": "Confirmado",
     "unconfirmedTag": "Sin confirmar",
     "tableHeader": "Reservas de viajes",
@@ -68,6 +69,10 @@
   },
   "bookingsForm": {
     "dates": "Fechas de salida y llegada",
+    "client": "Cliente para la reserva",
+    "destination": "Destino elegido",
+    "selectDestination": "Seleccionar destino",
+    "selectClient": "Seleccionar Cliente",
     "travelers": "nº. de viajeros",
     "acceptBtn": "Aceptar"
   },

@@ -172,7 +172,7 @@ export class UserFormComponent implements OnDestroy {
     event.stopPropagation();
     const credentials: any = {
       user_id: this.userForm.value.user_id,
-      username: this.userForm.value.email,
+      username: this.userForm.value.username,
       email: this.userForm.value.email,
       password: this.userForm.value.password,
       id: this.userForm.value.id,
@@ -186,7 +186,7 @@ export class UserFormComponent implements OnDestroy {
   private onRegister(event: Event) {
     event.stopPropagation();
     const credentials: UserRegisterInfo = {
-      username: this.userForm.value.email,
+      username: this.userForm.value.username,
       email: this.userForm.value.email,
       password: this.userForm.value.password
     }
@@ -204,7 +204,7 @@ export class UserFormComponent implements OnDestroy {
       }
     } else {
       credentials = {
-        username: this.userForm.value.email,
+        username: this.userForm.value.username,
         password: this.userForm.value.password
       }
     }

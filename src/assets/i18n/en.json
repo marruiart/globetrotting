@@ -50,6 +50,7 @@
   },
   "bookingsPage": {
     "confirmBtn": "Confirm",
+    "addBookingnBtn": "Add booking",
     "confirmedTag": "Confirmed",
     "unconfirmedTag": "Unconfirmed",
     "tableHeader": "Travel bookings",
@@ -68,6 +69,10 @@
   },
   "bookingsForm": {
     "dates": "Departure and arrival dates",
+    "client": "Booking client",
+    "destination": "Chosen destination",
+    "selectDestination": "Select destination",
+    "selectClient": "Select customer",
     "travelers": "no. of travelers",
     "acceptBtn": "Accept"
   },

@@ -12,12 +12,16 @@ import { UserModule } from '../core/+state/load-user/load-user.module';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
 import { DestinationFormComponent } from './components/destination-form/destination-form.component';
 import { UserFormComponent } from './components/user-form/user-form.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from '../core/factories/translate-loader.factory';
+import { ThemeColorsDirective } from './directives/theme-colors.directive';
+import { DestinationSelectableComponent } from './components/destination-selectable/destination-selectable.component';
+import { DestinationSelectableItemComponent } from './components/destination-selectable/destination-selectable-item/destination-selectable-item.component';
 import { ThemeSelectableComponent } from './components/theme-selector/theme-selectable.component';
 import { ThemeSelectableItemComponent } from './components/theme-selector/theme-selectable-item/theme-selectable-item.component';
-import { ThemeColorsDirective } from './directives/theme-colors.directive';
+import { ClientSelectableComponent } from './components/client-selectable/client-selectable.component';
+import { ClientSelectableItemComponent } from './components/client-selectable/client-selectable-item/client-selectable-item.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +33,10 @@ import { ThemeColorsDirective } from './directives/theme-colors.directive';
     UserFormComponent,
     ThemeSelectableComponent,
     ThemeSelectableItemComponent,
+    ClientSelectableComponent,
+    ClientSelectableItemComponent,
+    DestinationSelectableComponent,
+    DestinationSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe,
@@ -65,6 +73,10 @@ import { ThemeColorsDirective } from './directives/theme-colors.directive';
     UserFormComponent,
     ThemeSelectableComponent,
     ThemeSelectableItemComponent,
+    ClientSelectableComponent,
+    ClientSelectableItemComponent,
+    DestinationSelectableComponent,
+    DestinationSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

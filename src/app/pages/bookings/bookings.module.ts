@@ -15,8 +15,4 @@ import { HttpClient } from '@angular/common/http';
   ],
   declarations: [BookingsPage]
 })
-export class BookingsPageModule {
-
-
-
-}
+export class BookingsPageModule { }

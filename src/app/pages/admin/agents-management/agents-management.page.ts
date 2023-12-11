@@ -184,6 +184,7 @@ export class AgentsManagementPage {
   }
 
   public addOrEditAgent(agent: any) {
+    // TODO -> improve returning with an object of TravelAgent and UserCredentials
     if (agent.id) {
       const extUser = {
         id: agent.id,
@@ -212,8 +213,8 @@ export class AgentsManagementPage {
   private deleteAgent(agent_id: number, extuser_id: number, user_id: number) {
     lastValueFrom(this.agentsSvc.deleteAgent(agent_id))
       .catch(err => console.error(err));
-      lastValueFrom(this.authSvc.deleteUser(user_id))
-        .catch(err => console.error(err));
+    lastValueFrom(this.authSvc.deleteUser(user_id))
+      .catch(err => console.error(err));
     lastValueFrom(this.userSvc.deleteUser(extuser_id))
       .catch(err => console.error(err));
   }

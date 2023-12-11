@@ -42,6 +42,12 @@ export class ThemeSelectableComponent implements ControlValueAccessor {
   }
 
   /**
+  * Propagates a change of an object.
+  * @param obj The object.
+  */
+  propagateChange = (obj: any) => { }
+
+  /**
   * Not implemented.
   * @param fn
   */
@@ -65,11 +71,9 @@ export class ThemeSelectableComponent implements ControlValueAccessor {
 
   /**
   * Selects a theme by its bundle name.
-  * @param bundleName The ID of the artist to select.
-  * @param propagate Whether to propagate the change to the parent component.
-  * @return A Promise that resolves to the selected theme.
+  * @param bundleName The bundleName of the theme to select.
   */
-  public selectTheme(theme: ThemeItem | null, propagate: boolean = false) {
+  public selectTheme(theme: ThemeItem | null) {
     if (theme) {
       this.themeSvc.switchTheme(theme.code);
       this.selectedTheme = theme;
@@ -77,16 +81,7 @@ export class ThemeSelectableComponent implements ControlValueAccessor {
     else {
       this.selectedTheme = themes[4];
     }
-    if (propagate) {
-      this.propagateChange(theme);
-    }
     this.hideThemeSelectable();
   }
-
-  /**
-  * Propagates a change of an object.
-  * @param obj The object.
-  */
-  propagateChange = (obj: any) => { }
 
 }

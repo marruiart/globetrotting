@@ -103,8 +103,6 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   public onBookingAccepted(booking: BookingForm) {
-    console.log(JSON.stringify(this._selectedDestination));
-    console.log(JSON.stringify(booking));
     if (this.specificUserId && this._selectedDestination) {
       let _booking: NewBooking = {
         start: this.datePipe.transform(booking.start, 'yyyy-MM-dd'),

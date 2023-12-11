@@ -37,5 +37,5 @@
   styleClass="booking-form"
   contentStyleClass="booking-form-content"
 >
-  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" *ngIf="showDialog"/>
+  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" *ngIf="showDialog" [currentUserType]="'AUTHENTICATED'"/>
 </p-dialog>

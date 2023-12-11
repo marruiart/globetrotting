@@ -1,0 +1,12 @@
+p-chip {
+  user-select: none;
+  cursor: pointer;
+}
+
+:ng-deep {
+
+  .client-selectable-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+}

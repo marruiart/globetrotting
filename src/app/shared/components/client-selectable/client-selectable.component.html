@@ -1,0 +1,37 @@
+<p-chip
+  *ngIf="!selectedClient"
+  styleClass="client-chip"
+  [label]="'bookingsForm.selectClient' | translate"
+  icon="pi pi-user"
+  iconPos="left"
+  (click)="showClientSelectable()"
+/>
+
+<p-chip
+  *ngIf="selectedClient"
+  styleClass="client-chip"
+  [label]="name"
+  image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+  (click)="showClientSelectable()"
+/>
+
+<p-dialog
+  [header]="'bookingsForm.client' | translate"
+  [draggable]="false"
+  [resizable]="false"
+  [(visible)]="showSelectable"
+  [modal]="true"
+  [blockScroll]="true"
+  [dismissableMask]="true"
+  styleClass="client-selectable"
+  contentStyleClass="client-selectable-content"
+  (click)="showSelectable = true"
+>
+  <ng-container *ngIf="showSelectable">
+    <app-client-selectable-item
+      *ngFor="let clientExtUser of clientsExtUsers"
+      [clientExtUser]="clientExtUser"
+      (onClientSelected)="onClientSelected($event)"
+    />
+  </ng-container>
+</p-dialog>

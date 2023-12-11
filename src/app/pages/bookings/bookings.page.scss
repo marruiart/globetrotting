@@ -6,10 +6,21 @@
     overflow: hidden;
 
     [styleClass="table-caption"] {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
       > [styleClass*="table-caption__th"] {
         padding: 30px;
         color: var(--primary-700);
         font-size: 1.3rem;
+        vertical-align: middle;
+        
+        p-button button {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
       }
     }
 

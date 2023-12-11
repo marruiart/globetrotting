@@ -1,0 +1,12 @@
+p-chip {
+  display: block;
+  user-select: none;
+  cursor: pointer;
+}
+
+::ng-deep {
+  .client-chip:hover {
+    background-color: var(--highlight-bg);
+    color: black;
+  }
+}

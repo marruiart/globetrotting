@@ -11,10 +11,6 @@ export class ThemeSelectableItemComponent {
   @Input() theme: ThemeItem | null = null;
   @Output() onThemeSelected = new EventEmitter<ThemeItem>();
 
-  /**
-  * Emits an event when the artist is clicked.
-  * @param artist The artist that was clicked.
-  */
   onThemeClicked() {
     if (this.theme) {
       this.onThemeSelected.emit(this.theme);

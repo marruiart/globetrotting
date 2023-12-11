@@ -22,6 +22,8 @@ export interface NewBooking {
 }
 
 export interface BookingForm {
+    client_id?: number,
+    destination_id?: number,
     start: string,
     end: string,
     travelers: number

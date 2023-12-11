@@ -1,6 +1,27 @@
 <form [formGroup]="bookingForm" (ngSubmit)="onAccept($event)">
+  <!-- AÑADIR SOLO SI ES AGENT!! -->
+  <ng-container *ngIf="currentUserType == 'AGENT'">
+    <label htmlFor="client">{{ "bookingsForm.client" | translate }}:</label>
+    <app-client-selectable
+      id="client"
+      formControlName="client"
+    />
+
+    <label htmlFor="destination">
+      {{ "bookingsForm.destination" | translate }}:
+    </label>
+    <p-dropdown
+      id="destination"
+      [placeholder]="'bookingsForm.selectDestination' | translate"
+      formControlName="destination"
+      [options]="destinations"
+      optionLabel="name"
+    ></p-dropdown>
+  </ng-container>
+
   <label htmlFor="travelers">{{ "bookingsForm.travelers" | translate }}:</label>
   <p-inputNumber
+    id="travelers"
     formControlName="travelers"
     inputId="travelers"
     inputStyleClass="travelers-input"
@@ -16,8 +37,10 @@
     [max]="10"
     [allowEmpty]="false"
   ></p-inputNumber>
+
   <label htmlFor="dates">{{ "bookingsForm.dates" | translate }}:</label>
   <p-calendar
+    id="dates"
     formControlName="dates"
     inputId="dates"
     selectionMode="range"
@@ -25,5 +48,6 @@
     styleClass="calendar"
     dateFormat="dd-MM-yy"
   ></p-calendar>
+
   <p-button type="submit">{{ "bookingsForm.acceptBtn" | translate }}</p-button>
 </form>

@@ -14,11 +14,22 @@
         [breakpoint]="'960px'"
       >
         <ng-template pTemplate="caption" let-columns>
-          <tr styleClass="table-caption">
-            <th colspan="6" styleClass="table-caption__th">
+          <div styleClass="table-caption">
+            <div colspan="6" styleClass="table-caption__th">
               {{ "bookingsPage.tableHeader" | translate | uppercase }}
-            </th>
-          </tr>
+            </div>
+            <div
+              *ngIf="currentUser?.type == 'AGENT'"
+              styleClass="table-caption__th"
+            >
+              <p-button
+                [label]="'bookingsPage.addBookingnBtn' | translate"
+                icon="pi pi-plus"
+                styleClass="p-button-rounded"
+                (click)="showBookingForm()"
+              />
+            </div>
+          </div>
         </ng-template>
         <ng-template
           pTemplate="groupheader"
@@ -130,7 +141,24 @@
           <div styleClass="table-footer"></div>
         </ng-template>
       </p-table>
+
+      <p-dialog
+        [draggable]="false"
+        [resizable]="false"
+        [(visible)]="showForm"
+        [modal]="true"
+        [blockScroll]="true"
+        [dismissableMask]="true"
+        styleClass="agent-form"
+        contentStyleClass="agent-form-content"
+      >
+        <app-booking-form
+          *ngIf="showForm"
+          [destinations]="destinations"
+          [currentUserType]="'AGENT'"
+          (onBookingAccepted)="addBooking($event)"
+        />
+      </p-dialog>
     </div>
   </main>
-  
 </ion-content>

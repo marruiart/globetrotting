@@ -3,22 +3,10 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap } from "rxjs";
-import { MenuService } from "../../services/menu.service";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { UserFacade } from "../load-user/load-user.facade";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
-
-/* 
-'(isLogged: boolean) => Observable<({ user: AuthUser; } & TypedAction<"[Auth API] Assign Role">) | ({ error: any; } & TypedAction<"[Auth API] Login Failure">)> | null'
-'(value: boolean, index: number) => ObservableInput<any>'.
-
-'Observable<({ user: AuthUser; } & TypedAction<"[Auth API] Assign Role">) | ({ error: any; } & TypedAction<"[Auth API] Login Failure">)> | null'
-'ObservableInput<any>'.
-
-'null'
-'ObservableInput<any>'.
-*/
 
 @Injectable()
 export class AuthEffects {
@@ -86,7 +74,6 @@ export class AuthEffects {
             switchMap(() => this.authSvc.me().pipe(
                 map((user: AuthUser) => {
                     console.log(`id ${user.user_id}: ${user.role}`);
-                    this.userFacade.init(user);
                     return AuthActions.assignRole({ user: user });
                 }), catchError(error => of(AuthActions.loginFailure({ error: error })))
             )))

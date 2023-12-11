@@ -60,7 +60,7 @@ export class AuthStrapiService extends AuthService {
     let _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
     let nickname = _agentInfo.nickname ?? registerInfo.username;
     let _registerInfo: StrapiRegisterPayload = {
-      username: registerInfo.email,
+      username: registerInfo.username,
       email: registerInfo.email,
       password: registerInfo.password ?? ""
     }

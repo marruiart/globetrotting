@@ -89,7 +89,7 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: [{ value: '', disabled: true }],
+          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
           email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],

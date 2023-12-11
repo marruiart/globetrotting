@@ -193,6 +193,7 @@ export class AgentsManagementPage {
       }
       const identifiers = {
         id: agent.user_id,
+        username: agent.username,
         email: agent.email,
       }
       lastValueFrom(this.userSvc.updateUser(extUser))

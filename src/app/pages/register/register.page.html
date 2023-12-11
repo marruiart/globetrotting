@@ -1,1 +1,22 @@
-<app-user-form (onRegisterClicked)="doRegister($event)" [formType]="'REGISTER'"/>
+<ion-content>
+  <main>
+    <p-button
+      [label]="'loginPage.backBtn' | translate"
+      icon="pi pi-chevron-left"
+      iconPos="left"
+      styleClass="p-button-rounded p-button-text"
+      (onClick)="navigateHome()"
+    ></p-button>
+    <p-button
+    [label]="'loginPage.backLogin' | translate"
+    icon="pi pi-chevron-left"
+    iconPos="left"
+    styleClass="p-button-rounded p-button-text"
+    (onClick)="navigateLogin()"
+  ></p-button>
+    <app-user-form
+      (onRegisterClicked)="doRegister($event)"
+      [formType]="'REGISTER'"
+    />
+  </main>
+</ion-content>

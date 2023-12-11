@@ -1,5 +1,16 @@
-<app-user-form
-  (onLoginClicked)="doLogin($event)"
-  (onNavigateToRegisterClicked)="navigateToRegister()"
-  [formType]="'LOGIN'"
-/>
+<ion-content>
+  <main>
+    <p-button
+      [label]="'loginPage.backBtn' | translate"
+      icon="pi pi-chevron-left"
+      iconPos="left"
+      styleClass="p-button-rounded p-button-text"
+      (onClick)="navigateHome()"
+    ></p-button>
+    <app-user-form
+      (onLoginClicked)="doLogin($event)"
+      (onNavigateToRegisterClicked)="navigateToRegister()"
+      [formType]="'LOGIN'"
+    />
+  </main>
+</ion-content>

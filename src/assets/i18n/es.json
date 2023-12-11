@@ -7,6 +7,10 @@
   "destinationsPage": {
     "booking": "Datos de la reserva"
   },
+  "loginPage": {
+    "backBtn": "Volver a la página de inicio",
+    "backLogin": "Volver al inicio de sesión"
+  },
   "menu": {
     "home": "Inicio",
     "destinations": "Destinos",

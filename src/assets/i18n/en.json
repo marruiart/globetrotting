@@ -7,6 +7,10 @@
   "destinationsPage": {
     "booking": "Booking details"
   },
+  "loginPage": {
+    "backBtn": "Back to home page",
+    "backLogin": "Back to login"
+  },
   "menu": {
     "home": "Home",
     "destinations": "Destinations",

@@ -22,6 +22,10 @@ export class LoginPage implements OnDestroy {
     this.authFacade.login(credentials);
   }
 
+  public navigateHome() {
+    this.router.navigate(['/home']);
+  }
+
   public navigateToRegister() {
     this.router.navigate(['/register']);
   }

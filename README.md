@@ -8,7 +8,7 @@ Globetrotting es una aplicación Angular que permite a usuarios registrados como
 
 ## Demostración
 
-Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace]([url_del_video](https://youtu.be/vboM-cc44aI)).
+Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace](https://youtu.be/vboM-cc44aI).
 
 ## Tecnologías Utilizadas
 
@@ -22,7 +22,7 @@ Para ver una demostración de la aplicación y entender las diferentes acciones 
 - PostgreSQL
 - Cloudinary
 
-La aplicación se encuentra desplegada públicamente en Netlify, y el backend está publicado usando Render.
+La aplicación se encuentra desplegada públicamente en [Netlify](https://stately-pasca-b97506.netlify.app), y el backend está publicado usando Render.
 
 ## Estructura de la Aplicación
 

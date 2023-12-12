@@ -1,20 +1,20 @@
 # Globetrotting
 
-Este proyecto unifica todos los contenidos correspondientes a la formación inicial que se realiza durante el primer trimestre. El alumno plasmará sobre una app realizada con las tecnologías vistas en clase, todo lo aprendido durante la formación inicial. Dicho proyecto será evaluado y de dicha evaluación se obtendrá la nota final de dicha formación. El alumnado que vino cursando Dual en el primer curso deberá superar esta formación inicial para poder continuar con su formación dual en segundo.
+Este proyecto unifica todos los contenidos correspondientes a la formación inicial en Angular que se realiza durante el primer trimestre de segundo curso de Desarrollo de Aplicaciones Multiplataforma. 
 
 ## Descripción
 
-Globetrotting es una aplicación Angular que permite a usuarios registrados como clientes realizar reservas en la agencia de viajes y gestionar sus reservas. Los usuarios registrados como agentes de viajes tienen la capacidad de confirmar reservas existentes, crear nuevas y administrar destinos. Los usuarios registrados como administradores pueden gestionar los usuarios que son agentes de viajes y las funciones asociadas.
+Globetrotting es una aplicación Angular que permite a usuarios registrados como clientes realizar reservas en la agencia de viajes y gestionar sus reservas. Los usuarios registrados como agentes de viajes tienen la capacidad de confirmar reservas existentes, crear nuevas y administrar destinos. Los usuarios registrados como administradores pueden gestionar los usuarios que son agentes de viajes y las mismas funciones que tienen estos.
 
 ## Demostración
 
-Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace al vídeo](url_del_video).
+Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace]([url_del_video](https://youtu.be/vboM-cc44aI)).
 
 ## Tecnologías Utilizadas
 
 ### FrontEnd
 - Angular
-- Ionic
+- PrimeNG
 - Capacitor
 
 ### BackEnd
@@ -49,25 +49,20 @@ Un servicio de HTTP para el navegador que envuelve las llamadas a HttpClient.
 #### JwtService
 Un servicio para manejar los tokens JWT necesarios para el acceso a métodos privados de Strapi.
 
-#### LocalService
-Un servicio para manejar el idioma con el que se carga la aplicación.
-
 #### TranslateService
 Se hace uso del servicio incluido en el paquete `@ngx-translate/core` para manejar el idioma seleccionado en la aplicación.
 
 ### Directivas
-Se ha creado al menos una directiva personalizada y se han utilizado varias directivas proporcionadas por Angular, como `ngIf` y `ngFor`.
+Se ha creado una directiva personalizada y se han utilizado varias directivas proporcionadas por Angular, como `ngIf` y `ngFor`.
 
 ### Pipes
-Se ha creado al menos un pipe personalizado y se han utilizado los pipes proporcionados por Angular, como `uppercase`, `translate`, `date`, entre otros.
+Se han creado pipes personalizados y se han utilizado otros pipes proporcionados por Angular, como `uppercase`, `translate`, `date`, entre otros.
 
 ### Componentes, Formularios Reactivos, Modales y Páginas
-La aplicación contiene componentes para las páginas, formularios reactivos para editar o añadir datos, modalidades y diversas páginas, incluyendo páginas de login, registro, inicio, sobre (con información sobre la app y el desarrollador), y una página por cada modelo de datos.
+La aplicación contiene componentes para las páginas, formularios reactivos para editar o añadir datos y diversas páginas, incluyendo páginas de login, registro, inicio, 'sobre mí' (con información sobre el desarrollador), y una página por cada modelo de datos.
 
 ### Enrutamiento y Seguridad
-Las páginas están organizadas en el enrutador de la aplicación y aquellas que necesitan autenticación están protegidas mediante una guarda implementada.
+Las páginas están organizadas en el enrutador de la aplicación y aquellas que necesitan autenticación están protegidas mediante dos guardas implementada, una que controla el acceso a zonas de administrador y otras a zonas restringidas para usuarios autenticados.
 
 ### Interfaz de Usuario
-La app es responsiva y hace uso de los componentes de Ionic. El tema de Ionic ha sido configurado para ajustar los colores corporativos, y opcionalmente se han utilizado componentes de PrimeNG.
-
----
+La app es responsiva y hace uso de los componentes de PrimeNG. El tema de PrimeNG ha sido configurado para ajustar los colores de manera dinámica.

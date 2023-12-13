@@ -47,6 +47,7 @@ export class UsersService extends ApiService {
     return this.extendedMe(id);
   }
 
+  /** Returns the corresponding extended user with the id */
   public extendedMe(id: number | null): Observable<ExtUser | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));

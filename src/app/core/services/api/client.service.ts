@@ -54,10 +54,13 @@ export class ClientService extends ApiService {
     return this.getAllClients(this._clientsPage.value?.pagination.next);
   }
 
-  public clientMe(id: number | null): Observable<Client | null> {
-    if (id) {
+  /**
+   * Find in the client table de user with the id of the current user. If another user id is passed, the state of the application will be updated!
+   */
+  public clientMe(currentUserId: number | null): Observable<Client | null> {
+    if (currentUserId) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
-      _queries["filters[user]"] = `${id}`;
+      _queries["filters[user]"] = `${currentUserId}`;
       return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {
@@ -76,6 +79,14 @@ export class ClientService extends ApiService {
   public getClient(id: number): Observable<Client> {
     return this.get<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
       .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
+  }
+
+  public getClientByExtUserId(user_id: number): Observable<Client> {
+    let _queries = JSON.parse(JSON.stringify(this.queries));
+    _queries["filters[user]"] = `${user_id}`;
+    return this.getAll<Client[]>(this.path, _queries, this.mapSvc.mapClients)
+      .pipe(map(res => res[0]),
+        catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {

@@ -156,6 +156,9 @@ export class MappingStrapiService extends MappingService {
   public mapClient = (res: StrapiResponse<StrapiClient>): Client =>
     this.mapClientData(res.data);
 
+  public mapClients = (res?: StrapiArrayResponse<StrapiClient>): Client[] =>
+    this.extractArrayData<Client, StrapiClient>(res, this.mapClientData);
+
   public mapPaginatedClients = (res: StrapiArrayResponse<StrapiClient>): PaginatedClient =>
     this.extractPaginatedData<Client, StrapiClient>(res, this.mapClientData);
 

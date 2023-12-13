@@ -27,6 +27,7 @@ export abstract class MappingService {
   public abstract mapClientFavs(favs: Fav[]): ClientFavDestination[]
 
   public abstract mapClient(res: any): Client
+  public abstract mapClients(res: any): Client[]
   public abstract mapPaginatedClients(res: any): PaginatedClient
 
   public abstract mapAgent(res: any): TravelAgent

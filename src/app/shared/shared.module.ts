@@ -16,8 +16,6 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from '../core/factories/translate-loader.factory';
 import { ThemeColorsDirective } from './directives/theme-colors.directive';
-import { DestinationSelectableComponent } from './components/destination-selectable/destination-selectable.component';
-import { DestinationSelectableItemComponent } from './components/destination-selectable/destination-selectable-item/destination-selectable-item.component';
 import { ThemeSelectableComponent } from './components/theme-selector/theme-selectable.component';
 import { ThemeSelectableItemComponent } from './components/theme-selector/theme-selectable-item/theme-selectable-item.component';
 import { ClientSelectableComponent } from './components/client-selectable/client-selectable.component';
@@ -35,8 +33,6 @@ import { ClientSelectableItemComponent } from './components/client-selectable/cl
     ThemeSelectableItemComponent,
     ClientSelectableComponent,
     ClientSelectableItemComponent,
-    DestinationSelectableComponent,
-    DestinationSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe,
@@ -75,8 +71,6 @@ import { ClientSelectableItemComponent } from './components/client-selectable/cl
     ThemeSelectableItemComponent,
     ClientSelectableComponent,
     ClientSelectableItemComponent,
-    DestinationSelectableComponent,
-    DestinationSelectableItemComponent,
     // Pipes
     VirtualItemsPipe,
     FavPipe

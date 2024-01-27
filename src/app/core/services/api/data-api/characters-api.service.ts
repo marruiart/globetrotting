@@ -5,7 +5,6 @@ import { Character } from '../../../models/rick-morty-api/character.interface';
 import { HttpService } from '../../http/http.service';
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
 import { ExtUser, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
-import { UsersService } from '../users.service';
 import { AuthService } from '../../auth/auth.service';
 
 
@@ -17,7 +16,6 @@ export class CharactersApiService {
   constructor(
     private http: HttpService,
     private authSvc: AuthService,
-    private userSvc: UsersService
   ) { }
 
   public getAllFromApi(allPages: Page<Character>[] = [], url: string = `${environment.API_URL}/character`): Observable<Page<Character>[]> {

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api/api.service';
 import { UserCredentials } from '../../models/globetrotting/user.interface';
+import { DataService } from '../api/data.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
-export abstract class AuthService extends ApiService {
+export abstract class AuthService {
 
   public abstract login(credentials: Object): Observable<any>;
 

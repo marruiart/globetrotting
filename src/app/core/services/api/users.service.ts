@@ -4,6 +4,7 @@ import { NewExtUser, ExtUser } from '../../models/globetrotting/user.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { DataService } from './data.service';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
@@ -11,7 +12,7 @@ export class UserNotFoundException extends Error { }
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService extends ApiService {
+export class UsersService {
   private path: string = "/api/extended-users";
   private _users: BehaviorSubject<ExtUser[]> = new BehaviorSubject<ExtUser[]>([]);
   public users$: Observable<ExtUser[]> = this._users.asObservable();
@@ -23,19 +24,18 @@ export class UsersService extends ApiService {
   }
 
   constructor(
+    private dataSvc: DataService,
     private mapSvc: MappingService
-  ) {
-    super();
-  }
+  ) { }
 
   public getAllUsers(): Observable<ExtUser[]> {
-    return this.getAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
+    return this.dataSvc.obtainAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
     }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
   }
 
   public getUser(id: number): Observable<ExtUser> {
-    return this.get<ExtUser>(this.path, id, this.mapSvc.mapUser, this.queries)
+    return this.dataSvc.obtain<ExtUser>(this.path, id, this.mapSvc.mapUser, this.queries)
       .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
   }
 
@@ -52,7 +52,7 @@ export class UsersService extends ApiService {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${id}`;
-      return this.getAll<PaginatedData<any>>(this.path, _queries, this.mapSvc.mapPaginatedUsers)
+      return this.dataSvc.obtainAll<PaginatedData<any>>(this.path, _queries, this.mapSvc.mapPaginatedUsers)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let me = res.data[0];
@@ -68,7 +68,7 @@ export class UsersService extends ApiService {
   }
 
   public addUser(user: NewExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.add<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.dataSvc.send<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
@@ -76,7 +76,7 @@ export class UsersService extends ApiService {
   }
 
   public updateUser(user: ExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.dataSvc.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
@@ -84,7 +84,8 @@ export class UsersService extends ApiService {
   }
 
   public deleteUser(id: number): Observable<ExtUser> {
-    return this.delete<ExtUser>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
+    const queries = {}
+    return this.dataSvc.delete<ExtUser>(this.path, this.mapSvc.mapUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();
     }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
   }

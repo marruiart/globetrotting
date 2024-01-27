@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 import { UserFacade } from '../../+state/load-user/load-user.facade';
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ClientService extends ApiService {
+export class ClientService {
   private path: string = "/api/clients";
   private body = (client: NewClient) => this.mapSvc.mapClientPayload(client);
   private queries: { [query: string]: string } = {
@@ -21,11 +21,10 @@ export class ClientService extends ApiService {
   public clients$: Observable<Client[]> = this._clients.asObservable();
 
   constructor(
+    private dataSvc: DataService,
     private mapSvc: MappingService,
     private userFacade: UserFacade
-  ) {
-    super();
-  }
+  ) { }
 
   public getAllClients(page: number | null = 1): Observable<PaginatedClient | null> {
     if (page == null) {
@@ -33,7 +32,7 @@ export class ClientService extends ApiService {
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["pagination[page]]"] = `${page}`;
-    return this.getAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
+    return this.dataSvc.obtainAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
       .pipe(tap((page: PaginatedClient) => {
         if (page.data.length > 0) {
           let _clients: Client[] = JSON.parse(JSON.stringify(page.data))
@@ -61,7 +60,7 @@ export class ClientService extends ApiService {
     if (currentUserId) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${currentUserId}`;
-      return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
+      return this.dataSvc.obtainAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let clientMe = res.data[0];
@@ -77,20 +76,20 @@ export class ClientService extends ApiService {
   }
 
   public getClient(id: number): Observable<Client> {
-    return this.get<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
+    return this.dataSvc.obtain<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
       .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }
 
   public getClientByExtUserId(user_id: number): Observable<Client> {
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["filters[user]"] = `${user_id}`;
-    return this.getAll<Client[]>(this.path, _queries, this.mapSvc.mapClients)
+    return this.dataSvc.obtainAll<Client[]>(this.path, _queries, this.mapSvc.mapClients)
       .pipe(map(res => res[0]),
         catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
-    return this.add<Client>(this.path, this.body(client), this.mapSvc.mapClient)
+    return this.dataSvc.send<Client>(this.path, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
         if (updateObs) {
           this.getAllClients().subscribe();
@@ -99,7 +98,7 @@ export class ClientService extends ApiService {
   }
 
   public updateClient(client: Client, updateObs: boolean = true): Observable<Client> {
-    return this.update<Client>(this.path, client.id, this.body(client), this.mapSvc.mapClient)
+    return this.dataSvc.update<Client>(this.path, client.id, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
         if (updateObs) {
           this.getAllClients().subscribe();
@@ -108,7 +107,7 @@ export class ClientService extends ApiService {
   }
 
   public deleteClient(id: number): Observable<Client> {
-    return this.delete<Client>(this.path, this.mapSvc.mapClient, id)
+    return this.dataSvc.delete<Client>(this.path, this.mapSvc.mapClient, id, {})
       .pipe(tap(_ => {
         this.getAllClients().subscribe();
       }), catchError(() => throwError(() => 'No se ha podido eliminar al cliente')));

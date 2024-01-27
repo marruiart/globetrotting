@@ -25,6 +25,15 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
 import { ButtonModule } from 'primeng/button';
+import { environment } from 'src/environments/environment';
+import { DataService } from './core/services/api/data.service';
+import { ApiService } from './core/services/api/api.service';
+import { DataServiceFactory } from './core/factories/data-service.factory';
+
+export const Backend = {
+  FIREBASE: 'Firebase',
+  STRAPI: 'Strapi'
+}
 
 @NgModule({
   declarations: [
@@ -57,7 +66,8 @@ import { ButtonModule } from 'primeng/button';
     // General
     {
       provide: 'backend',
-      useValue: 'Strapi'
+      useValue: Backend.STRAPI,
+      //useValue: Backend.FIREBASE,
     },
     {
       provide: RouteReuseStrategy,
@@ -77,6 +87,15 @@ import { ButtonModule } from 'primeng/button';
       provide: AuthService,
       deps: ['backend'],
       useFactory: AuthServiceFactory
+    },
+    {
+      provide: DataService,
+      deps: ['backend', ApiService],
+      useFactory: DataServiceFactory,  
+    },
+    {
+      provide: 'firebase-config',
+      useValue: environment.firebaseConfig
     }
   ],
   bootstrap: [AppComponent],

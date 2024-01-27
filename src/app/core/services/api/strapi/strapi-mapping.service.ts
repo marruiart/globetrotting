@@ -16,7 +16,7 @@ import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 
-export class MappingStrapiService extends MappingService {
+export class StrapiMappingService extends MappingService {
 
   private extractPaginatedData<T, S>(res: StrapiArrayResponse<S>, callback: (data: StrapiData<S>) => T): PaginatedData<T> {
     return {

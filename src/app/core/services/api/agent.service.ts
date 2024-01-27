@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { UserFacade } from '../../+state/load-user/load-user.facade';
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class AgentService extends ApiService {
   private body = (agent: NewTravelAgent) => this.mapSvc.mapAgentPayload(agent);
 
   constructor(
+    private dataSvc: DataService,
     private mapSvc: MappingService,
     private userFacade: UserFacade
   ) {
@@ -33,7 +35,7 @@ export class AgentService extends ApiService {
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["pagination[page]"] = `${page}`;
-    return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
+    return this.dataSvc.obtainAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
       .pipe(tap((page: PaginatedAgent) => {
         if (page.data.length > 0) {
           let _newAgents: TravelAgent[] = JSON.parse(JSON.stringify(page.data))
@@ -55,7 +57,7 @@ export class AgentService extends ApiService {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${id}`;
-      return this.getAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
+      return this.dataSvc.obtainAll<PaginatedAgent>(this.path, _queries, this.mapSvc.mapPaginatedAgents)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let agentMe = res.data[0];
@@ -71,11 +73,11 @@ export class AgentService extends ApiService {
   }
 
   public getAgent(id: number): Observable<TravelAgent> {
-    return this.get<TravelAgent>(this.path, id, this.mapSvc.mapAgent, this.queries);
+    return this.dataSvc.obtain<TravelAgent>(this.path, id, this.mapSvc.mapAgent, this.queries);
   }
 
   public addAgent(agent: NewTravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
-    return this.add<TravelAgent>(this.path, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
+    return this.dataSvc.send<TravelAgent>(this.path, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
         this.getAllAgents().subscribe();
       }
@@ -83,7 +85,7 @@ export class AgentService extends ApiService {
   }
 
   public updateAgent(agent: TravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
-    return this.update<TravelAgent>(this.path, agent.id, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
+    return this.dataSvc.update<TravelAgent>(this.path, agent.id, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
         this.getAllAgents().subscribe();
       }
@@ -91,7 +93,7 @@ export class AgentService extends ApiService {
   }
 
   public deleteAgent(id: number): Observable<TravelAgent> {
-    return this.delete<TravelAgent>(this.path, this.mapSvc.mapAgent, id).pipe(tap(res => {
+    return this.dataSvc.delete<TravelAgent>(this.path, this.mapSvc.mapAgent, id, {}).pipe(tap(res => {
       let _newAgents = JSON.parse(JSON.stringify(this._agents.value));
       let index = -1;
       this._agents.value.forEach((agent, i) => {

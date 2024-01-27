@@ -12,13 +12,20 @@ import { AgentService } from '../agent.service';
 import { NewClient } from 'src/app/core/models/globetrotting/client.interface';
 import { NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { MappingService } from '../mapping.service';
+import { JwtService } from '../../auth/jwt.service';
+import { ApiService } from '../api.service';
+import { DataService } from '../data.service';
+import { environment } from 'src/environments/environment';
 
 export class AuthStrapiService extends AuthService {
   private userSvc = inject(UsersService);
+  private api = inject(ApiService);
+  private dataSvc = inject(DataService);
   private mappingSvc = inject(MappingService);
   private clientSvc = inject(ClientService);
   private agentSvc = inject(AgentService);
   private authFacade = inject(AuthFacade);
+  private jwtSvc = inject(JwtService);
 
   constructor() {
     super();
@@ -31,13 +38,19 @@ export class AuthStrapiService extends AuthService {
     });
   }
 
+  private getUrl(path: string, id: number | null = null) {
+    return `${environment.STRAPI_URL}${path}${id ? `/${id}` : ''}`;
+  }
+
+
   public login(credentials: UserCredentials): Observable<void> {
     let _credentials: StrapiLoginPayload = {
       identifier: credentials.username,
       password: credentials.password ?? ""
     }
     return new Observable<void>(observer => {
-      this.post<StrapiLoginResponse>("/api/auth/local", _credentials)
+      const url = this.getUrl("/api/auth/local");
+      this.api.post<StrapiLoginResponse>(url, _credentials)
         .subscribe({
           next: async (auth: StrapiLoginResponse | null) => {
             if (auth) {
@@ -65,7 +78,8 @@ export class AuthStrapiService extends AuthService {
       password: registerInfo.password ?? ""
     }
     return new Observable<void>(observer => {
-      this.post<StrapiRegisterResponse>("/api/auth/local/register", _registerInfo)
+      const url = this.getUrl("/api/auth/local/register");
+      this.api.post<StrapiRegisterResponse>(url, _registerInfo)
         .subscribe({
           next: async (response: StrapiRegisterResponse | null) => {
             if (response) {
@@ -154,7 +168,7 @@ export class AuthStrapiService extends AuthService {
 
   public me(): Observable<AuthUser> {
     return new Observable<AuthUser>(observer => {
-      this.getMe<StrapiMe>("/api/users/me?populate=role").subscribe({
+      this.dataSvc.obtainMe<StrapiMe>("/api/users/me").subscribe({
         next: (res: StrapiMe) => {
           let authUser: AuthUser = {
             user_id: res.id,
@@ -172,17 +186,17 @@ export class AuthStrapiService extends AuthService {
 
   public updateIdentifiers(user: UserCredentials): Observable<UserCredentials> {
     if (user.id) {
-      return this.update("/api/users", user.id, user, this.mappingSvc.mapUserCredentials);
+      return this.dataSvc.update("/api/users", user.id, user, this.mappingSvc.mapUserCredentials);
     }
     return throwError(() => "Usuario no actualizado: se desconoce el id del usuario");
   }
 
   public getUserIdentifiers(id: number): Observable<UserCredentials> {
-    return this.get<UserCredentials>("/api/users", id, this.mappingSvc.mapUserCredentials);
+    return this.dataSvc.obtain<UserCredentials>("/api/users", id, this.mappingSvc.mapUserCredentials, {});
   }
 
   public deleteUser(id: number): Observable<UserCredentials> {
-    return this.delete<UserCredentials>("/api/users", this.mappingSvc.mapUserCredentials, id);
+    return this.dataSvc.delete<UserCredentials>("/api/users", this.mappingSvc.mapUserCredentials, id, {});
   }
 
 }

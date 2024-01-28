@@ -1,7 +1,10 @@
+import { BACKEND } from "./environment";
+
 export const environment = {
   production: true,
-  STRAPI_URL: "https://globetrotting-service.onrender.com",
-  API_URL: "https://rickandmortyapi.com/api",
+  backend: BACKEND,
+  strapiUrl: "https://globetrotting-service.onrender.com",
+  apiUrl: "https://rickandmortyapi.com/api",
   apiUpdate: false,
   firebaseConfig: {
     apiKey: "AIzaSyAHJl1sh0WVzkgT_DCLRFiGoTn29_Vudg4",

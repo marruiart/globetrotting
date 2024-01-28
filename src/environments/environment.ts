@@ -2,10 +2,18 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+export type Strapi = 'Strapi';
+export type Firebase = 'Firebase';
+export type BackendTypes = Firebase | Strapi;
+
+export type Backend = Firebase;
+export const BACKEND: BackendTypes = 'Firebase';
+
 export const environment = {
   production: false,
-  STRAPI_URL: "http://localhost:1337",
-  API_URL: "https://rickandmortyapi.com/api",
+  backend: BACKEND,
+  strapiUrl: "http://localhost:1337",
+  apiUrl: "https://rickandmortyapi.com/api",
   apiUpdate: false,
   firebaseConfig: {
     apiKey: "AIzaSyAHJl1sh0WVzkgT_DCLRFiGoTn29_Vudg4",

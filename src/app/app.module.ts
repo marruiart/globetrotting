@@ -30,11 +30,6 @@ import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
 import { DataServiceFactory } from './core/factories/data-service.factory';
 
-export const Backend = {
-  FIREBASE: 'Firebase',
-  STRAPI: 'Strapi'
-}
-
 @NgModule({
   declarations: [
     AppComponent
@@ -66,8 +61,7 @@ export const Backend = {
     // General
     {
       provide: 'backend',
-      useValue: Backend.STRAPI,
-      //useValue: Backend.FIREBASE,
+      useValue: environment.backend
     },
     {
       provide: RouteReuseStrategy,

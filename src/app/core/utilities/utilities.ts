@@ -1,0 +1,1 @@
+export const isType = <T>(item: any): item is T => true;

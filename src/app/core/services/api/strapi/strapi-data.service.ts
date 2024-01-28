@@ -12,7 +12,7 @@ export class StrapiDataService extends DataService {
   }
 
   private getUrl(path: string, id: number | null = null) {
-    return `${environment.STRAPI_URL}${path}${id ? `/${id}` : ''}`;
+    return `${environment.strapiUrl}${path}${id ? `/${id}` : ''}`;
   }
 
   private getUserQuery(path: string): string {

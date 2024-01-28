@@ -2,10 +2,11 @@ import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import * as UserActions from './load-user.actions'
 import * as AuthSelector from './load-user.selectors'
-import { AuthUser } from "../../models/globetrotting/auth.interface";
+import { AuthUser, AuthUserOptions } from "../../models/globetrotting/auth.interface";
 import { Client } from "../../models/globetrotting/client.interface";
 import { TravelAgent } from "../../models/globetrotting/agent.interface";
 import { Router } from "@angular/router";
+import { Role } from "../../models/globetrotting/user.interface";
 
 @Injectable()
 export class UserFacade {
@@ -21,15 +22,16 @@ export class UserFacade {
 
     constructor(private router: Router) { }
 
-    init(user: AuthUser) {
-        this.store.dispatch(UserActions.loadUser({ user: user, redirectUrl: this.router.url }));
+    init(user: AuthUserOptions) {
+        const authUser = user as AuthUser;
+        this.store.dispatch(UserActions.loadUser({ user: authUser, redirectUrl: this.router.url }));
     }
 
     loadExtendedUser(id: number) {
         this.store.dispatch(UserActions.loadExtendedUser({ user_id: id }));
     }
 
-    loadSpecificUser(id: number, role: string) {
+    loadSpecificUser(id: number, role: Role) {
         this.store.dispatch(UserActions.loadSpecificUser({ user_id: id, role: role }));
     }
 

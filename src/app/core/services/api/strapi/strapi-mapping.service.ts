@@ -2,7 +2,7 @@ import { MappingService } from '../mapping.service';
 import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
-import { StrapiExtendedUser, StrapiUser } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
 import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
@@ -106,8 +106,8 @@ export class StrapiMappingService extends MappingService {
   public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedExtUser =>
     this.extractPaginatedData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
 
-  public mapUserCredentials = (res: StrapiUser): UserCredentials => {
-    const credentials: UserCredentials = {
+  public mapUserCredentials = (res: StrapiUser): StrapiUserCredentials => {
+    const credentials: StrapiUserCredentials = {
       id: res.id,
       username: res.username,
       email: res.email,

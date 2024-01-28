@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials, UserCredentialsOptions } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
@@ -20,7 +20,7 @@ export abstract class MappingService {
   public abstract mapUser(res: any): ExtUser
   public abstract mapUsers(res: any): ExtUser[]
   public abstract mapPaginatedUsers(res: any): PaginatedExtUser
-  public abstract mapUserCredentials(res: any): UserCredentials
+  public abstract mapUserCredentials(res: any): UserCredentialsOptions
 
   public abstract mapFav(res: any): Fav
   public abstract mapFavs(res: any): Fav[]

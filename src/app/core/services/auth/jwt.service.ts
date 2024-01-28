@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/internal/operators/tap';
-import { Auth } from '../../models/globetrotting/auth.interface';
+import { JwtAuth } from '../../models/globetrotting/auth.interface';
 import { StorageService } from '../storage.service';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 
@@ -17,7 +17,7 @@ export class JwtService {
     private authFacade: AuthFacade
   ) { }
 
-  public saveToken(jwt: string): Observable<Auth> {
+  public saveToken(jwt: string): Observable<JwtAuth> {
     return this.storageSvc.add(jwt).pipe(tap({
       next: res => {
         if (res) {
@@ -30,7 +30,7 @@ export class JwtService {
     }));
   }
 
-  public loadToken(): Observable<Auth> {
+  public loadToken(): Observable<JwtAuth> {
     return this.storageSvc.get().pipe(tap({
       next: token => {
         if (token) {

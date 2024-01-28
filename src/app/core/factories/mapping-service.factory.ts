@@ -1,15 +1,15 @@
-import { Backend } from "src/app/app.module";
-//import { FirebaseMappingService } from "../services/api/firebase/firebase-mapping.service";
 import { StrapiMappingService } from "../services/api/strapi/strapi-mapping.service";
+import { FirebaseMappingService } from "../services/api/firebase/firebase-mapping.service";
+import { BackendTypes } from "src/environments/environment";
 
 export function MappingServiceFactory(
-  backend: string
+  backend: BackendTypes
 ) {
   switch (backend) {
-    case Backend.STRAPI:
+    case 'Strapi':
       return new StrapiMappingService();
-    /* case Backend.FIREBASE:
-      return new FirebaseMappingService(); */
+     case 'Firebase':
+      return new FirebaseMappingService(); 
     default:
       throw new Error('Backend not implemented');
   }

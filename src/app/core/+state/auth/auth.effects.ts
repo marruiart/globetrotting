@@ -3,10 +3,13 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { AuthService } from "../../services/auth/auth.service";
 import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap } from "rxjs";
-import { AuthUser } from "../../models/globetrotting/auth.interface";
+import { AuthUser, AuthUserOptions } from "../../models/globetrotting/auth.interface";
 import { UserFacade } from "../load-user/load-user.facade";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
+import { BACKEND } from "src/environments/environment";
+import { FirebaseAuthUser } from "../../models/firebase-interfaces/firebase-user.interface";
+import { StrapiAuthUser } from "../../models/strapi-interfaces/strapi-user.interface";
 
 @Injectable()
 export class AuthEffects {
@@ -23,25 +26,13 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.init),
             switchMap(() => this.authFacade.isLogged$.pipe(
-                switchMap(isLogged => {
+                map(isLogged => {
                     if (isLogged) {
-                        return this.authSvc.me().pipe(
-                            map(user => {
-                                let authUser: AuthUser = {
-                                    user_id: user.user_id,
-                                    role: user.role
-                                }
-                                this.userFacade.init(user);
-                                return AuthActions.assignRole({ user: authUser });
-                            }),
-                            catchError(error => of(AuthActions.loginFailure({ error: error })))
-                        )
+                        return AuthActions.assignRole();
                     } else {
-                        return of(AuthActions.loginFailure({ error: 'Usuario no loggeado' }));
+                        return AuthActions.loginFailure({ error: 'Usuario no loggeado' });
                     }
-                })
-            )
-            ))
+                }))))
     );
 
     login$ = createEffect(() =>
@@ -70,12 +61,23 @@ export class AuthEffects {
 
     assignRole$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(AuthActions.loginSuccess),
+            ofType(AuthActions.assignRole),
             switchMap(() => this.authSvc.me().pipe(
-                map((user: AuthUser) => {
-                    console.log(`id ${user.user_id}: ${user.role}`);
-                    return AuthActions.assignRole({ user: user });
-                }), catchError(error => of(AuthActions.loginFailure({ error: error })))
+                map((user: AuthUserOptions) => {
+                    let authUser;
+                    if (BACKEND == 'Strapi') {
+                        authUser = user as StrapiAuthUser;
+                        console.log(`id ${authUser.user_id}: ${user.role}`);
+                        this.userFacade.init(authUser);
+                        return AuthActions.assignRoleSuccess({ user: authUser });
+                    } else {
+                        authUser = user as FirebaseAuthUser;
+                        console.log(`id ${authUser.uid}: ${user.role}`);
+                        this.userFacade.init(authUser);
+                        return AuthActions.assignRoleSuccess({ user: authUser });
+                    }
+                }),
+                catchError(error => of(AuthActions.assignRoleFailure({ error: error })))
             )))
     );
 
@@ -90,4 +92,12 @@ export class AuthEffects {
                 catchError(error => of(AuthActions.logoutFailure({ error: error })))
             )))
     );
+
+    loginFailure$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.loginFailure),
+            map(() => AuthActions.logout()),
+        )
+    );
+
 }

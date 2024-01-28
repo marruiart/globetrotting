@@ -20,6 +20,10 @@ export class AuthFacade {
         this.store.dispatch(AuthAction.login({ credentials: credentials }));
     }
 
+    saveUserUid(uid: string) {
+        this.store.dispatch(AuthAction.assignUid({ uid: `user#${uid}` }));
+    }
+
     setLoginStateTrue() {
         this.store.dispatch(AuthAction.loginSuccess());
     }

@@ -1,91 +1,86 @@
-import { Observable, from, map } from 'rxjs';
+import { Observable, from, lastValueFrom, map, of, throwError } from 'rxjs';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
-import { UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
-import { FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
-import { User } from 'firebase/auth';
+import { AgentRegisterInfo, Role, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { AuthUser, AuthUserOptions } from 'src/app/core/models/globetrotting/auth.interface';
+import { inject } from '@angular/core';
+import { FirebaseAuthUser, FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 
-/* export class FirebaseAuthService extends AuthService {
-  
-  constructor(
-    private firebaseSvc: FirebaseService
-  ) {
+export class FirebaseAuthService extends AuthService {
+  private firebaseSvc: FirebaseService = inject(FirebaseService);
+  private userFacade: UserFacade = inject(UserFacade);
+  private authFacade: AuthFacade = inject(AuthFacade);
+
+  constructor() {
     super();
   }
 
-  public login(credentials: UserCredentials): Observable<any> {
-    return new Observable<any>(subscr => {
-      this.firebaseSvc.connectUserWithEmailAndPassword(credentials.username, credentials.password ?? '').then((credentials: FirebaseUserCredential | null) => {
-        if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
-          subscr.error('Cannot login');
-        }
-        if (credentials) {
-          this.me().subscribe(data => {
-            this._user.next(data);
-            this._logged.next(true);
-            subscr.next(data);
-            subscr.complete();
-          });
-        }
-      })
+  public login(credentials: FirebaseUserCredentials): Observable<void> {
+    return new Observable<any>(observer => {
+      this.firebaseSvc.connectUserWithEmailAndPassword(credentials.email, credentials.password ?? '')
+        .then((credentials: FirebaseUserCredential | null) => {
+          if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
+            observer.error('Cannot login');
+          } else {
+            observer.next();
+            observer.complete();
+          }
+        });
     });
   }
 
-  public register(info: UserRegisterInfo): Observable<any | null> {
-    return new Observable<any>(subscr => {
-      this.firebaseSvc.createUserWithEmailAndPassword(info.email, info.password ?? '').then((credentials: FirebaseUserCredential | null) => {
-        if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid)
-          subscr.error('Cannot register');
-        if (credentials) {
-          this.postRegister(info).subscribe(data => {
-            this._user.next(data);
-            this._logged.next(true);
-            subscr.next(data);
-            subscr.complete();
-          });
+  public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<any | null> {
+    throw new Error('Method not implemented.');
+  }
+
+  private postRegister(info: UserRegisterInfo): Observable<any> {
+    throw new Error('Method not implemented.');
+  }
+
+  public me(): Observable<AuthUserOptions> {
+
+    return new Observable<AuthUserOptions>(observer => {
+      this.authFacade.userId$.subscribe({
+        next: async uid => {
+          if (uid) {
+            try {
+              const doc: FirebaseDocument = await this.firebaseSvc.getDocument(`${uid}`)
+              const authUser: FirebaseAuthUser = {
+                uid: doc.id,
+                role: doc.data['role']['type'] as Role,
+                nickname: doc.data['nickname'],
+                name: doc.data['name'],
+                surname: doc.data['surname'],
+                age: doc.data['age']
+              }
+              observer.next(authUser);
+              observer.complete();
+            } catch (err) {
+              observer.error(err);
+            }
+          }
+        },
+        error: error => {
+          return observer.error(error);
         }
-      })
+      });
     });
-  }
-
-  private postRegister(info: User): Observable<any> {
-    if (info.uuid)
-      return from(this.firebaseSvc.createDocumentWithId('users', {
-        name: info.name,
-        surname: info.surname,
-        nickname: info.nickname,
-        piture: info.picture ?? ""
-      }, info.uuid))
-    throw new Error('Error inesperado');
-  }
-
-  public me(): Observable<User> {
-    if (this.firebaseSvc.user?.uid)
-      return from(this.firebaseSvc.getDocument('users', this.firebaseSvc.user.uid)).pipe(map(data => {
-        return {
-          name: data.data['name'],
-          surname: data.data['surname'],
-          nickname: data.data['nickname'],
-          picture: data.data['picture'] ?? "",
-          uuid: data.id
-        }
-      }));
-    else
-      throw new Error('User is not connected');
   }
 
   public logout(): Observable<any> {
     return from(this.firebaseSvc.signOut(false));
   }
 
-  public override updateIdentifiers(user: any): Observable<UserCredentials> {
+  public override updateIdentifiers(user: any): Observable<FirebaseUserCredentials> {
     throw new Error('Method not implemented.');
   }
-  public override getUserIdentifiers(id: number): Observable<UserCredentials> {
+  public override getUserIdentifiers(id: number): Observable<FirebaseUserCredentials> {
     throw new Error('Method not implemented.');
   }
-  public override deleteUser(id: number): Observable<UserCredentials> {
+  public override deleteUser(id: number): Observable<FirebaseUserCredentials> {
     throw new Error('Method not implemented.');
   }
 }
- */

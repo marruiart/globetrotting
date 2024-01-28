@@ -18,7 +18,7 @@ export class LoginPage implements OnDestroy {
     private router: Router
   ) { }
 
-  public doLogin(credentials: UserCredentials) {
+  public login(credentials: UserCredentials) {
     this.authFacade.login(credentials);
   }
 

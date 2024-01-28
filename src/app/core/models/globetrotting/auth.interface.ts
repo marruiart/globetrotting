@@ -1,10 +1,10 @@
-import { ExtUser } from "./user.interface"
+import { Backend, Firebase } from "src/environments/environment"
+import { StrapiAuthUser } from "../strapi-interfaces/strapi-user.interface";
+import { FirebaseAuthUser } from "../firebase-interfaces/firebase-user.interface";
 
-export interface Auth {
+export interface JwtAuth {
     jwt: string
 }
 
-export interface AuthUser {
-    user_id: number,
-    role: string
-}
+export type AuthUserOptions = FirebaseAuthUser | StrapiAuthUser;
+export type AuthUser = Backend extends Firebase ? FirebaseAuthUser : StrapiAuthUser;

@@ -20,7 +20,9 @@ export class ProfilePage {
     private subsSvc: SubscriptionsService,
     private userSvc: UsersService
   ) {
-    this.subsSvc.addSubscription({
+    throw new Error('page not implemented');
+
+    /*this.subsSvc.addSubscription({
       component: "ProfilePage",
       sub: this.userFacade.currentUser$.pipe(
         switchMap((currentUser): Observable<FullUser | null> => {
@@ -51,14 +53,13 @@ export class ProfilePage {
           console.error(err);
           return of(null);
         })
-      )
-        .subscribe({
-          next: (fullUser: FullUser | null) => {
-            this.user = fullUser
-          },
-          error: err => console.error(err)
-        })
-    });
+      ).subscribe({
+        next: (fullUser: FullUser | null) => {
+          this.user = fullUser
+        },
+        error: err => console.error(err)
+      })
+    });*/
   }
 
   public updateProfile(fullUser: FullUser | null) {

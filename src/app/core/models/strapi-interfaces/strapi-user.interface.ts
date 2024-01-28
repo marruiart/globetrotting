@@ -1,5 +1,27 @@
 import { StrapiMedia } from "./strapi-media.interface";
 import { StrapiResponse } from "./strapi-data.interface";
+import { Role } from "../globetrotting/user.interface";
+
+export interface StrapiUserCredentials {
+    /**
+     * id of the User-Permissions table
+     */
+    id?: number,
+    username: string,
+    email?: string,
+    password: string | null
+}
+
+export interface StrapiUserRegisterInfo {
+    username: string,
+    email: string,
+    password: string | null
+}
+
+export interface StrapiAuthUser {
+    user_id: number,
+    role: Role
+}
 
 export interface StrapiUser extends StrapiDataUser {
     id: number

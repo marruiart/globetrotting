@@ -18,7 +18,7 @@ export class CharactersApiService {
     private authSvc: AuthService,
   ) { }
 
-  public getAllFromApi(allPages: Page<Character>[] = [], url: string = `${environment.API_URL}/character`): Observable<Page<Character>[]> {
+  public getAllFromApi(allPages: Page<Character>[] = [], url: string = `${environment.apiUrl}/character`): Observable<Page<Character>[]> {
     return this.http.get<Page<Character>>(url).pipe(map(res => {
       if (res.info.next) {
         this.getAllFromApi(allPages, res.info.next).subscribe();
@@ -60,12 +60,13 @@ export class CharactersApiService {
   }
 
   private getCharacterCredentials(character: Character): UserRegisterInfo {
+    throw new Error('Method not implemented');
     let _username = character.name.replace(/\s/g, '').toLowerCase();
-    return {
+   /* return {
       username: `${_username}`,
       email: `${_username}@gmail.com`,
       password: "123456"
-    }
+    }*/
   }
 
   public addCharacter(character: Character): Observable<ExtUser> {

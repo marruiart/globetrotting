@@ -2,11 +2,19 @@ import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core
 import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { FirebaseUserRegisterInfo } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { FullUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
+import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
+import { BACKEND, BackendTypes } from 'src/environments/environment';
 
 export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
+const Pattern = {
+  EMAIL: "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
+  NAME: "^[A-Za-z ]+$",
+  NICKNAME: "^[A-Za-z0-9._-]+$"
+}
 
 @Component({
   selector: 'app-user-form',
@@ -62,7 +70,6 @@ export class UserFormComponent implements OnDestroy {
   @Output() onNavigateToRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onUpdateProfileClicked: EventEmitter<any> = new EventEmitter<any>();
 
-
   constructor(
     private fb: FormBuilder,
     public translate: TranslateService
@@ -72,15 +79,15 @@ export class UserFormComponent implements OnDestroy {
     switch (this.formType) {
       case 'LOGIN':
         this.userForm = this.fb.group({
-          email: ['', [Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-          username: ['', [Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          email: ['', [Validators.pattern(Pattern.EMAIL)]],
+          username: ['', [Validators.pattern(Pattern.NICKNAME)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]]
         }, { validator: [IdentifierValidator.identifierRequired('email', 'username')] } as AbstractControlOptions);
         break;
       case 'REGISTER':
         this.userForm = this.fb.group({
-          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          username: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]]
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
@@ -89,13 +96,13 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          username: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'PROFILE':
@@ -106,9 +113,9 @@ export class UserFormComponent implements OnDestroy {
           email: ['', [Validators.required]],
           password: ['', [PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       case 'UPDATE_AGENT':
@@ -116,10 +123,10 @@ export class UserFormComponent implements OnDestroy {
           id: [null],
           user_id: [null],
           username: [{ value: '', disabled: true }],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
+          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
       default:
@@ -185,29 +192,13 @@ export class UserFormComponent implements OnDestroy {
 
   private onRegister(event: Event) {
     event.stopPropagation();
-    const credentials: UserRegisterInfo = {
-      username: this.userForm.value.username,
-      email: this.userForm.value.email,
-      password: this.userForm.value.password
-    }
+    const credentials = this.getUserRegisterInfo(BACKEND) as UserRegisterInfo
     this.onRegisterClicked.emit(credentials);
   }
 
   private onLogin(event: Event) {
     event.stopPropagation();
-    let credentials: UserCredentials;
-    
-    if (this.userForm.value.username) {
-      credentials = {
-        username: this.userForm.value.username,
-        password: this.userForm.value.password
-      }
-    } else {
-      credentials = {
-        username: this.userForm.value.username,
-        password: this.userForm.value.password
-      }
-    }
+    let credentials = this.getUserCredentials(BACKEND) as UserCredentials;
     this.onLoginClicked.emit(credentials);
   }
 
@@ -217,6 +208,46 @@ export class UserFormComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this._subs.forEach(s => s.unsubscribe());
+  }
+
+  private getUserCredentials(backend: BackendTypes): UserCredentialsOptions {
+    if (backend == 'Firebase') {
+      return {
+        email: this.userForm.value.email ?? '',
+        password: this.userForm.value.password
+      }
+    } else if (backend == 'Strapi') {
+      return {
+        username: this.userForm.value.username ?? '',
+        email: this.userForm.value.email ?? '',
+        password: this.userForm.value.password
+      }
+    }
+    else {
+      throw new Error('Backend not implemented');
+    }
+  }
+
+  private getUserRegisterInfo(backend: BackendTypes): UserRegisterInfoOptions {
+    switch (backend) {
+      case 'Firebase':
+        let firebaseRegister: FirebaseUserRegisterInfo = {
+          uid: '',
+          username: this.userForm.value.username,
+          email: this.userForm.value.email,
+          password: this.userForm.value.password
+        }
+        return firebaseRegister;
+      case 'Strapi':
+        let strapiRegister: StrapiUserRegisterInfo =
+        {
+          username: this.userForm.value.username,
+          email: this.userForm.value.email,
+          password: this.userForm.value.password
+        }
+        return strapiRegister;
+      default: throw new Error('Backend not implemented');
+    }
   }
 
 }

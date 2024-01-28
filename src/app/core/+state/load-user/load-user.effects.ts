@@ -10,6 +10,9 @@ import { Client } from "../../models/globetrotting/client.interface";
 import { UsersService } from "../../services/api/users.service";
 import { ExtUser } from "../../models/globetrotting/user.interface";
 import { UserFacade } from "./load-user.facade";
+import { BACKEND } from "src/environments/environment";
+import { FirebaseAuthUser } from "../../models/firebase-interfaces/firebase-user.interface";
+import { StrapiAuthUser } from "../../models/strapi-interfaces/strapi-user.interface";
 
 @Injectable()
 export class UserEffects {
@@ -28,9 +31,28 @@ export class UserEffects {
             ofType(UserActions.loadUser),
             switchMap((props) => {
                 const role = props.user.role;
-                const user_id = props.user.user_id;
-                this.userFacade.loadExtendedUser(user_id);
-                this.userFacade.loadSpecificUser(user_id, role);
+                let user;
+                switch (BACKEND) {
+                    case 'Firebase':
+                        user = props.user as FirebaseAuthUser;
+                        let extUser: ExtUser = {
+                            id: 0,
+                            nickname: user.nickname,
+                            name: user.name,
+                            surname: user.surname,
+                            age: user.age
+                        }
+                        UserActions.assignExtendedUser({ extendedUser: extUser });
+                        //UserActions.assignSpecificUser({ specificUser: user });
+                        break;
+                    case 'Strapi':
+                        user = props.user as StrapiAuthUser;
+                        this.userFacade.loadExtendedUser(user.user_id);
+                        this.userFacade.loadSpecificUser(user.user_id, role);
+                        break;
+                    default:
+                        UserActions.loadUserFailure({ error: 'Backend not implemented' });
+                }
                 if (role == 'ADMIN' || role == 'AGENT') {
                     this.router.navigate(['/admin']);
                 } else {

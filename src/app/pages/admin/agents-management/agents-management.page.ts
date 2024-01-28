@@ -125,7 +125,9 @@ export class AgentsManagementPage {
   }
 
   private mapTableRow(agent: TravelAgent, extUser: ExtUser, user: UserCredentials): TableRow {
-    return {
+    throw new Error('Method not implemented');
+
+    /*return {
       id: extUser.id,
       user_id: user.id,
       agent_id: agent.id,
@@ -134,7 +136,7 @@ export class AgentsManagementPage {
       email: user.email ?? "",
       username: user.username,
       nickname: extUser.nickname
-    }
+    }*/
   }
 
   /**
@@ -143,13 +145,13 @@ export class AgentsManagementPage {
  * @returns an observable with all the rows of the table to be displayed
  */
   private mapAgentsRows(agents: TravelAgent[]): Observable<TableRow[]> {
+    throw new Error('Method not implemented');
     let tableRowObs: Observable<TableRow>[] = [];
 
     for (let agent of agents) {
       const extUser$ = this.userSvc.getAgentUser(agent.user_id);
-
       // For each booking, add a TableRow observable
-      tableRowObs.push(extUser$.pipe(
+      /*tableRowObs.push(extUser$.pipe(
         switchMap((extUser): Observable<TableRow> => {
           if (extUser && extUser.user_id) {
             return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
@@ -164,7 +166,7 @@ export class AgentsManagementPage {
           return throwError(() => "No se han podido obtener los datos del extended user");
         }), catchError(err => {
           return of(err);
-        })))
+        })))*/
     }
     // ForkJoin the "array of observables" to return "an observable of an array"
     return forkJoin(tableRowObs);

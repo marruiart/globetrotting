@@ -20,7 +20,7 @@ export class LocationsApiService {
 
   public getAllFromApi(
     allPages: Page<Location>[] = [],
-    url: string = `${environment.API_URL}/location`)
+    url: string = `${environment.apiUrl}/location`)
     : Observable<Page<Location>[]> {
 
     return this.http.get<Page<Location>>(url).pipe(map(res => {

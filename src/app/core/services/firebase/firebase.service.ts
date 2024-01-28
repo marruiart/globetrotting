@@ -5,7 +5,9 @@ import { getFirestore, addDoc, collection, updateDoc, doc, onSnapshot, getDoc, s
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, deleteUser, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth, User } from "firebase/auth";
 import { FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { AuthFacade } from '../../+state/auth/auth.facade';
 
+const COLLECTION = 'globetrotting';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +22,8 @@ export class FirebaseService {
   public isLogged$: Observable<boolean> = this._isLogged.asObservable();
 
   constructor(
-    @Inject('firebase-config') config: any
+    @Inject('firebase-config') config: any,
+    private authFacade: AuthFacade
   ) {
     this.init(config);
   }
@@ -35,12 +38,12 @@ export class FirebaseService {
       this._user = user;
       if (user) {
         if (user.uid && user.email) {
-          this._isLogged.next(true);
+          this.authFacade.saveUserUid(user.uid);
+          this.authFacade.init();
         }
       } else {
-        this._isLogged.next(false);
+        this.authFacade.logout();
       }
-
     });
   }
 
@@ -89,68 +92,64 @@ export class FirebaseService {
     return this.fileUpload(blob, 'image/jpeg', 'images', 'image', ".jpg");
   }
 
-  public createDocument(collectionName: string, data: any): Promise<string> {
+  public createDocument(data: any): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      const collectionRef = collection(this._db!, collectionName);
+      const collectionRef = collection(this._db!, COLLECTION);
       addDoc(collectionRef, data).then(docRef => resolve(docRef.id)
       ).catch(err => reject(err));
     });
   }
 
-  public createDocumentWithId(
-    collectionName: string,
-    data: any,
-    docId: string
-  ): Promise<void> {
+  public createDocumentWithId(data: any, docId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this._db) {
         reject({
           msg: 'Database is not connected',
         });
       }
-      const docRef = doc(this._db!, collectionName, docId);
+      const docRef = doc(this._db!, COLLECTION, docId);
       setDoc(docRef, data)
         .then(() => resolve())
         .catch((err) => reject(err));
     });
   }
 
-  public updateDocument(collectionName: string, document: string, data: any): Promise<void> {
+  public updateDocument(document: string, data: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      const collectionRef = collection(this._db!, collectionName);
+      const collectionRef = collection(this._db!, COLLECTION);
       updateDoc(doc(collectionRef, document), data).then(docRef => resolve()
       ).catch(err => reject(err));
     });
   }
 
-  public getDocuments(collectionName: string): Promise<FirebaseDocument[]> {
+  public getDocuments(): Promise<FirebaseDocument[]> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      const querySnapshot = await getDocs(collection(this._db!, collectionName));
+      const querySnapshot = await getDocs(collection(this._db!, COLLECTION));
       resolve(querySnapshot.docs.map<FirebaseDocument>(doc => {
         return { id: doc.id, data: doc.data() }
       }));
     });
   }
 
-  public getDocument(collectionName: string, document: string): Promise<FirebaseDocument> {
+  public getDocument(document: string): Promise<FirebaseDocument> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      const docRef = doc(this._db!, collectionName, document);
+      const docRef = doc(this._db!, COLLECTION, document);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -162,13 +161,13 @@ export class FirebaseService {
     });
   }
 
-  public getDocumentsBy(collectionName: string, field: string, value: any): Promise<FirebaseDocument[]> {
+  public getDocumentsBy(field: string, value: any): Promise<FirebaseDocument[]> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      const q = query(collection(this._db!, collectionName), where(field, "==", value));
+      const q = query(collection(this._db!, COLLECTION), where(field, "==", value));
 
       const querySnapshot = await getDocs(q);
       resolve(querySnapshot.docs.map<FirebaseDocument>(doc => {
@@ -177,20 +176,20 @@ export class FirebaseService {
     });
   }
 
-  public deleteDocument(collectionName: string, docId: string): Promise<void> {
+  public deleteDocument(docId: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Database is not connected"
         });
-      resolve(await deleteDoc(doc(this._db!, collectionName, docId)));
+      resolve(await deleteDoc(doc(this._db!, COLLECTION, docId)));
     });
   }
 
-  public subscribeToCollection(collectionName: string, subject: BehaviorSubject<any[]>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
+  public subscribeToCollection(subject: BehaviorSubject<any[]>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
     if (!this._db)
       return null;
-    return onSnapshot(collection(this._db, collectionName), (snapshot) => {
+    return onSnapshot(collection(this._db, COLLECTION), (snapshot) => {
       subject.next(snapshot.docs.map<any>(doc => mapFunction(doc)));
     }, error => { });
   }
@@ -293,7 +292,7 @@ export class FirebaseService {
     });
   }
 
-  public updateDocumentField(collectionName: string, document: string, fieldName: string, fieldValue: any): Promise<void> {
+  public updateDocumentField(document: string, fieldName: string, fieldValue: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db) {
         reject({
@@ -301,7 +300,7 @@ export class FirebaseService {
         });
       }
 
-      const documentRef = doc(this._db as Firestore, collectionName, document);
+      const documentRef = doc(this._db as Firestore, COLLECTION, document);
       const fieldUpdate = { [fieldName]: fieldValue }; // Crear un objeto con el campo a actualizar
 
       try {

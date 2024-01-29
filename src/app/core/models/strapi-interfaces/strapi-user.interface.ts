@@ -38,11 +38,22 @@ export interface StrapiMe extends StrapiUser {
     }
 }
 
+/**
+ * Represents the payload required for user authentication in Strapi.
+ * @property {string} identifier - The unique identifier for the user, could be an email or username.
+ * @property {string} password - The user's password for authentication.
+ */
 export interface StrapiLoginPayload {
     identifier: string,
     password: string
 }
 
+/**
+ * Represents the payload required for user registration in Strapi.
+ * @property {string} username - The desired username for the new user account.
+ * @property {string} email - The email address associated with the new user account.
+ * @property {string} password - The password chosen for the new user account.
+ */
 export interface StrapiRegisterPayload {
     username: string
     email: string,

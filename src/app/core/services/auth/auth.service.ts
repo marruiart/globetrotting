@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ApiService } from '../api/api.service';
-import { UserCredentials, UserCredentialsOptions } from '../../models/globetrotting/user.interface';
+import { AgentRegisterInfo, UserCredentials, UserCredentialsOptions, UserRegisterInfo } from '../../models/globetrotting/user.interface';
 import { DataService } from '../api/data.service';
 import { environment } from 'src/environments/environment';
 import { AuthUserOptions } from '../../models/globetrotting/auth.interface';
@@ -11,9 +11,9 @@ import { AuthUserOptions } from '../../models/globetrotting/auth.interface';
 })
 export abstract class AuthService {
 
-  public abstract login(credentials: Object): Observable<any>;
+  public abstract login(credentials: UserCredentials): Observable<any>;
 
-  public abstract register(info: Object, isAgent?: boolean): Observable<any>;
+  public abstract register(info: UserRegisterInfo | AgentRegisterInfo, isAgent?: boolean): Observable<any>;
 
   public abstract logout(): Observable<any>;
 

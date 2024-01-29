@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
 import { catchError, lastValueFrom, of, switchMap, tap, throwError } from 'rxjs';
-import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions } from '../../../models/globetrotting/user.interface';
+import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions, UserCredentials } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiAuthUser, StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthUserOptions } from 'src/app/core/models/globetrotting/auth.interface';
@@ -43,12 +43,15 @@ export class StrapiAuthService extends AuthService {
   }
 
 
-  public login(credentials: StrapiUserCredentials): Observable<void> {
-    let _credentials: StrapiLoginPayload = {
-      identifier: credentials.username,
-      password: credentials.password ?? ""
-    }
+  public login(credentials: UserCredentials): Observable<void> {
     return new Observable<void>(observer => {
+      if (!(credentials.email || credentials.username) || !credentials.password) {
+        observer.error('Error: The provided credentials are incorrect or incomplete.');
+      }
+      let _credentials: StrapiLoginPayload = {
+        identifier: credentials.username || credentials.email!,
+        password: credentials.password!
+      }
       const url = this.getUrl("/api/auth/local");
       this.api.post<StrapiLoginResponse>(url, _credentials)
         .subscribe({
@@ -59,7 +62,7 @@ export class StrapiAuthService extends AuthService {
               observer.next();
               observer.complete();
             } else {
-              observer.error('Error en la autenticación');
+              observer.error('Error: Login failed.');
             }
           },
           error: err => {
@@ -70,9 +73,9 @@ export class StrapiAuthService extends AuthService {
   }
 
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<void> {
-    let _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
-    let nickname = _agentInfo.nickname ?? registerInfo.username;
-    let _registerInfo: StrapiRegisterPayload = {
+    const _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
+    const nickname = (registerInfo as AgentRegisterInfo).nickname ?? registerInfo.username;
+    const _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.username,
       email: registerInfo.email,
       password: registerInfo.password ?? ""

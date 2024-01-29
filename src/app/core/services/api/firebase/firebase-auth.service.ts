@@ -1,7 +1,7 @@
 import { Observable, from, lastValueFrom, map, of, throwError } from 'rxjs';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
-import { AgentRegisterInfo, Role, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { AgentRegisterInfo, Role, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthUser, AuthUserOptions } from 'src/app/core/models/globetrotting/auth.interface';
 import { inject } from '@angular/core';
@@ -18,12 +18,15 @@ export class FirebaseAuthService extends AuthService {
     super();
   }
 
-  public login(credentials: FirebaseUserCredentials): Observable<void> {
+  public login(credentials: UserCredentials): Observable<void> {
     return new Observable<any>(observer => {
-      this.firebaseSvc.connectUserWithEmailAndPassword(credentials.email, credentials.password ?? '')
+      if (!credentials.email || !credentials.password) {
+        observer.error('Error: The provided credentials are incorrect or incomplete.');
+      }
+      this.firebaseSvc.connectUserWithEmailAndPassword(credentials.email!, credentials.password!)
         .then((credentials: FirebaseUserCredential | null) => {
           if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
-            observer.error('Cannot login');
+            observer.error('Error: Login failed.');
           } else {
             observer.next();
             observer.complete();
@@ -50,7 +53,7 @@ export class FirebaseAuthService extends AuthService {
               const doc: FirebaseDocument = await this.firebaseSvc.getDocument(`${uid}`)
               const authUser: FirebaseAuthUser = {
                 uid: doc.id,
-                role: doc.data['role']['type'] as Role,
+                role: doc.data['role'] as Role,
                 nickname: doc.data['nickname'],
                 name: doc.data['name'],
                 surname: doc.data['surname'],

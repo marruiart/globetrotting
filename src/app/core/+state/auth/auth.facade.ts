@@ -1,39 +1,47 @@
 import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import { UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
-import * as AuthAction from './auth.actions'
+import * as AuthActions from './auth.actions'
 import * as AuthSelector from './auth.selectors'
 
 @Injectable()
 export class AuthFacade {
 
     private readonly store = inject(Store);
-    userId$ = this.store.pipe(select(AuthSelector.selectCurrentUserId));
     isLogged$ = this.store.pipe(select(AuthSelector.selectLoggedState));
-    role$ = this.store.pipe(select(AuthSelector.selectCurrentRole));
+    authUser$ = this.store.pipe(select(AuthSelector.selectAuthUser));
+    userId$ = this.store.pipe(select(AuthSelector.selectUserId));
+    role$ = this.store.pipe(select(AuthSelector.selectRole));
+    error$ = this.store.pipe(select(AuthSelector.selectError));
+    currentUser$ = this.store.pipe(select(AuthSelector.selectUser));
+    nickname$ = this.store.pipe(select(AuthSelector.selectUserNickname));
+    avatar$ = this.store.pipe(select(AuthSelector.selectUserAvatar));
+    bookings$ = this.store.pipe(select(AuthSelector.selectUserBookings));
+    favorites$ = this.store.pipe(select(AuthSelector.selectUserFavorites));
 
     init() {
-        this.store.dispatch(AuthAction.init());
+        this.store.dispatch(AuthActions.init());
     }
 
     login(credentials: UserCredentials) {
-        this.store.dispatch(AuthAction.login({ credentials: credentials }));
+        this.store.dispatch(AuthActions.login({ credentials: credentials }));
     }
 
     saveUserUid(uid: string) {
-        this.store.dispatch(AuthAction.assignUid({ uid: `user#${uid}` }));
+        this.store.dispatch(AuthActions.assignUid({ user_id: uid }));
+        this.init();
     }
 
     setLoginStateTrue() {
-        this.store.dispatch(AuthAction.loginSuccess());
+        this.store.dispatch(AuthActions.loginSuccess());
     }
 
     logout() {
-        this.store.dispatch(AuthAction.logout());
+        this.store.dispatch(AuthActions.logout());
     }
 
     register(registerInfo: UserRegisterInfo) {
-        this.store.dispatch(AuthAction.register({ registerInfo: registerInfo }));
+        this.store.dispatch(AuthActions.register({ registerInfo: registerInfo }));
     }
 
 }

@@ -1,17 +1,15 @@
 import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, map, of, switchMap, tap, throwError, zip } from "rxjs";
-import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
+import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
+import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { PaginatedAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { Client } from "src/app/core/models/globetrotting/client.interface";
-import { ExtUser, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, User, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
 import { AgentService } from "src/app/core/services/api/agent.service";
 import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 import { FormType } from "src/app/shared/components/user-form/user-form.component";
-
 
 interface TableRow {
   id: number,
@@ -23,7 +21,6 @@ interface TableRow {
   username: string,
   nickname: string
 }
-
 
 @Component({
   selector: 'app-agents-management',
@@ -37,7 +34,7 @@ export class AgentsManagementPage {
   public selectedAgent: TableRow | null = null;
   public isUpdating: boolean = false;
   public formType!: FormType;
-  public currentUser: Client | TravelAgent | null = null;
+  public currentUser: User | null = null; // TODO clases de esto
   public showForm: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
@@ -46,7 +43,7 @@ export class AgentsManagementPage {
     private agentsSvc: AgentService,
     private userSvc: UsersService,
     private authSvc: AuthService,
-    private userFacade: UserFacade,
+    private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -55,7 +52,7 @@ export class AgentsManagementPage {
     this.subsSvc.addSubscriptions([
       {
         component: 'AgentsManagementPage',
-        sub: this.userFacade.currentSpecificUser$
+        sub: this.authFacade.currentUser$
           .subscribe(currentUser => {
             this.currentUser = currentUser;
           })
@@ -85,7 +82,7 @@ export class AgentsManagementPage {
    * @returns an observable of an array of TableRow.
    */
   private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.type == 'AGENT') {
+    if (this.currentUser?.role === 'AGENT') {
       return this.agentsSvc.agentsPage$.pipe(
         switchMap((page: PaginatedAgent | null): Observable<TableRow[]> => this.mapAgentsRows(page?.data ?? [])),
         catchError(err => of(err))

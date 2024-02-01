@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom } from 'rxjs';
-import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
@@ -32,15 +32,15 @@ export class DestinationsPage implements OnInit, OnDestroy {
   constructor(
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
-    public userFacade: UserFacade,
+    public authFacade: AuthFacade,
     public favsSvc: FavoritesService,
     public bookingsSvc: BookingsService,
     private datePipe: DatePipe
   ) {
-    this.subsSvc.addSubscriptions([
+    /* this.subsSvc.addSubscriptions([
       {
         component: 'DestinationsPage',
-        sub: this.userFacade.currentUser$.subscribe(res => {
+        sub: this.authFacade.currentUser$.subscribe(res => {
           this.role = res.role;
           if (res.specificUser) {
             this.specificUserId = res.specificUser.id
@@ -49,7 +49,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
             }
           }
         })
-      }])
+      }]) */
   }
 
   ngOnInit() {

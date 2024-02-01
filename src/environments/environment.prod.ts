@@ -1,4 +1,9 @@
-import { BACKEND } from "./environment";
+export type Strapi = 'Strapi';
+export type Firebase = 'Firebase';
+export type BackendTypes = Firebase | Strapi;
+
+export type Backend = Strapi;
+export const BACKEND: BackendTypes = 'Strapi';
 
 export const environment = {
   production: true,

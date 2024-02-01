@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthFacade } from '../+state/auth/auth.facade';
-import { BehaviorSubject, catchError, map, of, switchMap, zip } from 'rxjs';
+import { BehaviorSubject, catchError, of, switchMap, zip } from 'rxjs';
 import { CustomTranslateService } from './custom-translate.service';
-import { UserFacade } from '../+state/load-user/load-user.facade';
 
 interface CustomMenu {
   public: any[],
@@ -115,11 +114,10 @@ export class MenuService {
 
   constructor(
     private authFacade: AuthFacade,
-    private userFacade: UserFacade,
     private translate: CustomTranslateService
   ) {
     this.translate.language$.pipe(
-      switchMap((_: string) => this.userFacade.nickname$.pipe(
+      switchMap((_: string) => this.authFacade.nickname$.pipe(
         switchMap(nickname => this.selectMenu(nickname)),
         catchError(err => of(err)))),
       catchError(err => of(err)))

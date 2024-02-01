@@ -19,7 +19,7 @@
               {{ "bookingsPage.tableHeader" | translate | uppercase }}
             </div>
             <div
-              *ngIf="currentUser?.type == 'AGENT'"
+              *ngIf="currentUser?.role == 'AGENT'"
               styleClass="table-caption__th"
             >
               <p-button
@@ -115,13 +115,13 @@
                     icon="pi pi-check"
                   ></p-tag>
                   <p-tag
-                    *ngIf="!booking[col.field] && currentUser?.type == 'AUTHENTICATED'"
+                    *ngIf="!booking[col.field] && currentUser?.role == 'AUTHENTICATED'"
                     [value]="'bookingsPage.unconfirmedTag' | translate | uppercase"
                     severity="danger"
                     [rounded]="true"
                   ></p-tag>
                   <p-button
-                    *ngIf="!booking[col.field] && currentUser?.type == 'AGENT'"
+                    *ngIf="!booking[col.field] && currentUser?.role == 'AGENT'"
                     [label]="'bookingsPage.confirmBtn' | translate | uppercase"
                     icon="pi pi-thumbs-up"
                     styleClass="p-button-secondary p-button-rounded light-tag"

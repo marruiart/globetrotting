@@ -170,7 +170,7 @@ export class UserFormComponent implements OnDestroy {
         name: this.userForm.value.name,
         surname: this.userForm.value.surname
       },
-      specificUser: null
+      specificUser: null // TODO change this
     };
     this.onUpdateProfileClicked.emit(fullUser);
   }

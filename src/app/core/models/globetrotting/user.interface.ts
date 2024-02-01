@@ -1,10 +1,11 @@
 import { Backend, Firebase } from "src/environments/environment"
 import { TravelAgent } from "./agent.interface"
-import { Client } from "./client.interface"
+import { Client, ClientBooking, ClientFavDestination } from "./client.interface"
 import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
 import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-interfaces/firebase-user.interface"
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
+import { Booking } from "./booking.interface"
 
 export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
 
@@ -81,3 +82,36 @@ export interface FullUser {
     extendedUser: ExtUser | null
     specificUser: Client | TravelAgent | null
 }
+
+export type ClientUser = {
+    role: 'AUTHENTICATED',
+    user_id: string | number,
+    ext_id?: number,
+    specific_id?: number,
+    username: string,
+    email: string,
+    nickname: string,
+    avatar?: any,
+    name?: string,
+    surname?: string,
+    age?: string,
+    bookings: ClientBooking[],
+    favorites: ClientFavDestination[]
+}
+
+export type AgentUser = {
+    role: 'AGENT' | 'ADMIN',
+    user_id: string | number,
+    ext_id?: number,
+    specific_id?: number,
+    username: string,
+    email: string,
+    nickname: string,
+    avatar?: any,
+    name: string,
+    surname: string,
+    age?: string,
+    bookings: Booking[]
+}
+
+export type User = AgentUser | ClientUser

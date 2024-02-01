@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
-import { UserFacade } from '../../+state/load-user/load-user.facade';
 import { DataService } from './data.service';
 
 @Injectable({
@@ -23,8 +22,7 @@ export class AgentService extends ApiService {
 
   constructor(
     private dataSvc: DataService,
-    private mapSvc: MappingService,
-    private userFacade: UserFacade
+    private mapSvc: MappingService
   ) {
     super();
   }
@@ -61,7 +59,6 @@ export class AgentService extends ApiService {
         .pipe(map(res => {
           if (res.data.length > 0) {
             let agentMe = res.data[0];
-            this.userFacade.updateSpecificUser(agentMe);
             return agentMe;
           } else {
             return null;

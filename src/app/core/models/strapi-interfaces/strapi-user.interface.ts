@@ -1,6 +1,5 @@
 import { StrapiMedia } from "./strapi-media.interface";
 import { StrapiResponse } from "./strapi-data.interface";
-import { Role } from "../globetrotting/user.interface";
 
 export interface StrapiUserCredentials {
     /**
@@ -18,24 +17,13 @@ export interface StrapiUserRegisterInfo {
     password: string | null
 }
 
-export interface StrapiAuthUser {
-    user_id: number,
-    role: Role
-}
-
-export interface StrapiUser extends StrapiDataUser {
-    id: number
-}
-
 export interface StrapiDataUser {
     username: string,
     email: string
 }
 
-export interface StrapiMe extends StrapiUser {
-    role: {
-        type: string
-    }
+export interface StrapiUser extends StrapiDataUser {
+    id: number
 }
 
 /**

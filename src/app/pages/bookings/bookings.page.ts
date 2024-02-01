@@ -1,12 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
-import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
-import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { Booking, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
-import { Client } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
+import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { AgentService } from 'src/app/core/services/api/agent.service';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
@@ -47,7 +45,7 @@ interface AdminTableRow extends TableRow {
 export class BookingsPage {
   public destinations: Destination[] = [];
   public clientsExtUsers: ExtUser[] = [];
-  public currentUser: Client | TravelAgent | null = null;
+  public currentUser: User | null = null; // TODO clases de esto
   private _bookingTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
   public bookingTable$: Observable<TableRow[]> = this._bookingTable.asObservable();
   public data: ClientTableRow[] = [];
@@ -67,7 +65,7 @@ export class BookingsPage {
     private usersSvc: UsersService,
     private agentSvc: AgentService,
     private clientSvc: ClientService,
-    private userFacade: UserFacade,
+    private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
     private translate: CustomTranslateService,
     private datePipe: DatePipe
@@ -76,7 +74,7 @@ export class BookingsPage {
     this.subsSvc.addSubscriptions([
       {
         component: 'BookingsPage',
-        sub: this.userFacade.currentSpecificUser$.subscribe(currentUser => {
+        sub: this.authFacade.currentUser$.subscribe(currentUser => {
           this.currentUser = currentUser;
         })
       },
@@ -125,12 +123,12 @@ export class BookingsPage {
    * @returns an observable of an array of TableRow.
    */
   private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.type == 'AUTHENTICATED') {
+    if (this.currentUser?.role == 'AUTHENTICATED') {
       return this.bookingsSvc.userBookings$.pipe(
         switchMap((bookings: Booking[]): Observable<TableRow[]> => this.mapClientBookingsRows(bookings)),
         catchError(err => of(err))
       )
-    } else if (this.currentUser?.type == 'AGENT') {
+    } else if (this.currentUser?.role == 'AGENT') {
       return this.bookingsSvc.allBookings$.pipe(
         switchMap((bookings: Booking[]): Observable<TableRow[]> => this.mapAgentBookingsRows(bookings)),
         catchError(err => of(err))
@@ -164,14 +162,14 @@ export class BookingsPage {
   }
 
   private translateMenuItems(bookingId: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
-    if (this.currentUser?.type == 'AUTHENTICATED') {
+    if (this.currentUser?.role == 'AUTHENTICATED') {
       return [
         { field: 'dates', header: dates },
         { field: 'travelers', header: travelers },
         { field: 'isConfirmed', header: confirmationState },
         { field: 'agentName', header: agent }
       ]
-    } else if (this.currentUser?.type == 'AGENT') {
+    } else if (this.currentUser?.role == 'AGENT') {
       return [
         { field: 'booking_id', header: bookingId },
         { field: 'clientName', header: client },
@@ -185,7 +183,7 @@ export class BookingsPage {
   }
 
   private mapTableRow(user: ExtUser | null, booking: Booking, destination: Destination): TableRow {
-    if (this.currentUser?.type == 'AUTHENTICATED') {
+    if (this.currentUser?.role == 'AUTHENTICATED') {
       const clientTableRow: ClientTableRow = {
         booking_id: booking.id,
         destination_id: destination.id ?? 0,
@@ -281,7 +279,7 @@ export class BookingsPage {
       data: {
         id: id,
         isConfirmed: true,
-        agent_id: this.currentUser?.id
+        agent_id: this.currentUser?.specific_id
       }
     }
     lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking))
@@ -297,7 +295,7 @@ export class BookingsPage {
       end: this.datePipe.transform(booking.end, 'yyyy-MM-dd'),
       travelers: booking.travelers,
       isConfirmed: true,
-      agent_id: this.currentUser?.id,
+      agent_id: this.currentUser?.specific_id,
       client_id: booking.client_id,
       destination_id: booking.destination_id
     }

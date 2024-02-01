@@ -8,7 +8,6 @@ import { DestinationCardComponent } from './components/destination-card/destinat
 import { VirtualItemsPipe } from './pipes/virtual-items.pipe';
 import { AuthModule } from '../core/+state/auth/auth.module';
 import { FavPipe } from './pipes/fav.pipe';
-import { UserModule } from '../core/+state/load-user/load-user.module';
 import { BookingFormComponent } from './components/booking-form/booking-form.component';
 import { DestinationFormComponent } from './components/destination-form/destination-form.component';
 import { UserFormComponent } from './components/user-form/user-form.component';
@@ -45,7 +44,6 @@ import { ClientSelectableItemComponent } from './components/client-selectable/cl
     ReactiveFormsModule,
     PrimengModule,
     AuthModule,
-    UserModule,
     TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,

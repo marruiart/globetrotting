@@ -1,10 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
-import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
-import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { Client } from "src/app/core/models/globetrotting/client.interface";
+import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { Destination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
+import { User } from "src/app/core/models/globetrotting/user.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
@@ -31,13 +30,13 @@ export class DestinationsManagementPage {
   public loading: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
-  public currentUser: Client | TravelAgent | null = null;
+  public currentUser: User | null = null; // TODO clases de esto
   public showEditForm: boolean = false;
   public selectedDestination: Destination | null = null;
 
   constructor(
     private destinationsSvc: DestinationsService,
-    private userFacade: UserFacade,
+    private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -48,7 +47,7 @@ export class DestinationsManagementPage {
     this.subsSvc.addSubscriptions([
       {
         component: 'DestinationsPage',
-        sub: this.userFacade.currentSpecificUser$
+        sub: this.authFacade.currentUser$
           .subscribe(currentUser => {
             this.currentUser = currentUser;
           })
@@ -78,7 +77,7 @@ export class DestinationsManagementPage {
 * @returns an observable of an array of TableRow.
 */
   private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.type == 'AGENT') {
+    if (this.currentUser?.role == 'AGENT') {
       return this.destinationsSvc.destinationsPage$.pipe(
         switchMap((page: PaginatedDestination): Observable<TableRow[]> => this.mapDestinationsRows(page.data)),
         catchError(err => of(err))

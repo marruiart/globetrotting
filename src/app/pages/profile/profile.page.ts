@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable, catchError, lastValueFrom, of, switchMap } from 'rxjs';
-import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
+import { lastValueFrom } from 'rxjs';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { FullUser } from 'src/app/core/models/globetrotting/user.interface';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -15,7 +15,7 @@ export class ProfilePage {
   public user: FullUser | null = null;
 
   constructor(
-    private userFacade: UserFacade,
+    private authFacade: AuthFacade,
     private authSvc: AuthService,
     private subsSvc: SubscriptionsService,
     private userSvc: UsersService
@@ -24,7 +24,7 @@ export class ProfilePage {
 
     /*this.subsSvc.addSubscription({
       component: "ProfilePage",
-      sub: this.userFacade.currentUser$.pipe(
+      sub: this.authFacade.currentUser$.pipe(
         switchMap((currentUser): Observable<FullUser | null> => {
           if (currentUser.user_id) {
             return this.authSvc.getUserIdentifiers(currentUser.user_id).pipe(

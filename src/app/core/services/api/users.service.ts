@@ -29,13 +29,13 @@ export class UsersService {
   ) { }
 
   public getAllUsers(): Observable<ExtUser[]> {
-    return this.dataSvc.obtainAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
+    return this.dataSvc.obtainAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapExtUsers).pipe(tap(res => {
       this._users.next(res);
     }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
   }
 
   public getUser(id: number): Observable<ExtUser> {
-    return this.dataSvc.obtain<ExtUser>(this.path, id, this.mapSvc.mapUser, this.queries)
+    return this.dataSvc.obtain<ExtUser>(this.path, id, this.mapSvc.mapExtUser, this.queries)
       .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
   }
 
@@ -68,7 +68,7 @@ export class UsersService {
   }
 
   public addUser(user: NewExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.dataSvc.send<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.dataSvc.send<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapExtUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
@@ -76,7 +76,7 @@ export class UsersService {
   }
 
   public updateUser(user: ExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.dataSvc.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+    return this.dataSvc.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapExtUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
@@ -85,7 +85,7 @@ export class UsersService {
 
   public deleteUser(id: number): Observable<ExtUser> {
     const queries = {}
-    return this.dataSvc.delete<ExtUser>(this.path, this.mapSvc.mapUser, id, {}).pipe(tap(_ => {
+    return this.dataSvc.delete<ExtUser>(this.path, this.mapSvc.mapExtUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();
     }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
   }

@@ -8,10 +8,10 @@ import { Destination } from 'src/app/core/models/globetrotting/destination.inter
 })
 export class FavPipe implements PipeTransform {
 
-  transform(destinations: Destination[], client: Client | TravelAgent | null): Destination[] {
+  transform(destinations: Destination[], client: any | null): Destination[] { // TODO clases de esto
     if (client?.type == 'AUTHENTICATED') {
       destinations.map(destination => {
-        return destination["fav"] = client.favorites.reduce((prev, fav) => prev || fav.destination_id == destination.id, false) ?? false;
+        return destination["fav"] = client.favorites.reduce((prev: any, fav: { destination_id: number; }) => prev || fav.destination_id == destination.id, false) ?? false;
       })
     }
     return destinations;

@@ -4,7 +4,7 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, Role } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -15,6 +15,8 @@ import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-clien
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
+import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-auth.interface';
 
 export class StrapiMappingService extends MappingService {
 
@@ -59,10 +61,18 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
+  // AUTH & USER
+  public mapAuthUser = (res: StrapiMeResponse): AuthUser => (
+    {
+      user_id: res.id,
+      role: res.role.type.toUpperCase() as Role
+    }
+  );
+
   // DESTINATIONS
 
-  private mapDestinationData(data: StrapiData<StrapiDestination>): Destination {
-    return {
+  private mapDestinationData = (data: StrapiData<StrapiDestination>): Destination => (
+    {
       id: data.id,
       name: data.attributes.name,
       type: data.attributes.type,
@@ -71,7 +81,7 @@ export class StrapiMappingService extends MappingService {
       image: data.attributes.image?.data ? this.mapImage(data.attributes.image) : undefined,
       description: data.attributes.description
     }
-  }
+  )
 
   public mapDestination = (res: StrapiResponse<StrapiDestination>): Destination =>
     this.mapDestinationData(res.data);
@@ -97,10 +107,10 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
-  public mapUser = (res: StrapiResponse<StrapiExtendedUser>): ExtUser =>
+  public mapExtUser = (res: StrapiResponse<StrapiExtendedUser>): ExtUser =>
     this.mapUserData(res.data);
 
-  public mapUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): ExtUser[] =>
+  public mapExtUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): ExtUser[] =>
     this.extractArrayData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
 
   public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedExtUser =>

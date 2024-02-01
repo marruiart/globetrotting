@@ -18,7 +18,6 @@ import { MappingServiceFactory } from './core/factories/mapping-service.factory'
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/+state/auth/auth.module';
-import { UserModule } from './core/+state/load-user/load-user.module';
 import { DatePipe } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -50,8 +49,7 @@ import { DataServiceFactory } from './core/factories/data-service.factory';
         deps: [HttpClient]
       }
     }),
-    AuthModule,
-    UserModule
+    AuthModule
   ],
   providers: [
     // PrimeNg

@@ -1,69 +1,49 @@
 import { createReducer, on } from '@ngrx/store';
 import * as AuthAction from './auth.actions';
-import { BACKEND, Backend, BackendTypes, Firebase, Strapi } from 'src/environments/environment';
+import { Backend, Firebase } from 'src/environments/environment';
 import { Role } from '../../models/globetrotting/user.interface';
-import { AuthUser } from '../../models/globetrotting/auth.interface';
-import { FirebaseAuthUser } from '../../models/firebase-interfaces/firebase-user.interface';
-import { StrapiAuthUser } from '../../models/strapi-interfaces/strapi-user.interface';
-import { isType } from '../../utilities/utilities';
+import { ClientBooking, ClientFavDestination } from '../../models/globetrotting/client.interface';
+import { Booking } from '../../models/globetrotting/booking.interface';
 
 export const AUTH_FEATURE_KEY = 'auth'
 
-
-export type FirebaseAuthState = {
+export type AuthState = {
     isLogged: boolean,
+    user_id: (string | number) | null,
+    ext_id?: number,
+    specific_id?: number,
     role: Role | null,
-    uid: string | null,
+    nickname: string,
+    email: string,
+    avatar?: any,
+    name?: string,
+    surname?: string,
+    age?: string,
+    bookings?: ClientBooking[] | Booking[],
+    favorites?: ClientFavDestination[]
     error: any | null
 }
 
-export type StrapiAuthState = {
-    isLogged: boolean,
-    role: Role | null,
-    user_id: number | null,
-    error: any | null
-}
-
-export type AuthState = Backend extends Firebase ? FirebaseAuthState : StrapiAuthState;
-
-export const initialState: FirebaseAuthState | StrapiAuthState = (BACKEND === 'Firebase') ? {
+export const initialState: AuthState = {
     isLogged: false,
-    role: null,
-    uid: null,
-    error: null
-} : {
-    isLogged: false,
-    role: null,
     user_id: null,
+    nickname: '',
+    email: '',
+    role: null,
     error: null
 };
 
-export const authReducer = isType<FirebaseAuthState>(initialState) ? createReducer(
+export const authReducer = createReducer(
     initialState,
-    on(AuthAction.init, (state) => ({ ...state })),
-    on(AuthAction.login, (state) => ({ ...state })),
-    on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true })),
+    on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true, error: null })),
     on(AuthAction.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
-    on(AuthAction.assignUid, (state, { uid }) => ({ ...state, isLogged: true, uid: uid, error: null })),
-    on(AuthAction.assignRole, (state) => ({ ...state })),
-    on(AuthAction.assignRoleSuccess, (state, { user }) => ({ ...state, isLogged: true, role: user.role, uid: (user as FirebaseAuthUser).uid, error: null })),
-    on(AuthAction.logout, (state) => ({ ...state })),
-    on(AuthAction.logoutSuccess, (state) => ({ ...state, isLogged: false, role: null, uid: null, error: null })),
-    on(AuthAction.logoutFailure, (state, { error }) => ({ ...state, error: error })),
-    on(AuthAction.register, (state) => ({ ...state })),
-    on(AuthAction.registerSuccess, (state) => ({ ...state, isLogged: true })),
-    on(AuthAction.registerFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, uid: null, error: error }))
-) : createReducer(
-    initialState,
-    on(AuthAction.init, (state) => ({ ...state })),
-    on(AuthAction.login, (state) => ({ ...state })),
-    on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true })),
-    on(AuthAction.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
-    on(AuthAction.assignRoleSuccess, (state, { user }) => ({ ...state, isLogged: true, role: user.role, user_id: (user as StrapiAuthUser).user_id, error: null })),
+    on(AuthAction.assignUid, (state, { user_id }) => ({ ...state, isLogged: true, user_id: user_id, error: null })),
+    on(AuthAction.assignUserSuccess, (state, { user }) => ({ ...state, isLogged: true, nickname: user.nickname, role: user.role, user_id: (user.user_id as (Backend extends Firebase ? string : number)), error: null })), // TODO map all the user input
+    on(AuthAction.assignUserFailure, (state, { error }) => ({ ...state, error: error })),
     on(AuthAction.logout, (state) => ({ ...state })),
     on(AuthAction.logoutSuccess, (state) => ({ ...state, isLogged: false, role: null, user_id: null, error: null })),
     on(AuthAction.logoutFailure, (state, { error }) => ({ ...state, error: error })),
     on(AuthAction.register, (state) => ({ ...state })),
-    on(AuthAction.registerSuccess, (state) => ({ ...state, isLogged: true })),
+    on(AuthAction.registerSuccess, (state) => ({ ...state, isLogged: true, error: null })),
     on(AuthAction.registerFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error }))
 );

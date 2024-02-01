@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials, UserCredentialsOptions } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentials, UserCredentialsOptions, User } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, ClientFavDestination, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent } from '../../models/globetrotting/agent.interface';
+import { AuthUser } from '../../models/globetrotting/auth.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,13 @@ export abstract class MappingService {
 
   // Map to app
 
+  public abstract mapAuthUser(res: any): AuthUser
+
   public abstract mapDestination(res: any): Destination
   public abstract mapPaginatedDestinations(res: any): PaginatedDestination
 
-  public abstract mapUser(res: any): ExtUser
-  public abstract mapUsers(res: any): ExtUser[]
+  public abstract mapExtUser(res: any): ExtUser
+  public abstract mapExtUsers(res: any): ExtUser[]
   public abstract mapPaginatedUsers(res: any): PaginatedExtUser
   public abstract mapUserCredentials(res: any): UserCredentialsOptions
 

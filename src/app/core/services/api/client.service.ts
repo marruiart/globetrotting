@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { UserFacade } from '../../+state/load-user/load-user.facade';
 import { DataService } from './data.service';
+import { AuthFacade } from '../../+state/auth/auth.facade';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +22,7 @@ export class ClientService {
 
   constructor(
     private dataSvc: DataService,
-    private mapSvc: MappingService,
-    private userFacade: UserFacade
+    private mapSvc: MappingService
   ) { }
 
   public getAllClients(page: number | null = 1): Observable<PaginatedClient | null> {
@@ -64,7 +63,6 @@ export class ClientService {
         .pipe(map(res => {
           if (res.data.length > 0) {
             let clientMe = res.data[0];
-            this.userFacade.updateSpecificUser(clientMe);
             return clientMe;
           } else {
             return null;

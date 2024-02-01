@@ -1,21 +1,22 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { catchError, lastValueFrom, of, switchMap, tap, throwError } from 'rxjs';
-import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions, UserCredentials } from '../../../models/globetrotting/user.interface';
+import { catchError, lastValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
+import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions, UserCredentials, User, AgentUser, ClientUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiAuthUser, StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { AuthUserOptions } from 'src/app/core/models/globetrotting/auth.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
-import { NewClient } from 'src/app/core/models/globetrotting/client.interface';
-import { NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { Client, NewClient } from 'src/app/core/models/globetrotting/client.interface';
+import { NewTravelAgent, TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
 import { MappingService } from '../mapping.service';
 import { JwtService } from '../../auth/jwt.service';
 import { ApiService } from '../api.service';
 import { DataService } from '../data.service';
 import { environment } from 'src/environments/environment';
+import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-auth.interface';
 
 export class StrapiAuthService extends AuthService {
   private userSvc = inject(UsersService);
@@ -74,7 +75,7 @@ export class StrapiAuthService extends AuthService {
 
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<void> {
     const _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
-    const nickname = (registerInfo as AgentRegisterInfo).nickname ?? registerInfo.username;
+    const nickname = _agentInfo.nickname ?? registerInfo.username;
     const _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.username,
       email: registerInfo.email,
@@ -169,22 +170,64 @@ export class StrapiAuthService extends AuthService {
     return this.jwtSvc.destroyToken();
   }
 
-  public me(): Observable<AuthUserOptions> {
-    return new Observable<AuthUserOptions>(observer => {
-      this.dataSvc.obtainMe<StrapiMe>("/api/users/me").subscribe({
-        next: (res: StrapiMe) => {
-          let authUser: StrapiAuthUser = {
-            user_id: res.id,
-            role: res.role.type.toUpperCase() as Role
+  public me(): Observable<User> {
+    return this.dataSvc.obtainMe<StrapiMeResponse>("/api/users/me").pipe(
+      switchMap((me: StrapiMeResponse) => this.userSvc.extendedMe(me.id).pipe(
+        switchMap((extUser: ExtUser | null) => {
+          switch (me.role.type.toUpperCase()) {
+            case 'AGENT':
+            case 'ADMIN':
+              return this.agentSvc.agentMe(me.id).pipe(
+                map((agent: TravelAgent | null) => {
+                  if (agent) {
+                    let user: AgentUser = {
+                      role: agent.type,
+                      user_id: me.id,
+                      ext_id: extUser?.id,
+                      specific_id: agent.id,
+                      username: me.username,
+                      email: me.email,
+                      nickname: extUser?.nickname ?? me.username,
+                      avatar: extUser?.avatar,
+                      name: extUser?.name ?? '',
+                      surname: extUser?.surname ?? '',
+                      age: extUser?.age,
+                      bookings: agent.bookings
+                    }
+                    return user;
+                  } else {
+                    throw new Error('Error: Specific user not found.');
+                  }
+                }));
+            case 'AUTHENTICATED':
+              return this.clientSvc.clientMe(me.id).pipe(
+                map((client: Client | null) => {
+                  if (client) {
+                    let user: ClientUser = {
+                      role: client.type,
+                      user_id: me.id,
+                      ext_id: extUser?.id,
+                      specific_id: client.id,
+                      username: me.username,
+                      email: me.email,
+                      nickname: extUser?.nickname ?? me.username,
+                      avatar: extUser?.avatar,
+                      name: extUser?.name ?? '',
+                      surname: extUser?.surname ?? '',
+                      age: extUser?.age,
+                      bookings: client.bookings,
+                      favorites: client.favorites
+                    }
+                    return user;
+                  } else {
+                    throw new Error('Error: Specific user not found.');
+                  }
+                }));
+            default:
+              throw new Error('Error: User role is unknown.');
           }
-          observer.next(authUser);
-          observer.complete();
-        },
-        error: err => {
-          observer.error(err);
-        }
-      });
-    })
+        })
+      )))
   }
 
   public updateIdentifiers(user: StrapiUserCredentials): Observable<UserCredentialsOptions> {

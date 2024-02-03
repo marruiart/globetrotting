@@ -21,13 +21,9 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.init),
             switchMap(() => this.authFacade.isLogged$.pipe(
-                map(isLogged => {
-                    if (isLogged) {
-                        return AuthActions.assignUser();
-                    } else {
-                        return AuthActions.loginFailure({ error: null });
-                    }
-                }))))
+                map(isLogged => (isLogged) ? AuthActions.assignUser() : AuthActions.loginFailure({ error: null })),
+                catchError(error => of(AuthActions.assignUserFailure({ error: error })))
+            )))
     );
 
     login$ = createEffect(() =>

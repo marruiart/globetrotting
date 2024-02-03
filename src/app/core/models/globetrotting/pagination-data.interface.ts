@@ -2,9 +2,9 @@ export interface Pagination {
     prev?: number | null,
     page?: number,
     next: any | number | null,
-    pageSize: number,
+    pageSize?: number,
     pageCount?: number,
-    total: number
+    total?: number
 }
 export interface PaginatedData<T> {
     data: T[],

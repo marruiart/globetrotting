@@ -6,6 +6,13 @@ export interface FirebaseStorageFile {
     file: string
 };
 
+export interface FirebaseCollectionResponse {
+    name: string,
+    size?: number,
+    pageSize?: number,
+    docs: FirebaseDocument[]
+}
+
 export interface FirebaseDocument {
     id: string,
     data: DocumentData

@@ -20,8 +20,10 @@ export class VirtualItemsPipe implements PipeTransform, OnDestroy {
         component: 'VirtualItemsPipe',
         sub: this.destinationsSvc.destinationsPage$.subscribe({
           next: res => {
-            _destinations = Array.from({ length: res.pagination.total });
-            _destinations.splice(0, destinations.length, ...destinations);
+            if (res.pagination.total) {
+              _destinations = Array.from({ length: res.pagination.total });
+              _destinations.splice(0, destinations.length, ...destinations);
+            }
           },
           error: err => {
             console.error(err);

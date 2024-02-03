@@ -16,7 +16,7 @@ export class FirebaseDataService extends DataService {
         const pagPage = queries['pagination[page]'];
         const page = pagPage && pagPage != "1" ? pagPage as DocumentSnapshot: null;
         return from(this.firebaseSvc.getDocuments(collection, page)).pipe(map(res => {
-            return callback(res.docs);
+            return callback(res);
         }));
     }
 

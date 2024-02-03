@@ -10,15 +10,13 @@ import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, QuerySnapshot } from "firebase/firestore";
+import { FirebaseCollectionResponse } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
 
 export class FirebaseMappingService extends MappingService {
 
-    private extractPaginatedData<T>(res: any[]): PaginatedData<T> {
+    private extractPaginatedData<T>(res: FirebaseCollectionResponse): PaginatedData<T> {
         return {
-            data: res.map<T>(doc => {
-                const docData = doc.data();
-                return  { ...docData, ...{ id: doc.id } } as T
-            }),
+            data: res.docs.map(doc => doc.data as T),
             pagination: this.mapPagination(res)
         }
     }
@@ -36,11 +34,12 @@ export class FirebaseMappingService extends MappingService {
         }
     }
 
-    private mapPagination(res: any[]) {
+    private mapPagination(res: FirebaseCollectionResponse) {
         return {
-            next: res.length > 0 ? res[res.length - 1] as DocumentSnapshot<DocumentData> : null,
-            pageSize: res.length,
-            total: 3
+            next: res.docs.length == res.pageSize ? res.docs[res.docs.length - 1] as DocumentSnapshot<DocumentData> : null,
+            pageSize: res.pageSize,
+            pageCount: res.size && res.pageSize ? res.size / res.pageSize : undefined,
+            total: res.size
         }
     }
 
@@ -55,7 +54,7 @@ export class FirebaseMappingService extends MappingService {
         throw new Error("Method not implemented.");
     }
 
-    public mapPaginatedDestinations = (res: any): PaginatedDestination =>
+    public mapPaginatedDestinations = (res: FirebaseCollectionResponse): PaginatedDestination =>
         this.extractPaginatedData<Destination>(res);
 
     // USERS

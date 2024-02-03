@@ -4,7 +4,7 @@ import { initializeApp, getApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, QuerySnapshot, DocumentSnapshot, orderBy } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
-import { FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 
 @Injectable({
@@ -146,15 +146,33 @@ export class FirebaseService {
    * @param collectionName 
    * @returns 
    */
-  public getDocuments(collectionName: string, start: DocumentSnapshot | null = null): Promise<QuerySnapshot<DocumentData, DocumentData>> {
-    const pageSize = 1;
+  public getDocuments(collectionName: string, start: DocumentSnapshot | null = null, pageSize?: number): Promise<FirebaseCollectionResponse> {
     return new Promise(async (resolve, reject) => {
       if (!this._db) {
         reject({ msg: "Database is not connected" });
       }
-      let docQuery = start ? query(collection(this._db!, collectionName), startAfter(start), limit(pageSize)) : query(collection(this._db!, collectionName), limit(pageSize));
+      let size: number | undefined;
+      if (collectionName == 'destinations') {
+        const sizeCollection = await getDocs(collection(this._db!, 'destinations_size'));
+        size = sizeCollection.docs[0].data()['size'];
+      }
+      let docQuery = query(collection(this._db!, collectionName));
+      if (start && pageSize) {
+        docQuery = query(collection(this._db!, collectionName), startAfter(start), limit(pageSize))
+      } else if (start) {
+        docQuery = query(collection(this._db!, collectionName), startAfter(start))
+      } else if (pageSize) {
+        docQuery = query(collection(this._db!, collectionName), limit(pageSize))
+      }
       const querySnapshot = await getDocs(docQuery);
-      resolve(querySnapshot);
+      resolve({
+        name: collectionName,
+        size: size,
+        pageSize: pageSize,
+        docs: querySnapshot.docs.map<FirebaseDocument>(doc => {
+          return { id: doc.id, data: doc.data() }
+        })
+      });
     });
   }
 

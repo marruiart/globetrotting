@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
-import { getFirestore, addDoc, collection, updateDoc, doc, onSnapshot, getDoc, setDoc, query, where, getDocs, Unsubscribe, DocumentData, deleteDoc, Firestore } from "firebase/firestore";
+import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, QuerySnapshot, DocumentSnapshot, orderBy } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
-import { createUserWithEmailAndPassword, deleteUser, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth, User } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 
@@ -83,6 +83,12 @@ export class FirebaseService {
     return this.fileUpload(blob, 'image/jpeg', 'images', 'image', ".jpg");
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param data 
+   * @returns 
+   */
   public createDocument(collectionName: string, data: any): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._db)
@@ -95,6 +101,13 @@ export class FirebaseService {
     });
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param data 
+   * @param docId 
+   * @returns 
+   */
   public createDocumentWithId(collectionName: string, data: any, docId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this._db) {
@@ -109,6 +122,13 @@ export class FirebaseService {
     });
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param document 
+   * @param data 
+   * @returns 
+   */
   public updateDocument(collectionName: string, document: string, data: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
@@ -121,19 +141,29 @@ export class FirebaseService {
     });
   }
 
-  public getDocuments(collectionName: string): Promise<FirebaseDocument[]> {
+  /**
+   * 
+   * @param collectionName 
+   * @returns 
+   */
+  public getDocuments(collectionName: string, start: DocumentSnapshot | null = null): Promise<QuerySnapshot<DocumentData, DocumentData>> {
+    const pageSize = 1;
     return new Promise(async (resolve, reject) => {
-      if (!this._db)
-        reject({
-          msg: "Database is not connected"
-        });
-      const querySnapshot = await getDocs(collection(this._db!, collectionName));
-      resolve(querySnapshot.docs.map<FirebaseDocument>(doc => {
-        return { id: doc.id, data: doc.data() }
-      }));
+      if (!this._db) {
+        reject({ msg: "Database is not connected" });
+      }
+      let docQuery = start ? query(collection(this._db!, collectionName), startAfter(start), limit(pageSize)) : query(collection(this._db!, collectionName), limit(pageSize));
+      const querySnapshot = await getDocs(docQuery);
+      resolve(querySnapshot);
     });
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param document 
+   * @returns 
+   */
   public getDocument(collectionName: string, document: string): Promise<FirebaseDocument> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
@@ -152,21 +182,34 @@ export class FirebaseService {
     });
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param field 
+   * @param value 
+   * @returns 
+   */
   public getDocumentsBy(collectionName: string, field: string, value: any): Promise<FirebaseDocument[]> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Error: Database is not connected."
         });
-      const q = query(collection(this._db!, collectionName), where(field, "==", value));
 
-      const querySnapshot = await getDocs(q);
+      const docQuery = query(collection(this._db!, collectionName), where(field, "==", value));
+      const querySnapshot = await getDocs(docQuery);
       resolve(querySnapshot.docs.map<FirebaseDocument>(doc => {
         return { id: doc.id, data: doc.data() }
       }));
     });
   }
 
+  /**
+   * 
+   * @param collectionName 
+   * @param docId 
+   * @returns 
+   */
   public deleteDocument(collectionName: string, docId: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
@@ -267,7 +310,7 @@ export class FirebaseService {
   }
 
   public async connectUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
-    return new Promise<FirebaseUserCredential | null>(async (resolve, reject) => {
+    return new Promise<FirebaseUserCredential | null>(async (resolve, _) => {
       if (!this._auth)
         resolve(null);
       resolve({ user: await signInWithEmailAndPassword(this._auth!, email, password) });

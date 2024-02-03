@@ -4,6 +4,7 @@ import { Destination, NewDestination, PaginatedDestination } from '../../models/
 import { MappingService } from './mapping.service';
 import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 import { DataService } from './data.service';
+import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -27,12 +28,12 @@ export class DestinationsService {
     private mapSvc: MappingService
   ) { }
 
-  public getAllDestinations(page: number | null = 1): Observable<PaginatedDestination | null> {
+  public getAllDestinations(page: DocumentSnapshot<DocumentData> | number | null = 1): Observable<PaginatedDestination | null> {
     if (page == null) {
       return of(null);
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
-    _queries["pagination[page]"] = `${page}`;
+    _queries["pagination[page]"] = typeof page === 'number' ? `${page}` : page as DocumentSnapshot;
     return this.dataSvc.obtainAll<PaginatedDestination>(this.path, _queries, this.mapSvc.mapPaginatedDestinations).pipe(tap(page => {
       if (page.data.length > 0) {
         this.endOfData = false;
@@ -57,7 +58,7 @@ export class DestinationsService {
   }
 
   public getNextDestinationsPage() {
-    return this.getAllDestinations(this._destinationsPage.value.pagination.page + 1);
+    return this.getAllDestinations(this._destinationsPage.value.pagination.next);
   }
 
   public getDestination(id: number): Observable<Destination> {

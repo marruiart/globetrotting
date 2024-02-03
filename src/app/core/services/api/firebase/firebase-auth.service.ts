@@ -3,16 +3,16 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
 import { AgentRegisterInfo, AgentUser, ClientUser, Role, User, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
-import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { inject } from '@angular/core';
-import {  FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 
 export class FirebaseAuthService extends AuthService {
-  private firebaseSvc: FirebaseService = inject(FirebaseService);
   private authFacade: AuthFacade = inject(AuthFacade);
 
-  constructor() {
+  constructor(
+    private firebaseSvc: FirebaseService
+  ) {
     super();
   }
 
@@ -109,27 +109,27 @@ export class FirebaseAuthService extends AuthService {
             const role = doc.data['role'] as Role;
             let user: User; // TODO funciones de mapeo
             if (role === 'ADMIN' || role === 'AGENT') {
-                user = {
-                  role: 'AGENT',
-                  user_id: uid,
-                  username: doc.data['username'],
-                  email: doc.data['email'],
-                  nickname: doc.data['nickname'],
-                  name: doc.data['name'],
-                  surname: doc.data['surname'],
-                  bookings: doc.data['bookings'] ?? [],
-                } as AgentUser
-              } else {
-                user = {
-                  role: 'AUTHENTICATED',
-                  user_id: uid,
-                  username: doc.data['username'],
-                  email: doc.data['email'],
-                  nickname: doc.data['nickname'],
-                  bookings: doc.data['bookings'] ?? [],
-                  favorites: doc.data['favorites'] ?? []
-                } as ClientUser;
-              }
+              user = {
+                role: 'AGENT',
+                user_id: uid,
+                username: doc.data['username'],
+                email: doc.data['email'],
+                nickname: doc.data['nickname'],
+                name: doc.data['name'],
+                surname: doc.data['surname'],
+                bookings: doc.data['bookings'] ?? [],
+              } as AgentUser
+            } else {
+              user = {
+                role: 'AUTHENTICATED',
+                user_id: uid,
+                username: doc.data['username'],
+                email: doc.data['email'],
+                nickname: doc.data['nickname'],
+                bookings: doc.data['bookings'] ?? [],
+                favorites: doc.data['favorites'] ?? []
+              } as ClientUser;
+            }
             observer.next(user);
             observer.complete();
           } catch (err) {

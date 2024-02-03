@@ -37,19 +37,21 @@ export class DestinationsPage implements OnInit, OnDestroy {
     public bookingsSvc: BookingsService,
     private datePipe: DatePipe
   ) {
-    /* this.subsSvc.addSubscriptions([
+    this.subsSvc.addSubscriptions([
       {
         component: 'DestinationsPage',
         sub: this.authFacade.currentUser$.subscribe(res => {
-          this.role = res.role;
-          if (res.specificUser) {
-            this.specificUserId = res.specificUser.id
-            if (res.specificUser.type == 'AUTHENTICATED') {
-              this.favs = res.specificUser.favorites;
+          if (res) {
+            this.role = res.role;
+            if (res.specific_id) {
+              this.specificUserId = res.specific_id
+              if (res.role == 'AUTHENTICATED') {
+                this.favs = res.favorites;
+              }
             }
           }
         })
-      }]) */
+      }])
   }
 
   ngOnInit() {

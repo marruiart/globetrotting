@@ -20,15 +20,16 @@ import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-a
 
 export class StrapiAuthService extends AuthService {
   private userSvc = inject(UsersService);
-  private api = inject(ApiService);
   private dataSvc = inject(DataService);
   private mappingSvc = inject(MappingService);
   private clientSvc = inject(ClientService);
   private agentSvc = inject(AgentService);
   private authFacade = inject(AuthFacade);
-  private jwtSvc = inject(JwtService);
 
-  constructor() {
+  constructor(
+    private jwtSvc:JwtService,
+    private api:ApiService
+  ) {
     super();
     this.init();
   }
@@ -172,62 +173,73 @@ export class StrapiAuthService extends AuthService {
 
   public me(): Observable<User> {
     return this.dataSvc.obtainMe<StrapiMeResponse>("/api/users/me").pipe(
-      switchMap((me: StrapiMeResponse) => this.userSvc.extendedMe(me.id).pipe(
-        switchMap((extUser: ExtUser | null) => {
-          switch (me.role.type.toUpperCase()) {
-            case 'AGENT':
-            case 'ADMIN':
-              return this.agentSvc.agentMe(me.id).pipe(
-                map((agent: TravelAgent | null) => {
-                  if (agent) {
-                    let user: AgentUser = {
-                      role: agent.type,
-                      user_id: me.id,
-                      ext_id: extUser?.id,
-                      specific_id: agent.id,
-                      username: me.username,
-                      email: me.email,
-                      nickname: extUser?.nickname ?? me.username,
-                      avatar: extUser?.avatar,
-                      name: extUser?.name ?? '',
-                      surname: extUser?.surname ?? '',
-                      age: extUser?.age,
-                      bookings: agent.bookings
-                    }
-                    return user;
-                  } else {
-                    throw new Error('Error: Specific user not found.');
-                  }
-                }));
-            case 'AUTHENTICATED':
-              return this.clientSvc.clientMe(me.id).pipe(
-                map((client: Client | null) => {
-                  if (client) {
-                    let user: ClientUser = {
-                      role: client.type,
-                      user_id: me.id,
-                      ext_id: extUser?.id,
-                      specific_id: client.id,
-                      username: me.username,
-                      email: me.email,
-                      nickname: extUser?.nickname ?? me.username,
-                      avatar: extUser?.avatar,
-                      name: extUser?.name ?? '',
-                      surname: extUser?.surname ?? '',
-                      age: extUser?.age,
-                      bookings: client.bookings,
-                      favorites: client.favorites
-                    }
-                    return user;
-                  } else {
-                    throw new Error('Error: Specific user not found.');
-                  }
-                }));
-            default:
-              throw new Error('Error: User role is unknown.');
-          }
-        })
-      )))
+      switchMap((me: StrapiMeResponse) => {
+        if (me) {
+          return this.userSvc.extendedMe(me.id).pipe(
+            switchMap((extUser: ExtUser | null) => {
+              if (extUser) {
+                switch (me.role.type.toUpperCase()) {
+                  case 'AGENT':
+                  case 'ADMIN':
+                    return this.agentSvc.agentMe(me.id).pipe(
+                      map((agent: TravelAgent | null) => {
+                        if (agent) {
+                          let user: AgentUser = {
+                            role: agent.type,
+                            user_id: me.id,
+                            ext_id: extUser?.id,
+                            specific_id: agent.id,
+                            username: me.username,
+                            email: me.email,
+                            nickname: extUser?.nickname ?? me.username,
+                            avatar: extUser?.avatar,
+                            name: extUser?.name ?? '',
+                            surname: extUser?.surname ?? '',
+                            age: extUser?.age,
+                            bookings: agent.bookings
+                          }
+                          return user;
+                        } else {
+                          throw new Error('Error: Specific user not found.');
+                        }
+                      }), catchError(error => throwError(() => error)));
+                  case 'AUTHENTICATED':
+                    return this.clientSvc.clientMe(me.id).pipe(
+                      map((client: Client | null) => {
+                        if (client) {
+                          let user: ClientUser = {
+                            role: client.type,
+                            user_id: me.id,
+                            ext_id: extUser?.id,
+                            specific_id: client.id,
+                            username: me.username,
+                            email: me.email,
+                            nickname: extUser?.nickname ?? me.username,
+                            avatar: extUser?.avatar,
+                            name: extUser?.name ?? '',
+                            surname: extUser?.surname ?? '',
+                            age: extUser?.age,
+                            bookings: client.bookings,
+                            favorites: client.favorites
+                          }
+                          return user;
+                        } else {
+                          throw new Error('Error: Specific user not found.');
+                        }
+                      }), catchError(error => throwError(() => error)));
+                  default:
+                    throw new Error('Error: User role is unknown.');
+                }
+              } else {
+                throw new Error('Error: Extended user not found.');
+              }
+            }), catchError(error => throwError(() => error)))
+        }
+        else {
+          throw new Error('Error: There is no authenticated user.');
+        }
+      }),
+      catchError(error => throwError(() => error)));
   }
 
   public updateIdentifiers(user: StrapiUserCredentials): Observable<UserCredentialsOptions> {

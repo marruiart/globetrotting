@@ -7,10 +7,11 @@ export interface FirebaseStorageFile {
 };
 
 export interface FirebaseDocument {
-    id: string;
-    data: DocumentData;
+    id: string,
+    data: DocumentData
 }
 
 export interface FirebaseUserCredential {
     user: UserCredential
 }
+export type FirebaseArrayResponse<T> = [T];

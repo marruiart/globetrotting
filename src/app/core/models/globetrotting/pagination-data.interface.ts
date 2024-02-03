@@ -1,9 +1,9 @@
 export interface Pagination {
-    prev: number | null,
-    page: number,
-    next: number | null,
+    prev?: number | null,
+    page?: number,
+    next: any | number | null,
     pageSize: number,
-    pageCount: number,
+    pageCount?: number,
     total: number
 }
 export interface PaginatedData<T> {

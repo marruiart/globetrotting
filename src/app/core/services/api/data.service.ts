@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 })
 export abstract class DataService {
 
-  public abstract obtainAll<T>(path: string, queries: { [query: string]: string }, callback: ((res: T) => T)): Observable<T>;
+  public abstract obtainAll<T>(path: string, queries: { [query: string]: string }, callback: (<S>(res: S) => T)): Observable<T>;
 
   public abstract obtain<T>(path: string, id: number, callback: ((res: T) => T), queries: { [query: string]: string }): Observable<T>;
 

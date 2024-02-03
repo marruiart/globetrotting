@@ -1,3 +1,4 @@
+import { StrapiPagination } from "../strapi-interfaces/strapi-pagination.interface";
 import { Booking } from "./booking.interface";
 import { PaginatedData } from "./pagination-data.interface";
 

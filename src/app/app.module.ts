@@ -28,6 +28,8 @@ import { environment } from 'src/environments/environment';
 import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
 import { DataServiceFactory } from './core/factories/data-service.factory';
+import { FirebaseService } from './core/services/firebase/firebase.service';
+import { JwtService } from './core/services/auth/jwt.service';
 
 @NgModule({
   declarations: [
@@ -77,12 +79,12 @@ import { DataServiceFactory } from './core/factories/data-service.factory';
     },
     {
       provide: AuthService,
-      deps: ['backend'],
+      deps: ['backend', JwtService, ApiService, FirebaseService],
       useFactory: AuthServiceFactory
     },
     {
       provide: DataService,
-      deps: ['backend', ApiService],
+      deps: ['backend', ApiService, FirebaseService],
       useFactory: DataServiceFactory,  
     },
     {

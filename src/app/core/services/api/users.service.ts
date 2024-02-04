@@ -68,7 +68,7 @@ export class UsersService {
   }
 
   public addUser(user: NewExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.dataSvc.send<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapExtUser).pipe(tap(_ => {
+    return this.dataSvc.save<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapExtUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }

@@ -87,7 +87,7 @@ export class ClientService {
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
-    return this.dataSvc.send<Client>(this.path, this.body(client), this.mapSvc.mapClient)
+    return this.dataSvc.save<Client>(this.path, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
         if (updateObs) {
           this.getAllClients().subscribe();

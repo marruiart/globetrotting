@@ -63,7 +63,7 @@ export class BookingsService extends ApiService {
   }
 
   public addBooking(booking: NewBooking): Observable<Booking> {
-    return this.dataSvc.send<Booking>(this.path, this.body(booking), this.mappingSvc.mapBooking).pipe(tap(_ => {
+    return this.dataSvc.save<Booking>(this.path, this.body(booking), this.mappingSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
       this.updateCurrentUserBookings();
     }));

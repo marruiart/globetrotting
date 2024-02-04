@@ -66,7 +66,7 @@ export class DestinationsService {
   }
 
   public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
-    return this.dataSvc.send<Destination>(this.path, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
+    return this.dataSvc.save<Destination>(this.path, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }

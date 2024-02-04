@@ -74,7 +74,7 @@ export class AgentService extends ApiService {
   }
 
   public addAgent(agent: NewTravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
-    return this.dataSvc.send<TravelAgent>(this.path, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
+    return this.dataSvc.save<TravelAgent>(this.path, this.body(agent), this.mapSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
         this.getAllAgents().subscribe();
       }

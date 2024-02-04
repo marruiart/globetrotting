@@ -89,9 +89,7 @@ export class LocationsApiService {
   }
 
   public addLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {
-    return this.destinationsSvc.addDestination(this.mapNewLocation(location), updateLocationObs).pipe(tap(_ => {
-
-    }))
+    return this.destinationsSvc.addDestination(this.mapNewLocation(location), updateLocationObs);
   }
 
   public updateLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {

@@ -70,7 +70,7 @@ export class StrapiDataService extends DataService {
   }
 
 
-  public send<T>(
+  public save<T>(
     path: string,
     body: any,
     callback: ((res: T) => T) = (res => res)

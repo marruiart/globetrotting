@@ -9,7 +9,7 @@ import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser } from "s
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
-import { DocumentData, DocumentSnapshot, QuerySnapshot } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { FirebaseCollectionResponse } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
 
 export class FirebaseMappingService extends MappingService {
@@ -50,8 +50,8 @@ export class FirebaseMappingService extends MappingService {
 
     // DESTINATIONS
 
-    public override mapDestination(res: any): Destination {
-        throw new Error("Method not implemented.");
+    public override mapDestination(res: Destination): Destination {
+        return res;
     }
 
     public mapPaginatedDestinations = (res: FirebaseCollectionResponse): PaginatedDestination =>
@@ -125,8 +125,14 @@ export class FirebaseMappingService extends MappingService {
 
     // Map to API
 
-    public override mapDestinationPayload(destination: NewDestination) {
-        throw new Error("Method not implemented.");
+    public override mapDestinationPayload(destination: NewDestination): NewDestination {
+        let destinationPayload: any = {};
+        Object.entries(destination).forEach(([key, value]) => {
+            if (value) {
+                destinationPayload[key] = value;
+            }
+        })
+        return destinationPayload as NewDestination;
     }
     public override mapFavPayload(fav: NewFav) {
         throw new Error("Method not implemented.");

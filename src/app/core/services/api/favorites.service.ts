@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
 import { Fav, NewFav } from '../../models/globetrotting/fav.interface';
-import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { DataService } from './data.service';
@@ -12,6 +11,7 @@ import { DataService } from './data.service';
 export class FavoritesService {
   private path: string = "/api/favorites";
   private body = (fav: NewFav) => this.mapSvc.mapFavPayload(fav);
+  //mapFavPayload<T>(fav: NewFav): T;
 
   private _favs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
   public favs$: Observable<Fav[]> = this._favs.asObservable();
@@ -55,7 +55,7 @@ export class FavoritesService {
   }
 
   public addFav(fav: NewFav): Observable<Fav> {
-    return this.dataSvc.send<Fav>(this.path, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+    return this.dataSvc.save<Fav>(this.path, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();

@@ -30,6 +30,7 @@ import { ApiService } from './core/services/api/api.service';
 import { DataServiceFactory } from './core/factories/data-service.factory';
 import { FirebaseService } from './core/services/firebase/firebase.service';
 import { JwtService } from './core/services/auth/jwt.service';
+import { FirebaseModule } from './core/+state/firebase/firebase.module';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { JwtService } from './core/services/auth/jwt.service';
         deps: [HttpClient]
       }
     }),
-    AuthModule
+    AuthModule,
+    FirebaseModule
   ],
   providers: [
     // PrimeNg

@@ -6,7 +6,7 @@ export interface FirebaseStorageFile {
     file: string
 };
 
-export interface FirebaseCollectionResponse {
+export type FirebaseCollectionResponse = {
     name: string,
     size?: number,
     pageSize?: number,

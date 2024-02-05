@@ -232,7 +232,6 @@ export class UserFormComponent implements OnDestroy {
     switch (backend) {
       case 'Firebase':
         let firebaseRegister: FirebaseUserRegisterInfo = {
-          uid: '',
           username: this.userForm.value.username,
           email: this.userForm.value.email,
           password: this.userForm.value.password

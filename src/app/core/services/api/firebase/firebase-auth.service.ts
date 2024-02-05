@@ -94,8 +94,8 @@ export class FirebaseAuthService extends AuthService {
       username: userInfo.username,
       email: userInfo.email,
       nickname: userInfo.nickname,
-      name: userInfo.name,
-      surname: userInfo.surname
+      name: userInfo.name ?? '',
+      surname: userInfo.surname ?? ''
     }, userInfo.user_id.toString()));
   }
 

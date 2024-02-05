@@ -8,7 +8,6 @@ export interface FirebaseUserCredentials {
 }
 
 export interface FirebaseUserRegisterInfo {
-    uid: string,
     username: string,
     email: string,
     password: string | null

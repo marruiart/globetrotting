@@ -61,7 +61,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {
-    if (event && event.first != undefined && event.rows != undefined && event.rows != 0 && event.last != undefined) {
+    if (event && event.first !== undefined && event.rows !== undefined && event.rows != 0 && event.last !== undefined) {
       const visibleEnd = event.last >= this.destinationsSvc.itemsCount;
       if (visibleEnd) {
         this.loadNextPage();

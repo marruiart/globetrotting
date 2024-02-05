@@ -86,8 +86,8 @@ export interface FullUser {
 export type ClientUser = {
     role: 'AUTHENTICATED',
     user_id: string | number,
-    ext_id?: number,
-    specific_id?: number,
+    ext_id?: string | number,
+    specific_id?: string | number,
     username: string,
     email: string,
     nickname: string,
@@ -102,8 +102,8 @@ export type ClientUser = {
 export type AgentUser = {
     role: 'AGENT' | 'ADMIN',
     user_id: string | number,
-    ext_id?: number,
-    specific_id?: number,
+    ext_id?: string | number,
+    specific_id?: string | number,
     username: string,
     email: string,
     nickname: string,

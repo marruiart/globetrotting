@@ -24,7 +24,7 @@ export interface FavClickedEvent {
 export class DestinationsPage implements OnInit, OnDestroy {
   private _selectedDestination: Destination | null = null;
   public role: string | null = null;
-  public specificUserId: number | null = null;
+  public specificUserId: string | number | null = null;
   private favs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;

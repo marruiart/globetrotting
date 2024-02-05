@@ -16,14 +16,14 @@ export interface NewBooking {
      * created by a client, it is by default false.  
      */
     isConfirmed?: boolean,
-    agent_id?: number,
-    client_id: number,
-    destination_id: number
+    agent_id?: string | number,
+    client_id: string | number,
+    destination_id: string | number
 }
 
 export interface BookingForm {
-    client_id?: number,
-    destination_id?: number,
+    client_id?: string | number,
+    destination_id?: string | number,
     start: string,
     end: string,
     travelers: number

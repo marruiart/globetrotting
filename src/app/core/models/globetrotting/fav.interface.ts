@@ -1,14 +1,12 @@
 export interface Fav extends NewFav {
-    id: number
+    id: number | string
 }
 
+/**
+ * @property {number | string} [destination_id] The related destination id, admits nullable in case the field is not populated.
+ * @property {number | string} [client_id] The related client id, admits nullable in case the field is not populated.
+ */
 export interface NewFav {
-    /**
-     * Is the related destination id, admits nullable in case the field is not populated
-     */
-    destination_id?: number,
-    /**
-     * Is the related client id, admits nullable in case the field is not populated
-     */
-    client_id?: number
+    destination_id?: number | string,
+    client_id?: number | string
 }

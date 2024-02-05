@@ -16,13 +16,13 @@ export interface StrapiBooking {
     /**
     * Strapi client data as a response or client id (number) as payload 
     */
-    client: StrapiResponse<StrapiClient> | number,
+    client: StrapiResponse<StrapiClient> | string | number,
     /**
     * Strapi agent data as a response or agent id (number) as payload 
     */
-    agent?: StrapiResponse<StrapiAgent> | number,
+    agent?: StrapiResponse<StrapiAgent> | string | number,
     /**
     * Strapi destination data as a response or destination id (number) as payload 
     */
-    destination: StrapiResponse<StrapiDestination> | number,
+    destination: StrapiResponse<StrapiDestination> | string | number,
 }

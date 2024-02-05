@@ -69,7 +69,7 @@ export class AgentService extends ApiService {
     }
   }
 
-  public getAgent(id: number): Observable<TravelAgent> {
+  public getAgent(id: string | number): Observable<TravelAgent> {
     return this.dataSvc.obtain<TravelAgent>(this.path, id, this.mapSvc.mapAgent, this.queries);
   }
 

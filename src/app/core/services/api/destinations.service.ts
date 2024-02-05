@@ -61,7 +61,7 @@ export class DestinationsService {
     return this.getAllDestinations(this._destinationsPage.value.pagination.next);
   }
 
-  public getDestination(id: number): Observable<Destination> {
+  public getDestination(id: string | number): Observable<Destination> {
     return this.dataSvc.obtain<Destination>(this.path, id, this.mapSvc.mapDestination, this.queries);
   }
 

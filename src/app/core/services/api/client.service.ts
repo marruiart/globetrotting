@@ -73,7 +73,7 @@ export class ClientService {
     }
   }
 
-  public getClient(id: number): Observable<Client> {
+  public getClient(id: string | number): Observable<Client> {
     return this.dataSvc.obtain<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
       .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }

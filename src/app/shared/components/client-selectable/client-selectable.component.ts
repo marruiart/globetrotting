@@ -20,7 +20,7 @@ export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
 export class ClientSelectableComponent implements ControlValueAccessor {
   public clientsExtUsers: ExtUser[] = [];
   public name: string = '';
-  public selectedClient?: number;
+  public selectedClient?: number | string;
   public disabled: boolean = false;
   public showSelectable: boolean = false;
 

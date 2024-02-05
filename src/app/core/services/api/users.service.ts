@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { NewExtUser, ExtUser } from '../../models/globetrotting/user.interface';
-import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
 import { DataService } from './data.service';
@@ -25,8 +24,8 @@ export class UsersService {
 
   constructor(
     private dataSvc: DataService,
-    private mapSvc: MappingService
-  ) { }
+    private mapSvc: MappingService,
+  ) {  }
 
   public getAllUsers(): Observable<ExtUser[]> {
     return this.dataSvc.obtainAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapExtUsers).pipe(tap(res => {
@@ -43,12 +42,12 @@ export class UsersService {
     return this.extendedMe(id);
   }
 
-  public getClientUser(id: number | null): Observable<ExtUser | null> {
+  public getClientUser(id: number | string | null): Observable<ExtUser | null> {
     return this.extendedMe(id);
   }
 
   /** Returns the corresponding extended user with the id */
-  public extendedMe(id: number | null): Observable<ExtUser | null> {
+  public extendedMe(id: number | string | null): Observable<ExtUser | null> {
     if (id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${id}`;

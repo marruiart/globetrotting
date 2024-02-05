@@ -10,7 +10,7 @@ export interface StrapiClient {
     /**
     * Strapi user data as a response or user id (number) as payload 
     */
-    user: StrapiResponse<StrapiDataUser> | number
+    user: StrapiResponse<StrapiDataUser> | number | string
     bookings?: StrapiArrayResponse<StrapiBooking>,
     favorites?: StrapiArrayResponse<StrapiFav>,
 }

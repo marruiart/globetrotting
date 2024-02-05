@@ -31,6 +31,8 @@ import { DataServiceFactory } from './core/factories/data-service.factory';
 import { FirebaseService } from './core/services/firebase/firebase.service';
 import { JwtService } from './core/services/auth/jwt.service';
 import { FirebaseModule } from './core/+state/firebase/firebase.module';
+import { FavoritesService } from './core/services/api/favorites.service';
+import { FavoritesServiceFactory } from './core/factories/favorites-service.factory';
 
 @NgModule({
   declarations: [
@@ -88,6 +90,11 @@ import { FirebaseModule } from './core/+state/firebase/firebase.module';
       provide: DataService,
       deps: ['backend', ApiService, FirebaseService],
       useFactory: DataServiceFactory,  
+    },
+    {
+      provide: FavoritesService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: FavoritesServiceFactory,  
     },
     {
       provide: 'firebase-config',

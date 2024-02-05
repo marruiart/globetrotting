@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as FirebaseActions from './firebase.actions'
-import { catchError, concatMap, from, map, mergeMap, of, switchMap, tap } from "rxjs";
+import { catchError, map, of, switchMap, tap } from "rxjs";
 import { FirebaseService } from "../../services/firebase/firebase.service";
 import { Sizes } from "./firebase.reducer";
 

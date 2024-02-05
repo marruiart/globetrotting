@@ -43,9 +43,19 @@ export class FirebaseMappingService extends MappingService {
         }
     }
 
+    private removeEmptyValues(data: { [key: string]: any }): { [key: string]: any } {
+        let dataPayload: any = {};
+        Object.entries(data).forEach(([key, value]) => {
+            if (value) {
+                dataPayload[key] = value;
+            }
+        })
+        return dataPayload;
+    }
+
     // AUTH & USER
-    public override mapAuthUser(res: any): AuthUser {
-        throw new Error("Method not implemented.");
+    public override mapAuthUser(user: AuthUser): AuthUser {
+        return this.removeEmptyValues(user) as AuthUser;
     }
 
     // DESTINATIONS
@@ -74,11 +84,13 @@ export class FirebaseMappingService extends MappingService {
 
     // FAVORITES
 
-    public override mapFav(res: any): Fav {
-        throw new Error("Method not implemented.");
-    }
-    public override mapFavs(res: any): Fav[] {
-        throw new Error("Method not implemented.");
+    public override mapFav = (res: any): Fav => res;
+
+    public override mapFavs(res: FirebaseCollectionResponse): Fav[] {
+        let favs = res.docs[0].data['destinations'] as [];
+        return favs.map(fav => {
+            return { id: fav }
+        })
     }
     public override mapClientFavs(favs: Fav[]): ClientFavDestination[] {
         throw new Error("Method not implemented.");
@@ -126,16 +138,10 @@ export class FirebaseMappingService extends MappingService {
     // Map to API
 
     public override mapDestinationPayload(destination: NewDestination): NewDestination {
-        let destinationPayload: any = {};
-        Object.entries(destination).forEach(([key, value]) => {
-            if (value) {
-                destinationPayload[key] = value;
-            }
-        })
-        return destinationPayload as NewDestination;
+        return this.removeEmptyValues(destination) as NewDestination;
     }
-    public override mapFavPayload(fav: NewFav) {
-        throw new Error("Method not implemented.");
+    public override mapFavPayload(fav: NewFav): NewFav {
+        return fav;
     }
     public override mapExtendedUserPayload(user: NewExtUser) {
         throw new Error("Method not implemented.");

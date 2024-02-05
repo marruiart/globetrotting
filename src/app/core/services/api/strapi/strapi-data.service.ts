@@ -119,4 +119,8 @@ export class StrapiDataService extends DataService {
         return throwError(() => error);
       }));
   }
+
+  public override updateArray<T>(path: string, id: string | number, key: string, value: any, callback: (res: any) => T): Observable<T> {
+    throw new Error('Method not implemented.');
+  }
 }

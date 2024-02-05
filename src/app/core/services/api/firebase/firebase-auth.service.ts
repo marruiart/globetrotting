@@ -1,4 +1,4 @@
-import { Observable, from, map } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
 import { AgentRegisterInfo, AgentUser, ClientUser, Role, User, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
@@ -96,7 +96,10 @@ export class FirebaseAuthService extends AuthService {
       nickname: userInfo.nickname,
       name: userInfo.name ?? '',
       surname: userInfo.surname ?? ''
-    }, userInfo.user_id.toString()));
+    }, userInfo.user_id.toString())).pipe(
+      switchMap(_ => from(this.firebaseSvc.createDocumentWithId('favorites', { destinations: [] }, userInfo.user_id.toString()))),
+      catchError(error => of(error))
+    );
   }
 
   public me(): Observable<User> {

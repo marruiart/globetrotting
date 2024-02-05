@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, from, lastValueFrom, map, of, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
-import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, QuerySnapshot, DocumentSnapshot, orderBy } from "firebase/firestore";
+import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, QuerySnapshot, DocumentSnapshot, orderBy, FieldValue, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
@@ -9,7 +9,7 @@ import { AuthFacade } from '../../+state/auth/auth.facade';
 import { Sizes } from '../../+state/firebase/firebase.reducer';
 import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
 
-export type Collections = 'destinations' | 'sizes' | 'users';
+export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
 
 @Injectable({
   providedIn: 'root'
@@ -42,14 +42,16 @@ export class FirebaseService {
         this.authFacade.logout();
       }
     });
+    let isFirstTime = true;
     this.firebaseFacade.sizes$.subscribe({
       next: sizes => {
-        Object.entries(sizes).forEach(async ([collection, size]) => {
-          if (this._sizes[collection] ?? 0 != size) {
-            await this.updateDocument('sizes', collection, { size: size }).catch(err => console.error(err));
+        Object.entries(sizes).forEach(async ([collectionDoc, size]) => {
+          if (!isFirstTime && (this._sizes[collectionDoc] ?? 0 != size)) {
+            await this.updateDocument('sizes', collectionDoc, { size: size }).catch(err => console.error(err));
           }
           this._sizes = { ...sizes };
         })
+        isFirstTime = Object.keys(sizes).length === 0;
       }
     });
   }
@@ -157,6 +159,28 @@ export class FirebaseService {
         });
       const collectionRef = collection(this._db!, collectionName);
       await updateDoc(doc(collectionRef, document), data).then(_ => resolve()
+      ).catch(err => reject(err));
+    });
+  }
+
+  /**
+   * 
+   * @param collectionName 
+   * @param document 
+   * @param key 
+   * @param value 
+   * @returns 
+   */
+  public updateDocumentArray(collectionName: string, document: string, key: string, value: any): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      if (!this._db)
+        reject({
+          msg: "Database is not connected"
+        });
+      const collectionRef = collection(this._db!, collectionName);
+      await updateDoc(doc(collectionRef, document), {
+        [key]: arrayUnion(value)
+      }).then(_ => resolve()
       ).catch(err => reject(err));
     });
   }

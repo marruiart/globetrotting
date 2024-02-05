@@ -7,7 +7,7 @@ import { FullUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo, Us
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
-import { BACKEND, BackendTypes } from 'src/environments/environment';
+import { BACKEND, BackendTypes, environment } from 'src/environments/environment';
 
 export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
 const Pattern = {
@@ -25,6 +25,7 @@ export class UserFormComponent implements OnDestroy {
   private _subs: Subscription[] = []
   public userForm: FormGroup = this.fb.group({});;
   public errMsg: string = "";
+  public backend = environment.backend;
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
     this._formType = formType;

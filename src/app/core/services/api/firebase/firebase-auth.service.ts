@@ -113,7 +113,7 @@ export class FirebaseAuthService extends AuthService {
             let user: User; // TODO funciones de mapeo
             if (role === 'ADMIN' || role === 'AGENT') {
               user = {
-                role: 'AGENT',
+                role: role,
                 user_id: uid,
                 username: doc.data['username'],
                 email: doc.data['email'],

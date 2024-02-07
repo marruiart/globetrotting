@@ -25,7 +25,7 @@ export class UserFormComponent implements OnDestroy {
   private _subs: Subscription[] = []
   public userForm: FormGroup = this.fb.group({});;
   public errMsg: string = "";
-  public backend = environment.backend;
+  public backend = environment.backend as BackendTypes;
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
     this._formType = formType;

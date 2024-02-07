@@ -5,7 +5,7 @@ import { ClientFavDestination, Client, PaginatedClient, NewClient } from "src/ap
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
@@ -54,8 +54,8 @@ export class FirebaseMappingService extends MappingService {
     }
 
     // AUTH & USER
-    public override mapAuthUser(user: AuthUser): AuthUser {
-        return this.removeEmptyValues(user) as AuthUser;
+    public override mapUser(user: any): User {
+        return this.removeEmptyValues(user) as User;
     }
 
     // DESTINATIONS

@@ -89,17 +89,14 @@ export class FirebaseAuthService extends AuthService {
 
   private postRegister(userInfo: User): Observable<any> {
     // TODO FirebaseRegisterPayload
-    return from(this.firebaseSvc.createDocumentWithId('users', {
-      role: userInfo.role,
-      username: userInfo.username,
-      email: userInfo.email,
-      nickname: userInfo.nickname,
-      name: userInfo.name ?? '',
-      surname: userInfo.surname ?? ''
-    }, userInfo.user_id.toString())).pipe(
-      switchMap(_ => from(this.firebaseSvc.createDocumentWithId('favorites', { destinations: [] }, userInfo.user_id.toString()))),
-      catchError(error => of(error))
-    );
+    if (userInfo.role == 'AUTHENTICATED') {
+      return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`)).pipe(
+        switchMap(_ => from(this.firebaseSvc.createDocumentWithId('client_bookings', { destinations: [] }, `${userInfo.user_id}`))),
+        catchError(error => of(error))
+      );
+    } else {
+      return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`));
+    }
   }
 
   public me(): Observable<User> {

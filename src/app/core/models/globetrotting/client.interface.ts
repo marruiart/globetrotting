@@ -13,6 +13,10 @@ export interface NewClient {
 
 export type PaginatedClient = PaginatedData<Client>
 
+/**
+ * @property {number | string} fav_id
+ * @property {number | string} destination_id
+ */
 export interface ClientFavDestination {
     fav_id: number | string,
     destination_id: number | string

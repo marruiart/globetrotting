@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
-import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, QuerySnapshot, DocumentSnapshot, orderBy, FieldValue, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
@@ -167,11 +167,11 @@ export class FirebaseService {
    * 
    * @param collectionName 
    * @param document 
-   * @param key 
+   * @param field 
    * @param value 
    * @returns 
    */
-  public updateDocumentArray(collectionName: string, document: string, key: string, value: any): Promise<void> {
+  public updateDocumentObject(collectionName: string, document: string, field: string, value: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
@@ -179,7 +179,7 @@ export class FirebaseService {
         });
       const collectionRef = collection(this._db!, collectionName);
       await updateDoc(doc(collectionRef, document), {
-        [key]: arrayUnion(value)
+        [field]: arrayUnion(value)
       }).then(_ => resolve()
       ).catch(err => reject(err));
     });
@@ -398,6 +398,7 @@ export class FirebaseService {
 
       try {
         await updateDoc(documentRef, fieldUpdate);
+      
         resolve();
       } catch (error) {
         reject(error);

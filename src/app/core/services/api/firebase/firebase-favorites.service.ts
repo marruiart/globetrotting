@@ -1,9 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
+import { inject } from '@angular/core';
+import { BehaviorSubject, Observable, concatMap, of, switchMap, tap } from 'rxjs';
 import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { MappingService } from '../mapping.service';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { DataService } from '../data.service';
+import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 
 
 export class FirebaseFavoritesService {
@@ -53,7 +54,7 @@ export class FirebaseFavoritesService {
 
   public addFav(fav: NewFav): Observable<Fav> {
     if (fav.client_id) {
-      return this.dataSvc.updateArray<Fav>(this.path, fav.client_id, 'destinations', fav.destination_id, this.mapSvc.mapFav);
+      return this.dataSvc.updateObject<Fav>('//users', fav.client_id, 'favorites', fav, this.mapSvc.mapFav);
     } else {
       throw new Error('Error: User id was not provided');
     }
@@ -64,7 +65,20 @@ export class FirebaseFavoritesService {
   }
 
   public deleteFav(id: number): Observable<Fav> {
-    return this.dataSvc.delete<Fav>(this.path, this.body, id, {});
+    const fav: Fav = { id: id };
+    return this.authFacade.currentUser$.pipe(switchMap(user => {
+      if (user && user.role == 'AUTHENTICATED') {
+        const favs = user.favorites.reduce((prev: ClientFavDestination[], fav: ClientFavDestination) => {
+          if (fav.fav_id != id) {
+            prev.push(fav);
+          }
+          return prev;
+        }, [])
+        this.dataSvc.updateObject<Fav>('//users', user.user_id, 'favorites', favs, this.mapSvc.mapFav);
+
+      }
+      return of(fav);
+    }))
   }
 
 }

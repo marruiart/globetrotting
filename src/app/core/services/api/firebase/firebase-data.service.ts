@@ -62,9 +62,9 @@ export class FirebaseDataService extends DataService {
         }));
     }
 
-    public override updateArray<T>(path: string, id: number | string, key: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
+    public override updateObject<T>(path: string, id: number | string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
-        return from(this.firebaseSvc.updateDocumentArray(collection, `${id}`, key, value)).pipe(map(res => {
+        return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(res => {
             return callback(res);
         }));
     }

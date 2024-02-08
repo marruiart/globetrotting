@@ -8,6 +8,7 @@ export class FirebaseFacade {
 
     private readonly store = inject(Store);
     sizes$ = this.store.pipe(select(FirebaseSelector.selectSizes));
+    error$ = this.store.pipe(select(FirebaseSelector.selectError));
 
     init() {
         this.store.dispatch(FirebaseActions.init());

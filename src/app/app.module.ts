@@ -33,6 +33,7 @@ import { JwtService } from './core/services/auth/jwt.service';
 import { FirebaseModule } from './core/+state/firebase/firebase.module';
 import { FavoritesService } from './core/services/api/favorites.service';
 import { FavoritesServiceFactory } from './core/factories/favorites-service.factory';
+import { FavoritesModule } from './core/+state/favorites/favorites.module';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { FavoritesServiceFactory } from './core/factories/favorites-service.fact
       }
     }),
     AuthModule,
-    FirebaseModule
+    FirebaseModule,
+    FavoritesModule
   ],
   providers: [
     // PrimeNg

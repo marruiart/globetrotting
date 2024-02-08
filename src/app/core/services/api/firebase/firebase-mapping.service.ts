@@ -1,5 +1,4 @@
 import { TravelAgent, PaginatedAgent, NewTravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { AuthUser } from "src/app/core/models/globetrotting/auth.interface";
 import { Booking, PaginatedBooking, NewBooking } from "src/app/core/models/globetrotting/booking.interface";
 import { ClientFavDestination, Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
@@ -37,9 +36,9 @@ export class FirebaseMappingService extends MappingService {
     private mapPagination(res: FirebaseCollectionResponse) {
         return {
             next: res.docs.length == res.pageSize ? res.docs[res.docs.length - 1] as DocumentSnapshot<DocumentData> : null,
-            pageSize: res.pageSize,
-            pageCount: res.size && res.pageSize ? res.size / res.pageSize : undefined,
-            total: res.size
+            pageSize: res.pageSize ?? res.docs.length,
+            pageCount: res.size && res.pageSize ? res.size / res.pageSize : 1,
+            total: res.size ?? res.docs.length
         }
     }
 

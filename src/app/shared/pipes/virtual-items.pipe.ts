@@ -15,7 +15,7 @@ export class VirtualItemsPipe implements PipeTransform, OnDestroy {
 
   async transform(destinations: Destination[]): Promise<(Destination | undefined)[]> {
     let _destinations: (Destination | undefined)[] = [];
-    this.subsSvc.addSubscriptions([
+    this.subsSvc.addSubscription(
       {
         component: 'VirtualItemsPipe',
         sub: this.destinationsSvc.destinationsPage$.subscribe({
@@ -30,7 +30,7 @@ export class VirtualItemsPipe implements PipeTransform, OnDestroy {
           }
         })
       }
-    ])
+    )
     return _destinations;
   }
 

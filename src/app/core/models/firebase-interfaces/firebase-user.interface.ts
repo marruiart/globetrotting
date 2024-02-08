@@ -1,5 +1,6 @@
 import { Booking } from "../globetrotting/booking.interface"
-import { ClientBooking, ClientFavDestination } from "../globetrotting/client.interface"
+import { ClientBooking } from "../globetrotting/client.interface"
+import { ClientFavDestination } from "../globetrotting/fav.interface"
 import { Role } from "../globetrotting/user.interface"
 
 export interface FirebaseUserCredentials {

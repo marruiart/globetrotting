@@ -1,8 +1,8 @@
 import { TravelAgent, PaginatedAgent, NewTravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { Booking, PaginatedBooking, NewBooking } from "src/app/core/models/globetrotting/booking.interface";
-import { ClientFavDestination, Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
+import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
-import { Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
+import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
 import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
@@ -83,17 +83,16 @@ export class FirebaseMappingService extends MappingService {
 
     // FAVORITES
 
-    public override mapFav = (res: any): Fav => res;
+    public override mapFav = (res: ClientFavDestination): Fav => ({ id: res.fav_id, destination_id: res.destination_id });
 
     public override mapFavs(res: FirebaseCollectionResponse): Fav[] {
-        let favs = res.docs[0].data['destinations'] as [];
+        let favs = res.docs[0].data['destinations'] as any[];
         return favs.map(fav => {
             return { id: fav }
         })
     }
-    public override mapClientFavs(favs: Fav[]): ClientFavDestination[] {
-        throw new Error("Method not implemented.");
-    }
+
+    public override mapClientFavs = (favs: ClientFavDestination[]): ClientFavDestination[] => favs;
 
     // AUTHENTICATED
 

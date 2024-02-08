@@ -1,12 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
-import { lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom, map, of, switchMap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
-import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewFav } from 'src/app/core/models/globetrotting/fav.interface';
+import { ClientFavDestination, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
@@ -25,7 +25,8 @@ export class DestinationsPage implements OnInit, OnDestroy {
   private _selectedDestination: Destination | null = null;
   public role: string | null = null;
   public specificUserId: string | number | null = null;
-  private favs: ClientFavDestination[] = [];
+  private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
+  public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
   public itemSize = 600;
   public showDialog: boolean = false;
 
@@ -33,31 +34,34 @@ export class DestinationsPage implements OnInit, OnDestroy {
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
     public authFacade: AuthFacade,
+    public favsFacade: FavoritesFacade,
     public favsSvc: FavoritesService,
     public bookingsSvc: BookingsService,
     private datePipe: DatePipe
   ) {
-    this.subsSvc.addSubscriptions([
-      {
-        component: 'DestinationsPage',
-        sub: this.authFacade.currentUser$.subscribe(res => {
-          if (res) {
-            this.role = res.role;
-            if (res.specific_id) {
-              this.specificUserId = res.specific_id
-              if (res.role == 'AUTHENTICATED') {
-                this.favs = res.favorites;
-              }
-            }
-          }
-        })
-      }])
+    this.startSubscriptions();
   }
 
   ngOnInit() {
     lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => {
       console.error(err);
     });
+  }
+
+  private startSubscriptions() {
+    this.subsSvc.addSubscription({
+      component: 'DestinationsPage',
+      sub: this.authFacade.currentUser$.pipe(switchMap(user => {
+        if (user?.role) {
+          this.role = user.role;
+          this.specificUserId = user.specific_id ?? null
+          if (user.role == 'AUTHENTICATED') {
+            return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs.next(favs)));
+          }
+        }
+        return of()
+      })).subscribe()
+    })
   }
 
   public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {
@@ -83,12 +87,13 @@ export class DestinationsPage implements OnInit, OnDestroy {
           client_id: this.specificUserId,
           destination_id: destination.id
         }
-        lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
+        this.favsFacade.addFav(fav);
+        //lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
       } else {
         // Delete fav
-        let fav = this.favs.find(f => f.destination_id == destination.id);
+        let fav = this._clientFavs.value.find(f => f.destination_id == destination.id);
         if (fav) {
-          lastValueFrom(this.favsSvc.deleteFav(fav.fav_id)).catch(err => console.error(err));;
+          this.favsFacade.deleteFav(fav.fav_id);
         }
       }
     }

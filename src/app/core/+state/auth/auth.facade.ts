@@ -12,12 +12,12 @@ export class AuthFacade {
     authUser$ = this.store.pipe(select(AuthSelector.selectAuthUser));
     userId$ = this.store.pipe(select(AuthSelector.selectUserId));
     role$ = this.store.pipe(select(AuthSelector.selectRole));
-    error$ = this.store.pipe(select(AuthSelector.selectError));
     currentUser$ = this.store.pipe(select(AuthSelector.selectUser));
     nickname$ = this.store.pipe(select(AuthSelector.selectUserNickname));
     avatar$ = this.store.pipe(select(AuthSelector.selectUserAvatar));
     bookings$ = this.store.pipe(select(AuthSelector.selectUserBookings));
     favorites$ = this.store.pipe(select(AuthSelector.selectUserFavorites));
+    error$ = this.store.pipe(select(AuthSelector.selectError));
 
     init() {
         this.store.dispatch(AuthActions.init());

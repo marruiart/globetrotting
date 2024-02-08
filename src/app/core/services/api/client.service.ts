@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } fro
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 import { DataService } from './data.service';
-import { AuthFacade } from '../../+state/auth/auth.facade';
 
 @Injectable({
   providedIn: 'root'

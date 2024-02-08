@@ -7,8 +7,8 @@ import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/
 import { NewExtUser, PaginatedExtUser, ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
-import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { Client, ClientBooking, ClientFavDestination, NewClient, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
+import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
+import { Client, ClientBooking, NewClient, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
 import { Booking, NewBooking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-booking.interface';
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';

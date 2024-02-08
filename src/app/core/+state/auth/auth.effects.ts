@@ -6,6 +6,7 @@ import { catchError, map, of, switchMap } from "rxjs";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
 import { User } from "../../models/globetrotting/user.interface";
+import { FavoritesFacade } from "../favorites/favorites.facade";
 
 @Injectable()
 export class AuthEffects {
@@ -14,6 +15,7 @@ export class AuthEffects {
         private actions$: Actions,
         private authSvc: AuthService,
         private authFacade: AuthFacade,
+        private favsFacade: FavoritesFacade,
         private router: Router
     ) { }
 
@@ -58,8 +60,11 @@ export class AuthEffects {
                     console.log(user.user_id, user.role);
                     if (user.role == 'ADMIN' || user.role == 'AGENT') {
                         this.router.navigate(['/admin']);
-                    } else {
+                    } else if(user.role == 'AUTHENTICATED') {
                         this.router.navigate(['/home']);
+                        this.favsFacade.assignClientFavs(user.favorites);
+                    } else {
+                        return AuthActions.assignUserFailure({ error: 'Error: Unknown user role.' })
                     }
                     return AuthActions.assignUserSuccess({ user: user });
                 }),

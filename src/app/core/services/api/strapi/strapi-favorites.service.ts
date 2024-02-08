@@ -51,8 +51,8 @@ export class StrapiFavoritesService {
     return this.dataSvc.obtain<Fav>(this.path, id, this.body, this.queries);
   }
 
-  public addFav(fav: NewFav): Observable<Fav> {
-    return this.dataSvc.save<Fav>(this.path, this.body(fav), this.mapSvc.mapFav).pipe(tap(_ => {
+  public addFav(newFav: NewFav): Observable<Fav> {
+    return this.dataSvc.save<Fav>(this.path, this.body(newFav), this.mapSvc.mapFav).pipe(tap(_ => {
       this.getAllFavs().subscribe();
       if (this.userRole == 'AUTHENTICATED') {
         this.getAllClientFavs().subscribe();

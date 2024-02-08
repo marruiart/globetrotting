@@ -2,9 +2,10 @@ import { createReducer, on } from '@ngrx/store';
 import * as AuthAction from './auth.actions';
 import { Backend, Firebase } from 'src/environments/environment';
 import { ClientUser, Role, User } from '../../models/globetrotting/user.interface';
-import { ClientBooking, ClientFavDestination } from '../../models/globetrotting/client.interface';
 import { Booking } from '../../models/globetrotting/booking.interface';
 import { isType } from '../../utilities/utilities';
+import { ClientFavDestination } from '../../models/globetrotting/fav.interface';
+import { ClientBooking } from '../../models/globetrotting/client.interface';
 
 export const AUTH_FEATURE_KEY = 'auth'
 

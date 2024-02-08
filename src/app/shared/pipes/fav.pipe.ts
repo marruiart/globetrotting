@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { ClientFavDestination } from 'src/app/core/models/globetrotting/fav.interface';
 import { User } from 'src/app/core/models/globetrotting/user.interface';
 
 @Pipe({

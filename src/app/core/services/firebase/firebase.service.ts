@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from } from 'rxjs';
+import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
@@ -58,6 +58,10 @@ export class FirebaseService {
 
   public initCollectionsSize(): Observable<FirebaseCollectionResponse> {
     return from(this.getDocuments('sizes'));
+  }
+
+  public generateId(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
   public fileUpload(blob: Blob, mimeType: string, path: string, prefix: string, extension: string): Promise<FirebaseStorageFile> {
@@ -279,11 +283,26 @@ export class FirebaseService {
   }
 
   public subscribeToCollection(collectionName: string, subject: BehaviorSubject<any[]>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
-    if (!this._db)
+    if (!this._db) {
       return null;
+    }
     return onSnapshot(collection(this._db, collectionName), (snapshot) => {
       subject.next(snapshot.docs.map<any>(doc => mapFunction(doc)));
-    }, error => { });
+    }, error => throwError(() => error));
+  }
+
+  public subscribeToDocument(collectionName: string, documentId: string, subject: BehaviorSubject<any>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
+    if (!this._db) {
+      return null;
+    }
+    const documentRef = doc(this._db, collectionName, documentId);
+    return onSnapshot(documentRef, (snapshot) => {
+      if (snapshot.exists()) {
+        subject.next(mapFunction(snapshot.data() as DocumentData));
+      } else {
+        throw new Error('Error: The document does not exist.')
+      }
+    }, error => throwError(() => error));
   }
 
   public async signOut(signInAnon: boolean = false): Promise<void> {
@@ -398,7 +417,7 @@ export class FirebaseService {
 
       try {
         await updateDoc(documentRef, fieldUpdate);
-      
+
         resolve();
       } catch (error) {
         reject(error);

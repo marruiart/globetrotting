@@ -5,7 +5,6 @@ import { catchError, lastValueFrom, map, of, switchMap, tap, throwError } from '
 import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions, UserCredentials, User, AgentUser, ClientUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { AuthUser } from 'src/app/core/models/globetrotting/auth.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';

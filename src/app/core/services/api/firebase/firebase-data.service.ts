@@ -19,10 +19,6 @@ export class FirebaseDataService extends DataService {
         this.firebaseFacade.init();
     }
 
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    }
-
     public override obtainAll<T>(path: string, queries: { [query: string]: string | DocumentSnapshot; }, callback: (res: FirebaseCollectionResponse) => T): Observable<T> {
         const collection = path.split('/')[2];
         const pagPage = queries['pagination[page]'];
@@ -46,7 +42,7 @@ export class FirebaseDataService extends DataService {
         callback: (res: any) => T
     ): Observable<T> {
         const collection: Collections = path.split('/')[2] as Collections;
-        const id = this.generateId();
+        const id = this.firebaseSvc.generateId();
         body = { ...body, id: id }
         return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(
             map(docId => {
@@ -64,8 +60,8 @@ export class FirebaseDataService extends DataService {
 
     public override updateObject<T>(path: string, id: number | string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
-        return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(res => {
-            return callback(res);
+        return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(_ => {
+            return callback(value);
         }));
     }
 

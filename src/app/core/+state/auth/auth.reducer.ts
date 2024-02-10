@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import * as AuthAction from './auth.actions';
+import * as AuthActions from './auth.actions';
 import { Backend, Firebase } from 'src/environments/environment';
 import { ClientUser, Role, User } from '../../models/globetrotting/user.interface';
 import { Booking } from '../../models/globetrotting/booking.interface';
@@ -39,21 +39,22 @@ export const initialState: AuthState = {
 
 export const authReducer = createReducer(
     initialState,
-    on(AuthAction.loginSuccess, (state) => ({ ...state, isLogged: true, error: null })),
-    on(AuthAction.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
-    on(AuthAction.assignUid, (state, { user_id }) => ({ ...state, isLogged: true, user_id: user_id, error: null })),
-    on(AuthAction.assignUserSuccess, (state, { user }) => assignUserMapping(state, user)), // TODO map all the user input
-    on(AuthAction.assignUserFailure, (state, { error }) => ({ ...state, error: error })),
-    on(AuthAction.logout, (state) => ({ ...state })),
-    on(AuthAction.logoutSuccess, (state) => ({ ...state, isLogged: false, role: null, user_id: null, error: null })),
-    on(AuthAction.logoutFailure, (state, { error }) => ({ ...state, error: error })),
-    on(AuthAction.register, (state) => ({ ...state })),
-    on(AuthAction.registerSuccess, (state) => ({ ...state, isLogged: true, error: null })),
-    on(AuthAction.registerFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error }))
+    on(AuthActions.loginSuccess, (state) => ({ ...state, isLogged: true, error: null })),
+    on(AuthActions.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
+    on(AuthActions.assignUid, (state, { user_id }) => ({ ...state, isLogged: true, user_id: user_id, error: null })),
+    on(AuthActions.assignUserSuccess, (state, { user }) => assignUserMapping(state, user)), // TODO map all the user input
+    on(AuthActions.assignUserFailure, (state, { error }) => ({ ...state, error: error })),
+    on(AuthActions.updateUser, (state, { user }) => updateUserMapping(state, user)),
+    on(AuthActions.logout, (state) => ({ ...state })),
+    on(AuthActions.logoutSuccess, (state) => ({ ...state, isLogged: false, role: null, user_id: null, error: null })),
+    on(AuthActions.logoutFailure, (state, { error }) => ({ ...state, error: error })),
+    on(AuthActions.register, (state) => ({ ...state })),
+    on(AuthActions.registerSuccess, (state) => ({ ...state, isLogged: true, error: null })),
+    on(AuthActions.registerFailure, (_, { error }) => resetState(error))
 );
 
-function assignUserMapping(state: AuthState, user: User): AuthState {
-    return {
+function assignUserMapping(state: AuthState, user: User | null): AuthState {
+    return (user) ? {
         ...state,
         isLogged: true,
         user_id: (user.user_id as (Backend extends Firebase ? string : number)),
@@ -69,5 +70,24 @@ function assignUserMapping(state: AuthState, user: User): AuthState {
         bookings: user.bookings,
         favorites: isType<ClientUser>(user) ? user.favorites : undefined,
         error: null
+    } : resetState();
+}
+
+function updateUserMapping(state: AuthState, user: User): AuthState {
+    return  {
+        ...state,
+        email: user?.email ?? '',
+        favorites: isType<ClientUser>(user) ? user.favorites : undefined,
+        name: user.name,
+        nickname: user.nickname,
+        role: user.role,
+        surname: user.surname,
+    } 
+}
+
+function resetState(error?: any): AuthState {
+    return {
+        ...initialState,
+        error: error ?? null
     }
 }

@@ -41,19 +41,19 @@ export class AppComponent {
     this.subsSvc.addSubscriptions([
       {
         component: 'AppComponent',
-        sub: this.authFacade.error$.pipe(map(error => {
+        sub: this.authFacade.error$.pipe(tap(error => {
           if (error) console.error(error);
         })).subscribe()
       },
       {
         component: 'AppComponent',
-        sub: this.firebaseFacade.error$.pipe(map(error => {
+        sub: this.firebaseFacade.error$.pipe(tap(error => {
           if (error) console.error(error);
         })).subscribe()
       },
       {
         component: 'AppComponent',
-        sub: this.favsFacade.error$.pipe(map(error => {
+        sub: this.favsFacade.error$.pipe(tap(error => {
           if (error) console.error(error);
         })).subscribe()
       }

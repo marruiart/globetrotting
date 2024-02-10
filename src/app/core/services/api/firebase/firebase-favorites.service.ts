@@ -1,10 +1,10 @@
 import { inject } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { MappingService } from '../mapping.service';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { DataService } from '../data.service';
-import { ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseService } from '../../firebase/firebase.service';
 
 
@@ -13,8 +13,6 @@ export class FirebaseFavoritesService {
   private body = (fav: NewFav) => this.mapSvc.mapFavPayload(fav);
 
   private firebaseSvc: FirebaseService = inject(FirebaseService);
-  private _client: BehaviorSubject<ClientUser | null> = new BehaviorSubject<ClientUser | null>(null);
-  public client$: Observable<ClientUser | null> = this._client.asObservable();
   private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
   public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
   private user: User | null = null;
@@ -29,10 +27,6 @@ export class FirebaseFavoritesService {
   ) {
     this.authFacade.currentUser$.subscribe(user => {
       this.user = user;
-      if (this.user) {
-        this.firebaseSvc.subscribeToDocument('users', `${this.user.user_id}`, this._client, res => res);
-        this.client$.subscribe(user => this._clientFavs.next(user ? user.favorites : []));
-      }
     });
   }
 
@@ -84,8 +78,7 @@ export class FirebaseFavoritesService {
         return prev;
       }, [])
       if (deletedFav) {
-        this.dataSvc.update<Fav>('//users', this.user.user_id, { 'favorites': favs }, this.mapSvc.mapFav);
-        return of(deletedFav as Fav);
+        return this.dataSvc.update<Fav>('//users', this.user.user_id, { 'favorites': favs }, this.mapSvc.mapFav);
       }
       throw Error('Error: Favorite id was not found among current user favorites. Deletion was not possible.');
     }

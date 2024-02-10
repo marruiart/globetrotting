@@ -52,17 +52,16 @@ export class AgentsManagementPage {
     this.subsSvc.addSubscriptions([
       {
         component: 'AgentsManagementPage',
-        sub: this.authFacade.currentUser$
-          .subscribe(currentUser => {
-            this.currentUser = currentUser;
-          })
+        sub: this.authFacade.currentUser$.subscribe(currentUser => {
+          this.currentUser = currentUser;
+        })
       },
       {
         component: 'AgentsManagementPage',
         sub: this.translate.language$.pipe(
           switchMap((_: string) => this.getCols()),
-          catchError(err => of(err)))
-          .subscribe()
+          catchError(err => of(err))
+        ).subscribe()
       },
       {
         component: 'AgentsManagementPage',

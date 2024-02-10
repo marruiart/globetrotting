@@ -60,9 +60,8 @@ export class AuthEffects {
                     console.log(user.user_id, user.role);
                     if (user.role == 'ADMIN' || user.role == 'AGENT') {
                         this.router.navigate(['/admin']);
-                    } else if(user.role == 'AUTHENTICATED') {
+                    } else if (user.role == 'AUTHENTICATED') {
                         this.router.navigate(['/home']);
-                        this.favsFacade.assignClientFavs(user.favorites);
                     } else {
                         return AuthActions.assignUserFailure({ error: 'Error: Unknown user role.' })
                     }

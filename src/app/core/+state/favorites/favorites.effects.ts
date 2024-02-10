@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as FavoritesActions from './favorites.actions'
-import { catchError, map, of, switchMap } from "rxjs";
+import { catchError, concatMap, exhaustMap, map, of, switchMap } from "rxjs";
 import { FavoritesService } from "../../services/api/favorites.service";
 import { Fav } from "../../models/globetrotting/fav.interface";
 
@@ -24,7 +24,7 @@ export class FavoritesEffects {
             ofType(FavoritesActions.addFav),
             switchMap(({ newFav }) => this.favsSvc.addFav(newFav).pipe(
                 map((fav: Fav) => {
-                    return (fav) ? FavoritesActions.addFavSuccess({ fav })
+                    return (fav) ? FavoritesActions.addFavSuccess()
                         : FavoritesActions.addFavFailure({ error: 'Error: Unknown favorite.' })
                 }),
                 catchError(error => of(FavoritesActions.addFavFailure({ error })))
@@ -34,8 +34,9 @@ export class FavoritesEffects {
     deleteFav$ = createEffect(() =>
         this.actions$.pipe(
             ofType(FavoritesActions.deleteFav),
-            switchMap(({ id }) => this.favsSvc.deleteFav(id).pipe(
-                map(() => FavoritesActions.deleteFavSuccess({ id })),
+            exhaustMap(({ id }) => this.favsSvc.deleteFav(id).pipe(
+                map(() => { 
+                    return FavoritesActions.deleteFavSuccess()}),
                 catchError(error => of(FavoritesActions.deleteFavFailure({ error })))
             )))
     );

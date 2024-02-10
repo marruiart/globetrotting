@@ -2,7 +2,7 @@ import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import * as FavoritesActions from './favorites.actions'
 import * as FavoritesSelector from './favorites.selectors'
-import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
+import { ClientFavDestination, NewFav } from '../../models/globetrotting/fav.interface';
 
 @Injectable()
 export class FavoritesFacade {

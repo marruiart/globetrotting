@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, distinctUntilChanged, from } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
@@ -8,6 +8,8 @@ import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, Fire
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { Sizes } from '../../+state/firebase/firebase.reducer';
 import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
+import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
+import { ClientUser } from '../../models/globetrotting/user.interface';
 
 export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
 
@@ -24,6 +26,7 @@ export class FirebaseService {
   constructor(
     @Inject('firebase-config') config: any,
     private authFacade: AuthFacade,
+    private favsFacade: FavoritesFacade,
     private firebaseFacade: FirebaseFacade
   ) {
     this.init(config);
@@ -38,12 +41,15 @@ export class FirebaseService {
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
         this.authFacade.saveUserUid(user.uid);
+        const _client = new BehaviorSubject<ClientUser | null>(null);
+        this.subscribeToDocument('users', `${user.uid}`, _client, res => res);
+        _client.pipe(distinctUntilChanged()).subscribe(user => { if (user) this.authFacade.updateUser(user) });
       } else {
-        this.authFacade.logout();
-      }
+        this.authFacade.logout()
+      };
     });
     let isFirstTime = true;
-    this.firebaseFacade.sizes$.subscribe({
+    this.firebaseFacade.sizes$.pipe(distinctUntilChanged()).subscribe({
       next: sizes => {
         Object.entries(sizes).forEach(async ([collectionDoc, size]) => {
           if (!isFirstTime && (this._sizes[collectionDoc] ?? 0 != size)) {
@@ -54,6 +60,11 @@ export class FirebaseService {
         isFirstTime = Object.keys(sizes).length === 0;
       }
     });
+    this.authFacade.currentUser$.subscribe(user => {
+      if (user?.role == 'AUTHENTICATED') {
+        this.favsFacade.assignClientFavs(user.favorites);
+      }
+    })
   }
 
   public initCollectionsSize(): Observable<FirebaseCollectionResponse> {
@@ -288,21 +299,21 @@ export class FirebaseService {
     }
     return onSnapshot(collection(this._db, collectionName), (snapshot) => {
       subject.next(snapshot.docs.map<any>(doc => mapFunction(doc)));
-    }, error => throwError(() => error));
+    }, error => { throw new Error(error.message) });
   }
 
   public subscribeToDocument(collectionName: string, documentId: string, subject: BehaviorSubject<any>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
     if (!this._db) {
       return null;
     }
-    const documentRef = doc(this._db, collectionName, documentId);
-    return onSnapshot(documentRef, (snapshot) => {
+    const docRef = doc(this._db, collectionName, documentId);
+    return onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
         subject.next(mapFunction(snapshot.data() as DocumentData));
       } else {
         throw new Error('Error: The document does not exist.')
       }
-    }, error => throwError(() => error));
+    }, error => { throw new Error(error.message) });
   }
 
   public async signOut(signInAnon: boolean = false): Promise<void> {

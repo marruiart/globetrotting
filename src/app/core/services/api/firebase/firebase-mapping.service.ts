@@ -83,7 +83,7 @@ export class FirebaseMappingService extends MappingService {
 
     // FAVORITES
 
-    public override mapFav = (res: ClientFavDestination): Fav => ({ id: res.fav_id, destination_id: res.destination_id });
+    public override mapFav = (res: ClientFavDestination): any => res
 
     public override mapFavs(res: FirebaseCollectionResponse): Fav[] {
         let favs = res.docs[0].data['destinations'] as any[];

@@ -1,6 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
-import { UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
+import { User, UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
 import * as AuthActions from './auth.actions'
 import * as AuthSelector from './auth.selectors'
 
@@ -24,12 +24,16 @@ export class AuthFacade {
     }
 
     login(credentials: UserCredentials) {
-        this.store.dispatch(AuthActions.login({ credentials: credentials }));
+        this.store.dispatch(AuthActions.login({ credentials }));
     }
 
     saveUserUid(uid: string) {
         this.store.dispatch(AuthActions.assignUid({ user_id: uid }));
         this.init();
+    }
+
+    updateUser(user: User) {
+        this.store.dispatch(AuthActions.updateUser({ user }));
     }
 
     setLoginStateTrue() {
@@ -41,7 +45,7 @@ export class AuthFacade {
     }
 
     register(registerInfo: UserRegisterInfo) {
-        this.store.dispatch(AuthActions.register({ registerInfo: registerInfo }));
+        this.store.dispatch(AuthActions.register({ registerInfo }));
     }
 
 }

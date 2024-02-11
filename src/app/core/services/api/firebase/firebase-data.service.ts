@@ -1,22 +1,18 @@
-import { Observable, catchError, from, lastValueFrom, map, mergeMap, of, switchMap, tap, throwError } from 'rxjs';
+import { Observable, from, map } from 'rxjs';
 import { DataService } from '../data.service';
 import { Collections, FirebaseService } from '../../firebase/firebase.service';
 import { DocumentSnapshot } from 'firebase/firestore';
 import { FirebaseCollectionResponse } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { FirebaseFacade } from 'src/app/core/+state/firebase/firebase.facade';
 import { inject } from '@angular/core';
-import { UsersService } from '../users.service';
-import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 
 export class FirebaseDataService extends DataService {
     private firebaseFacade = inject(FirebaseFacade);
-    private authFacade = inject(AuthFacade);
 
     constructor(
         private firebaseSvc: FirebaseService
     ) {
         super();
-        this.firebaseFacade.init();
     }
 
     public override obtainAll<T>(path: string, queries: { [query: string]: string | DocumentSnapshot; }, callback: (res: FirebaseCollectionResponse) => T): Observable<T> {

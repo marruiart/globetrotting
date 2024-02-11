@@ -38,6 +38,17 @@ export class FirebaseService {
     this._db = getFirestore(this._app);
     this._webStorage = getStorage(this._app);
     this._auth = initializeAuth(getApp(), { persistence: indexedDBLocalPersistence });
+    this.subscribeToUser();
+    this.initCollectionsSize();
+    this.subscribeToSizes();
+    this.authFacade.currentUser$.subscribe(user => {
+      if (user?.role == 'AUTHENTICATED') {
+        this.favsFacade.assignClientFavs(user.favorites);
+      }
+    })
+  }
+
+  private subscribeToUser() {
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
         this.authFacade.saveUserUid(user.uid);
@@ -48,6 +59,9 @@ export class FirebaseService {
         this.authFacade.logout()
       };
     });
+  }
+
+  private subscribeToSizes() {
     let isFirstTime = true;
     this.firebaseFacade.sizes$.pipe(distinctUntilChanged()).subscribe({
       next: sizes => {
@@ -58,17 +72,15 @@ export class FirebaseService {
           this._sizes = { ...sizes };
         })
         isFirstTime = Object.keys(sizes).length === 0;
-      }
+      },
+      error: error => console.error(error)
     });
-    this.authFacade.currentUser$.subscribe(user => {
-      if (user?.role == 'AUTHENTICATED') {
-        this.favsFacade.assignClientFavs(user.favorites);
-      }
-    })
   }
 
-  public initCollectionsSize(): Observable<FirebaseCollectionResponse> {
-    return from(this.getDocuments('sizes'));
+  public initCollectionsSize() {
+    this.getDocuments('sizes')
+      .then(res => this.firebaseFacade.initSizes(res.docs))
+      .catch(err => console.error(err));
   }
 
   public generateId(): string {

@@ -6,7 +6,6 @@ import { catchError, map, of, switchMap } from "rxjs";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
 import { User } from "../../models/globetrotting/user.interface";
-import { FavoritesFacade } from "../favorites/favorites.facade";
 
 @Injectable()
 export class AuthEffects {
@@ -15,7 +14,6 @@ export class AuthEffects {
         private actions$: Actions,
         private authSvc: AuthService,
         private authFacade: AuthFacade,
-        private favsFacade: FavoritesFacade,
         private router: Router
     ) { }
 

@@ -13,16 +13,14 @@ export class FirebaseEffects {
         private firebaseSvc: FirebaseService
     ) { }
 
-    init$ = createEffect(() =>
+    initSizes$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(FirebaseActions.init),
-            switchMap(() => this.firebaseSvc.initCollectionsSize().pipe(
-                map(({ docs }) => {
-                    let sizes: Sizes = {};
-                    docs.forEach(doc => sizes[doc.id] = doc.data['size'])
-                    return FirebaseActions.initSizesSuccess({ sizes })
-                }),
-                catchError(error => of(FirebaseActions.initSizesFailure({ error: error }))))))
+            ofType(FirebaseActions.initSizes),
+            map(({ docs }) => {
+                let sizes: Sizes = {};
+                docs.forEach(doc => sizes[doc.id] = doc.data['size']);
+                return FirebaseActions.initSizesSuccess({ sizes })
+            }))
     );
 
     updateSizes$ = createEffect(() =>

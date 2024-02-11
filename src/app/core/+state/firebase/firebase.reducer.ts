@@ -21,6 +21,6 @@ export const firebaseReducer = createReducer(
     initialState,
     on(FirebaseActions.initSizesSuccess, (state, { sizes }) => ({ ...state, sizes: sizes, error: null })),
     on(FirebaseActions.initSizesFailure, (state, { error }) => ({ ...state, error: error })),
-    on(FirebaseActions.updateSizesSuccess, (state, { collection }) => ({ ...state, sizes: { ...state.sizes, ...{ [collection]: state.sizes[collection] + 1 ?? 0 } }, error: null })),
+    on(FirebaseActions.updateSizesSuccess, (state, { collection }) => ({ ...state, sizes: { ...state.sizes, ...{ [collection]: (state.sizes[collection] != undefined ? state.sizes[collection] + 1 : 0) } }, error: null })),
     on(FirebaseActions.updateSizesFailure, (state, { error }) => ({ ...state, error: error }))
 );

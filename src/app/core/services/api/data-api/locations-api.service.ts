@@ -69,12 +69,19 @@ export class LocationsApiService {
     }
   }
 
+  private generatePrice(): number {
+    let min = 40;
+    let max = 600;
+    return Math.random() * (max - min + 1) + min;
+  }
+
   private mapNewLocation(location: Location): NewDestination {
     return {
       name: location.name,
       type: location.type,
       dimension: location.dimension,
       image: undefined,
+      price: this.generatePrice()
     }
   }
 
@@ -85,6 +92,7 @@ export class LocationsApiService {
       type: location.type,
       dimension: location.dimension,
       image: undefined,
+      price: this.generatePrice()
     }
   }
 

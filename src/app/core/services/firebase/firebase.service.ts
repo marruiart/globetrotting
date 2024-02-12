@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, distinctUntilChanged, from } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
@@ -10,6 +10,10 @@ import { Sizes } from '../../+state/firebase/firebase.reducer';
 import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
+import { Destination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
+import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
+import { MappingService } from '../api/mapping.service';
+import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 
 export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
 
@@ -26,8 +30,10 @@ export class FirebaseService {
   constructor(
     @Inject('firebase-config') config: any,
     private authFacade: AuthFacade,
+    private destinationsFacade: DestinationsFacade,
     private favsFacade: FavoritesFacade,
-    private firebaseFacade: FirebaseFacade
+    private firebaseFacade: FirebaseFacade,
+    private mappingSvc: MappingService
   ) {
     this.init(config);
   }
@@ -38,9 +44,8 @@ export class FirebaseService {
     this._db = getFirestore(this._app);
     this._webStorage = getStorage(this._app);
     this._auth = initializeAuth(getApp(), { persistence: indexedDBLocalPersistence });
-    this.subscribeToUser();
     this.initCollectionsSize();
-    this.subscribeToSizes();
+    this.initSubscriptions();
     this.authFacade.currentUser$.subscribe(user => {
       if (user?.role == 'AUTHENTICATED') {
         this.favsFacade.assignClientFavs(user.favorites);
@@ -48,13 +53,18 @@ export class FirebaseService {
     })
   }
 
+  private initSubscriptions() {
+    this.subscribeToUser();
+    this.subscribeToSizes();
+  }
+
   private subscribeToUser() {
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
         this.authFacade.saveUserUid(user.uid);
         const _client = new BehaviorSubject<ClientUser | null>(null);
-        this.subscribeToDocument('users', `${user.uid}`, _client, res => res);
-        _client.pipe(distinctUntilChanged()).subscribe(user => { if (user) this.authFacade.updateUser(user) });
+        this.subscribeToDocument('users', `${user.uid}`, _client);
+        _client.subscribe(user => { if (user) this.authFacade.updateUser(user) });
       } else {
         this.authFacade.logout()
       };
@@ -63,7 +73,7 @@ export class FirebaseService {
 
   private subscribeToSizes() {
     let isFirstTime = true;
-    this.firebaseFacade.sizes$.pipe(distinctUntilChanged()).subscribe({
+    this.firebaseFacade.sizes$.subscribe({
       next: sizes => {
         Object.entries(sizes).forEach(async ([collectionDoc, size]) => {
           if (!isFirstTime && (this._sizes[collectionDoc] ?? 0 != size)) {
@@ -236,9 +246,7 @@ export class FirebaseService {
         name: collectionName,
         size: size,
         pageSize: pageSize,
-        docs: querySnapshot.docs.map<FirebaseDocument>(doc => {
-          return { id: doc.id, data: doc.data() }
-        })
+        docs: querySnapshot.docs.map<FirebaseDocument>(doc => ({ id: doc.id, data: doc.data() }))
       });
     });
   }
@@ -305,16 +313,22 @@ export class FirebaseService {
     });
   }
 
-  public subscribeToCollection(collectionName: string, subject: BehaviorSubject<any[]>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
+  public subscribeToCollection(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>): Unsubscribe | null {
     if (!this._db) {
       return null;
     }
-    return onSnapshot(collection(this._db, collectionName), (snapshot) => {
-      subject.next(snapshot.docs.map<any>(doc => mapFunction(doc)));
+    return onSnapshot(collection(this._db, collectionName), (querySnapshot) => {
+      const res = {
+        name: collectionName,
+        size: querySnapshot.size,
+        pageSize: querySnapshot.size,
+        docs: querySnapshot.docs.map<FirebaseDocument>(doc => ({ id: doc.id, data: doc.data() }))
+      }
+      subject.next(res);
     }, error => { throw new Error(error.message) });
   }
 
-  public subscribeToDocument(collectionName: string, documentId: string, subject: BehaviorSubject<any>, mapFunction: (el: DocumentData) => any): Unsubscribe | null {
+  public subscribeToDocument(collectionName: string, documentId: string, subject: BehaviorSubject<any>, mapFunction: (el: DocumentData) => any = res => res): Unsubscribe | null {
     if (!this._db) {
       return null;
     }

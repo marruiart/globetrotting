@@ -10,8 +10,9 @@ export class FavPipe implements PipeTransform {
 
   transform(destinations: Destination[], client: User | null): Destination[] {
     if (client?.role == 'AUTHENTICATED') {
-      destinations.map(destination => {
-        return destination['fav'] = client.favorites.reduce((prev: any, fav: ClientFavDestination) => prev || fav.destination_id == destination.id, false) ?? false;
+      destinations = destinations.map(destination => {
+        let fav = client.favorites.reduce((prev: any, fav: ClientFavDestination) => prev || fav.destination_id == destination.id, false) ?? false;
+        return { ...destination, ...{ fav: fav } }
       })
     }
     return destinations;

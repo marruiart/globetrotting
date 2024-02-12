@@ -2,7 +2,7 @@ import { Media } from "./media.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
 export interface Destination extends NewDestination {
-    id: number
+    id: number | string
 }
 
 export interface NewDestination {

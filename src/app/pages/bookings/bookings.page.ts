@@ -15,8 +15,8 @@ import { CustomTranslateService } from 'src/app/core/services/custom-translate.s
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
 interface TableRow {
-  booking_id: number,
-  destination_id: number,
+  booking_id: number | string,
+  destination_id: number | string,
   destination: string,
   start: string | null,
   end: string | null,
@@ -33,7 +33,7 @@ interface AgentTableRow extends TableRow {
 }
 
 interface AdminTableRow extends TableRow {
-  agentName: string | null
+  agentName: string | number | null
   clientName: string,
 }
 

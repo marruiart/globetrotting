@@ -10,7 +10,7 @@ import { SubscriptionsService } from "src/app/core/services/subscriptions.servic
 
 
 interface TableRow {
-  id: number,
+  id: number | string,
   name: string,
   type?: string,
   dimension?: string,

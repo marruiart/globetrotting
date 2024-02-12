@@ -8,6 +8,7 @@ import { AuthFacade } from './core/+state/auth/auth.facade';
 import { FirebaseFacade } from './core/+state/firebase/firebase.facade';
 import { SubscriptionsService } from './core/services/subscriptions.service';
 import { FavoritesFacade } from './core/+state/favorites/favorites.facade';
+import { DestinationsFacade } from './core/+state/destinations/destinations.facade';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ export class AppComponent {
     private authFacade: AuthFacade,
     private firebaseFacade: FirebaseFacade,
     private favsFacade: FavoritesFacade,
+    private destinationsFacade: DestinationsFacade,
     private subsSvc: SubscriptionsService
   ) {
     console.info(BACKEND);
@@ -54,6 +56,12 @@ export class AppComponent {
       {
         component: 'AppComponent',
         sub: this.favsFacade.error$.pipe(tap(error => {
+          if (error) console.error(error);
+        })).subscribe()
+      },
+      {
+        component: 'AppComponent',
+        sub: this.destinationsFacade.error$.pipe(tap(error => {
           if (error) console.error(error);
         })).subscribe()
       }

@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { BehaviorSubject, Observable, lastValueFrom, map, of, switchMap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
 import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
@@ -25,8 +26,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   private _selectedDestination: Destination | null = null;
   public role: string | null = null;
   public specificUserId: string | number | null = null;
-  private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
-  public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
+  private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;
 
@@ -35,6 +35,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
     private subsSvc: SubscriptionsService,
     public authFacade: AuthFacade,
     public favsFacade: FavoritesFacade,
+    public destinationsFacade: DestinationsFacade,
     public favsSvc: FavoritesService,
     public bookingsSvc: BookingsService,
     private datePipe: DatePipe
@@ -56,7 +57,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
           this.role = user.role;
           this.specificUserId = user.specific_id ?? null
           if (user.role == 'AUTHENTICATED') {
-            return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs.next(favs)));
+            return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs = favs));
           }
         }
         return of()
@@ -91,7 +92,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
         //lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
       } else {
         // Delete fav
-        let fav = this._clientFavs.value.find(f => f.destination_id == destination.id);
+        let fav = this._clientFavs.find(f => f.destination_id == destination.id);
         if (fav) {
           this.favsFacade.deleteFav(fav.fav_id);
         }

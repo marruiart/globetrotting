@@ -2,7 +2,7 @@
 <main>
   <p-virtualScroller
     class="content virtualScroller"
-    [value]="(((destinationsSvc.destinations$ | async) ?? []) | fav:(authFacade.currentUser$ | async) | virtualItems | async) ?? []"
+    [value]="(((destinationsFacade.destinations$ | async) ?? []) | fav:(authFacade.currentUser$ | async) | virtualItems | async) ?? []"
     [itemSize]="itemSize"
     [lazy]="true"
     (onLazyLoad)="loadDestinations($event)"

@@ -9,7 +9,7 @@ import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
-import { FirebaseCollectionResponse } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
+import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -59,9 +59,18 @@ export class FirebaseMappingService extends MappingService {
 
     // DESTINATIONS
 
-    public override mapDestination(res: Destination): Destination {
-        return res;
-    }
+    public override mapDestination = (res: FirebaseDocument): Destination => {
+        return {
+            id: res.id,
+            name: res.data['name'] ?? '',
+            type: res.data['type'] ?? '',
+            dimension: res.data['dimension'] ?? '',
+            image: res.data['image'] ?? null,
+            price: res.data['price'] ?? 0,
+            description: res.data['description'] ?? '',
+            fav: false
+        }
+    };
 
     public mapPaginatedDestinations = (res: FirebaseCollectionResponse): PaginatedDestination =>
         this.extractPaginatedData<Destination>(res);

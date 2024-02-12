@@ -6,7 +6,6 @@ export interface TravelAgent extends NewTravelAgent {
 }
 
 export interface NewTravelAgent {
-    type: 'AGENT',
     user_id: number,
     bookings: Booking[]
 }

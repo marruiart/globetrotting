@@ -130,7 +130,6 @@ export class StrapiAuthService extends AuthService {
               if (isAgent) {
                 // Create related agent
                 const agent: NewTravelAgent = {
-                  type: 'AGENT',
                   user_id: response.user.id,
                   bookings: []
                 }
@@ -177,14 +176,15 @@ export class StrapiAuthService extends AuthService {
           return this.userSvc.extendedMe(me.id).pipe(
             switchMap((extUser: ExtUser | null) => {
               if (extUser) {
-                switch (me.role.type.toUpperCase()) {
+                const role = me.role.type.toUpperCase();
+                switch (role) {
                   case 'AGENT':
                   case 'ADMIN':
                     return this.agentSvc.agentMe(me.id).pipe(
                       map((agent: TravelAgent | null) => {
                         if (agent) {
                           let user: AgentUser = {
-                            role: agent.type,
+                            role: role,
                             user_id: me.id,
                             ext_id: extUser?.id,
                             specific_id: agent.id,

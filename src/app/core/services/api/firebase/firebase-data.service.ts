@@ -8,12 +8,7 @@ import { inject } from '@angular/core';
 
 export class FirebaseDataService extends DataService {
     private firebaseFacade = inject(FirebaseFacade);
-
-    constructor(
-        private firebaseSvc: FirebaseService
-    ) {
-        super();
-    }
+    private firebaseSvc = inject(FirebaseService);
 
     public override obtainAll<T>(path: string, queries: { [query: string]: string | DocumentSnapshot; }, callback: (res: FirebaseCollectionResponse) => T): Observable<T> {
         const collection = path.split('/')[2];

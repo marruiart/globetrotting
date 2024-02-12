@@ -12,7 +12,7 @@ export class FirebaseFavoritesService {
   private path: string = "/api/favorites";
   private body = (fav: NewFav) => this.mapSvc.mapFavPayload(fav);
 
-  private firebaseSvc: FirebaseService = inject(FirebaseService);
+  private firebaseSvc = inject(FirebaseService);
   private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
   public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
   private user: User | null = null;

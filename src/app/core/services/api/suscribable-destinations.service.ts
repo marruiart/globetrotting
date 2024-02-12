@@ -12,11 +12,11 @@ import { DestinationsFacade } from '../../+state/destinations/destinations.facad
 export class SuscribableDestinationsService extends DestinationsService {
   private destinationsFacade = inject(DestinationsFacade);
   private unsubscribe!: Unsubscribe | null;
+  private firebaseSvc = inject(FirebaseService);
 
   constructor(
     dataSvc: DataService,
     mappingSvc: MappingService,
-    private firebaseSvc: FirebaseService
   ) {
     super(dataSvc, mappingSvc)
     if (!this.unsubscribe) {

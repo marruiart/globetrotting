@@ -174,7 +174,6 @@ export class StrapiMappingService extends MappingService {
     return {
       id: data.id,
       user_id: (data.attributes.user as StrapiResponse<StrapiUser>).data.id,
-      type: 'AGENT',
       bookings: this.mapBookings(data.attributes.bookings)
     }
   }

@@ -1,16 +1,14 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as FirebaseActions from './firebase.actions'
-import { catchError, map, of, switchMap, tap } from "rxjs";
-import { FirebaseService } from "../../services/firebase/firebase.service";
+import { map, tap } from "rxjs";
 import { Sizes } from "./firebase.reducer";
 
 @Injectable()
 export class FirebaseEffects {
 
     constructor(
-        private actions$: Actions,
-        private firebaseSvc: FirebaseService
+        private actions$: Actions
     ) { }
 
     initSizes$ = createEffect(() =>

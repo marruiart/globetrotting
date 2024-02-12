@@ -8,13 +8,8 @@ import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 
 export class FirebaseAuthService extends AuthService {
-  private authFacade: AuthFacade = inject(AuthFacade);
-
-  constructor(
-    private firebaseSvc: FirebaseService
-  ) {
-    super();
-  }
+  private authFacade = inject(AuthFacade);
+  private firebaseSvc = inject(FirebaseService);
 
   public login(credentials: UserCredentials): Observable<void> {
     return new Observable<any>(observer => {

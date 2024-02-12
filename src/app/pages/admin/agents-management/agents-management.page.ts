@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
+import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, throwError, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { PaginatedAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
 import { ExtUser, User, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
@@ -81,7 +81,7 @@ export class AgentsManagementPage {
    * @returns an observable of an array of TableRow.
    */
   private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.role === 'AGENT') {
+    if (this.currentUser?.role === 'ADMIN') {
       return this.agentsSvc.agentsPage$.pipe(
         switchMap((page: PaginatedAgent | null): Observable<TableRow[]> => this.mapAgentsRows(page?.data ?? [])),
         catchError(err => of(err))
@@ -121,18 +121,16 @@ export class AgentsManagementPage {
   }
 
   private mapTableRow(agent: TravelAgent, extUser: ExtUser, user: UserCredentials): TableRow {
-    throw new Error('Method not implemented');
-
-    /*return {
+    return {
       id: extUser.id,
-      user_id: user.id,
+      user_id: extUser.user_id,
       agent_id: agent.id,
-      name: extUser.name ?? "",
-      surname: extUser.surname ?? "",
-      email: user.email ?? "",
-      username: user.username,
+      name: extUser.name ?? '',
+      surname: extUser.surname ?? '',
+      email: user.email ?? '',
+      username: user.username ?? '',
       nickname: extUser.nickname
-    }*/
+    }
   }
 
   /**
@@ -141,13 +139,12 @@ export class AgentsManagementPage {
  * @returns an observable with all the rows of the table to be displayed
  */
   private mapAgentsRows(agents: TravelAgent[]): Observable<TableRow[]> {
-    throw new Error('Method not implemented');
     let tableRowObs: Observable<TableRow>[] = [];
 
     for (let agent of agents) {
       const extUser$ = this.userSvc.getAgentUser(agent.user_id);
       // For each booking, add a TableRow observable
-      /*tableRowObs.push(extUser$.pipe(
+      tableRowObs.push(extUser$.pipe(
         switchMap((extUser): Observable<TableRow> => {
           if (extUser && extUser.user_id) {
             return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
@@ -162,7 +159,7 @@ export class AgentsManagementPage {
           return throwError(() => "No se han podido obtener los datos del extended user");
         }), catchError(err => {
           return of(err);
-        })))*/
+        })))
     }
     // ForkJoin the "array of observables" to return "an observable of an array"
     return forkJoin(tableRowObs);

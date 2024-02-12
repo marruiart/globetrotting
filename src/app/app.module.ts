@@ -28,7 +28,6 @@ import { environment } from 'src/environments/environment';
 import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
 import { DataServiceFactory } from './core/factories/data-service.factory';
-import { FirebaseService } from './core/services/firebase/firebase.service';
 import { JwtService } from './core/services/auth/jwt.service';
 import { FirebaseModule } from './core/+state/firebase/firebase.module';
 import { FavoritesService } from './core/services/api/favorites.service';
@@ -89,12 +88,12 @@ import { DestinationsServiceFactory } from './core/factories/destinations-servic
     },
     {
       provide: AuthService,
-      deps: ['backend', JwtService, ApiService, FirebaseService],
+      deps: ['backend', JwtService, ApiService],
       useFactory: AuthServiceFactory
     },
     {
       provide: DataService,
-      deps: ['backend', ApiService, FirebaseService],
+      deps: ['backend', ApiService],
       useFactory: DataServiceFactory,
     },
     {
@@ -104,7 +103,7 @@ import { DestinationsServiceFactory } from './core/factories/destinations-servic
     },
     {
       provide: DestinationsService,
-      deps: ['backend', DataService, MappingService, FirebaseService],
+      deps: ['backend', DataService, MappingService],
       useFactory: DestinationsServiceFactory,
     },
     {

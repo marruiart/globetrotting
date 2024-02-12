@@ -18,34 +18,25 @@ export class DestinationsEffects {
         this.actions$.pipe(
             ofType(DestinationsActions.addDestination),
             switchMap(({ newDestination }) => this.destinationsSvc.addDestination(newDestination).pipe(
-                map((destination: Destination) => {
-                    return (destination) ? DestinationsActions.addDestinationSuccess({ destination })
-                        : DestinationsActions.addDestinationFailure({ error: 'Error: Unknown destination.' })
-                }),
+                map(_ => DestinationsActions.addDestinationSuccess()),
                 catchError(error => of(DestinationsActions.addDestinationFailure({ error })))
             )))
     );
 
     updateDestination$ = createEffect(() =>
-    this.actions$.pipe(
-        ofType(DestinationsActions.updateDestination),
-        switchMap(({ destination }) => this.destinationsSvc.updateDestination(destination).pipe(
-            map((destination: Destination) => {
-                return (destination) ? DestinationsActions.updateDestinationSuccess({ destination })
-                    : DestinationsActions.updateDestinationFailure({ error: 'Error: Unknown destination.' })
-            }),
-            catchError(error => of(DestinationsActions.updateDestinationFailure({ error })))
-        )))
-);
+        this.actions$.pipe(
+            ofType(DestinationsActions.updateDestination),
+            switchMap(({ destination }) => this.destinationsSvc.updateDestination(destination).pipe(
+                map(_ => DestinationsActions.updateDestinationSuccess()),
+                catchError(error => of(DestinationsActions.updateDestinationFailure({ error })))
+            )))
+    );
 
     deleteDestination$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DestinationsActions.deleteDestination),
             exhaustMap(({ id }) => this.destinationsSvc.deleteDestination(id).pipe(
-                map(destination => {
-                    return (destination?.id) ? DestinationsActions.deleteDestinationSuccess({ id: destination.id })
-                        : DestinationsActions.deleteDestinationFailure({ error: 'Error: Unknown destination id.' })
-                }),
+                map(_ => DestinationsActions.deleteDestinationSuccess()),
                 catchError(error => of(DestinationsActions.deleteDestinationFailure({ error })))
             )))
     );

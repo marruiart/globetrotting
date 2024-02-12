@@ -24,7 +24,7 @@ export class FirebaseDataService extends DataService {
         }));
     }
 
-    public override obtain<T>(path: string, id: number, callback: (res: any) => T, queries: { [query: string]: string; }): Observable<T> {
+    public override obtain<T>(path: string, id: string, callback: (res: any) => T, queries: { [query: string]: string; }): Observable<T> {
         throw new Error('Method not implemented.');
     }
 
@@ -47,7 +47,7 @@ export class FirebaseDataService extends DataService {
             }))
     }
 
-    public override update<T>(path: string, id: number | string, body: any, callback: (res: any) => T = res => res): Observable<T> {
+    public override update<T>(path: string, id: string, body: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
         return from(this.firebaseSvc.updateDocument(collection, `${id}`, body)).pipe(map(res => {
             const doc: FirebaseDocument = {
@@ -58,15 +58,22 @@ export class FirebaseDataService extends DataService {
         }));
     }
 
-    public override updateObject<T>(path: string, id: number | string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
+    public override updateObject<T>(path: string, id: string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
         return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(_ => {
             return callback(value);
         }));
     }
 
-    public override delete<T>(path: string, callback: (res: any) => T, id: number, queries: { [query: string]: string; }): Observable<T> {
-        throw new Error('Method not implemented.');
+    public override delete<T>(path: string, callback: (res: any) => T, id: string, queries: { [query: string]: string; }): Observable<T> {
+        const collection = path.split('/')[2];
+        return from(this.firebaseSvc.deleteDocument(collection, `${id}`)).pipe(map(_ => {
+            const del: FirebaseDocument = {
+                id: id,
+                data: {}
+            }
+            return callback(del);
+        }));
     }
 
 }

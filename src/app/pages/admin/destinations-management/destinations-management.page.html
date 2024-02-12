@@ -43,8 +43,8 @@
                   <span class="p-column-title"
                     >{{ col.header | uppercase }}:
                   </span>
-                  {{ rowData[col.field] }}
-                  <ng-container *ngIf="rowData[col.field].toFixed(2)">€</ng-container>
+                  {{ rowData[col.field]?.toFixed(2) }}
+                  <ng-container *ngIf="rowData[col.field]">€</ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'options'">
                   <span class="p-column-title"

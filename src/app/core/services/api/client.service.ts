@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } fro
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 import { DataService } from './data.service';
+import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class ClientService {
     private mapSvc: MappingService
   ) { }
 
-  public getAllClients(page: number | null = 1): Observable<PaginatedClient | null> {
+  public getAllClients(page: number | DocumentSnapshot<DocumentData> | null = 1): Observable<PaginatedClient | null> {
     if (page == null) {
       return of(null);
     }

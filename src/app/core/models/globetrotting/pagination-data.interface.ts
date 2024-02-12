@@ -1,7 +1,9 @@
+import { DocumentData, DocumentSnapshot } from "firebase/firestore"
+
 export interface Pagination {
     prev?: number | null,
     page?: number,
-    next: any | number | null,
+    next: DocumentSnapshot<DocumentData> | number | null,
     pageSize?: number,
     pageCount?: number,
     total?: number

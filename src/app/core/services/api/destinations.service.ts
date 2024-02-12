@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, of, switchMap, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { MappingService } from './mapping.service';
 import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
@@ -19,19 +19,25 @@ export class DestinationsService {
   private endOfData = false;
   public itemsCount: number = 0;
 
-  private _destinationsPage = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
-  public destinationsPage$ = this._destinationsPage.asObservable();
-  private _destinations = new BehaviorSubject<Destination[]>([]);
-  public destinations$: Observable<Destination[]> = this._destinations.asObservable();
+  private _next: DocumentSnapshot<DocumentData> | number | null = null;
+  private _destinations: Destination[] = [];
 
 
   constructor(
     protected dataSvc: DataService,
     protected mappingSvc: MappingService
-  ) { }
+  ) {
+    this.destinationFacade.destinations$.pipe(switchMap(destinations => {
+      this._destinations = destinations;
+      return this.destinationFacade.destinationsPage$.pipe(tap(page =>
+        this._next = page.pagination.next));
+    }),
+      catchError(error => { throw Error(error) })
+    ).subscribe();
+  }
 
   public getAllDestinations(page: DocumentSnapshot<DocumentData> | number | null = 1): Observable<PaginatedDestination | null> {
-     if (page == null) {
+    if (page == null) {
       return of(null);
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
@@ -39,9 +45,9 @@ export class DestinationsService {
     return this.dataSvc.obtainAll<PaginatedDestination>(this.path, _queries, this.mappingSvc.mapPaginatedDestinations).pipe(tap(page => {
       if (page.data.length > 0) {
         this.endOfData = false;
-        let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations.value));
+        let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations));
         page.data.forEach(destData => {
-          let foundDest: Destination | undefined = this._destinations.value.find(dest => dest.name == destData.name);
+          let foundDest: Destination | undefined = this._destinations.find(dest => dest.name == destData.name);
           if (!foundDest) {
             _newDestinations.push(destData);
           }
@@ -51,18 +57,16 @@ export class DestinationsService {
           data: page.data,
           pagination: page.pagination
         }
-        this._destinations.next(_newDestinations);
-        this._destinationsPage.next(_pagination);
         this.destinationFacade.saveDestinations(_newDestinations);
         this.destinationFacade.savePaginatedDestinations(_pagination);
       } else {
         this.endOfData = true;
       }
-    })); 
+    }));
   }
 
   public getNextDestinationsPage() {
-    return this.getAllDestinations(this._destinationsPage.value.pagination.next);
+    return this.getAllDestinations(this._next);
   }
 
   public getDestination(id: string | number): Observable<Destination> {
@@ -78,19 +82,7 @@ export class DestinationsService {
   }
 
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
-    return this.dataSvc.update<Destination>(this.path, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(res => {
-      let _newDestinations = JSON.parse(JSON.stringify(this._destinations.value));
-      let index = -1;
-      this._destinations.value.forEach((dest, i) => {
-        if (res.id == dest.id) {
-          index = i;
-          return;
-        }
-      });
-      if (index != -1) {
-        _newDestinations[index] = res;
-        this._destinations.next(_newDestinations);
-      }
+    return this.dataSvc.update<Destination>(this.path, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
@@ -98,21 +90,9 @@ export class DestinationsService {
   }
 
   public deleteDestination(id: number | string): Observable<Destination> {
-    return this.dataSvc.delete<Destination>(this.path, this.mappingSvc.mapDestination, id, {}).pipe(tap(res => {
-      let _newDestinations = JSON.parse(JSON.stringify(this._destinations.value));
-      let index = -1;
-      this._destinations.value.forEach((dest, i) => {
-        if (res.id == dest.id) {
-          index = i;
-          return;
-        }
-      });
-      if (index != -1) {
-        _newDestinations.splice(index, 1);
-        this._destinations.next(_newDestinations);
-      }
+    return this.dataSvc.delete<Destination>(this.path, this.mappingSvc.mapDestination, id, {}).pipe(tap(_ => {
       this.getAllDestinations().subscribe();
-    }));;
+    }));
   }
 
 }

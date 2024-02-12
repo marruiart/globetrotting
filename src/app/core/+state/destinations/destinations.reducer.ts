@@ -24,14 +24,10 @@ export const destinationsReducer = createReducer(
     on(DestinationsActions.savePage, (state, { destinationsPage }) => ({ ...state, destinationsPage: destinationsPage, error: null })),
     on(DestinationsActions.saveDestinations, (state, { destinations }) => ({ ...state, destinations: destinations, error: null })),
     on(DestinationsActions.saveManagementTable, (state, { managementTable }) => ({ ...state, managementTable: managementTable, error: null })),
-    on(DestinationsActions.addDestinationSuccess, (state, { destination }) => ({ ...state, destinations: [...state.destinations, destination], error: null })),
+    on(DestinationsActions.addDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.addDestinationFailure, (state, { error }) => ({ ...state, error: error })),
-    on(DestinationsActions.updateDestinationSuccess, (state, { destination }) => ({ ...state, destinations: updateDestination(state, destination), error: null })),
+    on(DestinationsActions.updateDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.updateDestinationFailure, (state, { error }) => ({ ...state, error: error })),
-    on(DestinationsActions.deleteDestinationSuccess, (state, { id }) => ({ ...state, destinations: state.destinations.filter(d => d.id != id), error: null })),
+    on(DestinationsActions.deleteDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.deleteDestinationFailure, (state, { error }) => ({ ...state, error: error })),
 );
-
-function updateDestination(state: DestinationsState, destination: Destination) {
-    return state.destinations.map(d => (d.id == destination.id) ? destination : d);
-}

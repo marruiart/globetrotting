@@ -29,7 +29,7 @@ export class SuscribableDestinationsService extends DestinationsService {
     this.unsubscribe = this.firebaseSvc.subscribeToCollection('destinations', _destinations);
     _destinations.subscribe(res => {
       if (res) {
-        this.destinationsFacade.updateDestinations(res.docs.map(doc => this.mappingSvc.mapDestination(doc)));
+        this.destinationsFacade.saveDestinations(res.docs.map(doc => this.mappingSvc.mapDestination(doc)));
         this.destinationsFacade.savePaginatedDestinations(this.mappingSvc.mapPaginatedDestinations(res));
       }
     });

@@ -7,7 +7,7 @@
         [breakpoint]="'960px'"
         styleClass="destinations-table"
         [columns]="cols"
-        [value]="(destinationTable$ | async) ?? []"
+        [value]="(destinationsFacade.destinationTable$ | async) ?? []"
         [lazy]="true"
       >
         <ng-template pTemplate="caption" let-columns>
@@ -44,7 +44,7 @@
                     >{{ col.header | uppercase }}:
                   </span>
                   {{ rowData[col.field] }}
-                  <ng-container *ngIf="rowData[col.field]">€</ng-container>
+                  <ng-container *ngIf="rowData[col.field].toFixed(2)">€</ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'options'">
                   <span class="p-column-title"

@@ -1,22 +1,14 @@
 import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
+import { Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
-import { Destination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
+import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
+import { Destination, PaginatedDestination, TableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { User } from "src/app/core/models/globetrotting/user.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 
-
-interface TableRow {
-  id: number | string,
-  name: string,
-  type?: string,
-  dimension?: string,
-  price?: number,
-  description?: string
-}
 
 @Component({
   selector: 'app-destinations-management',
@@ -24,9 +16,6 @@ interface TableRow {
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage {
-  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
-  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
-
   public loading: boolean = false;
   public data: TableRow[] = [];
   public cols: any[] = [];
@@ -37,6 +26,7 @@ export class DestinationsManagementPage {
   constructor(
     private destinationsSvc: DestinationsService,
     private authFacade: AuthFacade,
+    public destinationsFacade: DestinationsFacade,
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -66,7 +56,7 @@ export class DestinationsManagementPage {
       {
         component: 'DestinationsPage',
         sub: this.displayTable().subscribe((table: TableRow[]) => {
-          this._destinationTable.next(table);
+          this.destinationsFacade.saveDestinationsManagementTable(table);
         })
       }
     ])
@@ -77,8 +67,8 @@ export class DestinationsManagementPage {
 * @returns an observable of an array of TableRow.
 */
   private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.role == 'AGENT') {
-      return this.destinationsSvc.destinationsPage$.pipe(
+    if (this.currentUser?.role == 'AGENT' || this.currentUser?.role == 'ADMIN') {
+      return this.destinationsFacade.destinationsPage$.pipe(
         switchMap((page: PaginatedDestination): Observable<TableRow[]> => this.mapDestinationsRows(page.data)),
         catchError(err => of(err))
       )
@@ -115,7 +105,7 @@ export class DestinationsManagementPage {
     ]
   }
 
-  private mapTableRow(destination: Destination) {
+  private mapTableRow(destination: Destination): TableRow {
     return {
       id: destination.id,
       name: destination.name,
@@ -148,18 +138,15 @@ export class DestinationsManagementPage {
 
   public addOrEditDestination(destination: Destination) {
     if (destination.id) {
-      lastValueFrom(this.destinationsSvc.updateDestination(destination))
-        .catch(err => console.error(err));
+      this.destinationsFacade.updateDestination(destination);
     } else {
-      lastValueFrom(this.destinationsSvc.addDestination(destination))
-        .catch(err => console.error(err));
+      this.destinationsFacade.addDestination(destination);
     }
     this.hideDestinationForm();
   }
 
   private deleteDestination(id: number) {
-    lastValueFrom(this.destinationsSvc.deleteDestination(id))
-      .catch(err => console.error(err));
+    this.destinationsFacade.deleteDestination(id);
   }
 
   showConfirmDialog(id: number) {

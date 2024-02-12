@@ -53,7 +53,7 @@ export class DestinationsService {
         }
         this._destinations.next(_newDestinations);
         this._destinationsPage.next(_pagination);
-        this.destinationFacade.updateDestinations(_newDestinations);
+        this.destinationFacade.saveDestinations(_newDestinations);
         this.destinationFacade.savePaginatedDestinations(_pagination);
       } else {
         this.endOfData = true;

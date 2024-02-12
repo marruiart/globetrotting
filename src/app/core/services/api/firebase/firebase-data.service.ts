@@ -2,7 +2,7 @@ import { Observable, from, map } from 'rxjs';
 import { DataService } from '../data.service';
 import { Collections, FirebaseService } from '../../firebase/firebase.service';
 import { DocumentSnapshot } from 'firebase/firestore';
-import { FirebaseCollectionResponse } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { FirebaseCollectionResponse, FirebaseDocument } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { FirebaseFacade } from 'src/app/core/+state/firebase/firebase.facade';
 import { inject } from '@angular/core';
 
@@ -50,7 +50,11 @@ export class FirebaseDataService extends DataService {
     public override update<T>(path: string, id: number | string, body: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
         return from(this.firebaseSvc.updateDocument(collection, `${id}`, body)).pipe(map(res => {
-            return callback(res);
+            const doc: FirebaseDocument = {
+                id: body.id,
+                data: body
+            }
+            return callback(doc);
         }));
     }
 

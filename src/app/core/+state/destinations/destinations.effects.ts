@@ -13,42 +13,38 @@ export class DestinationsEffects {
         private destinationsSvc: DestinationsService
     ) { }
 
-    init$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(DestinationsActions.init),
-            map(({ destinations }) => {
-                return (destinations) ? DestinationsActions.initSuccess({ destinations })
-                    : DestinationsActions.initFailure({ error: 'Error: Unknown destinations' })
-            }))
-    );
-
-    savePage$ = createEffect(() =>
-    this.actions$.pipe(
-        ofType(DestinationsActions.savePage),
-        map(({ destinationsPage }) => {
-            return (destinationsPage) ? DestinationsActions.savePageSuccess({ destinationsPage })
-                : DestinationsActions.savePageFailure({ error: 'Error: Unknown destinations' })
-        }))
-);
 
     addDestination$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DestinationsActions.addDestination),
             switchMap(({ newDestination }) => this.destinationsSvc.addDestination(newDestination).pipe(
-                map((fav: Destination) => {
-                    return (fav) ? DestinationsActions.addDestinationSuccess()
-                        : DestinationsActions.addDestinationFailure({ error: 'Error: Unknown favorite.' })
+                map((destination: Destination) => {
+                    return (destination) ? DestinationsActions.addDestinationSuccess({ destination })
+                        : DestinationsActions.addDestinationFailure({ error: 'Error: Unknown destination.' })
                 }),
                 catchError(error => of(DestinationsActions.addDestinationFailure({ error })))
             )))
     );
 
+    updateDestination$ = createEffect(() =>
+    this.actions$.pipe(
+        ofType(DestinationsActions.updateDestination),
+        switchMap(({ destination }) => this.destinationsSvc.updateDestination(destination).pipe(
+            map((destination: Destination) => {
+                return (destination) ? DestinationsActions.updateDestinationSuccess({ destination })
+                    : DestinationsActions.updateDestinationFailure({ error: 'Error: Unknown destination.' })
+            }),
+            catchError(error => of(DestinationsActions.updateDestinationFailure({ error })))
+        )))
+);
+
     deleteDestination$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DestinationsActions.deleteDestination),
             exhaustMap(({ id }) => this.destinationsSvc.deleteDestination(id).pipe(
-                map(() => {
-                    return DestinationsActions.deleteDestinationSuccess()
+                map(destination => {
+                    return (destination?.id) ? DestinationsActions.deleteDestinationSuccess({ id: destination.id })
+                        : DestinationsActions.deleteDestinationFailure({ error: 'Error: Unknown destination id.' })
                 }),
                 catchError(error => of(DestinationsActions.deleteDestinationFailure({ error })))
             )))

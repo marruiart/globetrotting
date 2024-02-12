@@ -16,3 +16,12 @@ export interface NewDestination {
 }
 
 export type PaginatedDestination = PaginatedData<Destination>
+
+export interface TableRow {
+    id: number | string,
+    name: string,
+    type?: string,
+    dimension?: string,
+    price?: number,
+    description?: string
+  }

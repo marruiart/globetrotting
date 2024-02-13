@@ -17,7 +17,7 @@ export interface NewDestination {
 
 export type PaginatedDestination = PaginatedData<Destination>
 
-export interface TableRow {
+export interface DestinationsTableRow {
     id: number | string,
     name: string,
     type?: string,

@@ -2,7 +2,7 @@ import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import * as DestinationsActions from './destinations.actions'
 import * as DestinationsSelector from './destinations.selectors'
-import { Destination, NewDestination, PaginatedDestination, TableRow } from "../../models/globetrotting/destination.interface";
+import { Destination, NewDestination, PaginatedDestination, DestinationsTableRow } from "../../models/globetrotting/destination.interface";
 
 @Injectable()
 export class DestinationsFacade {
@@ -25,7 +25,7 @@ export class DestinationsFacade {
         }
     }
 
-    saveDestinationsManagementTable(managementTable: TableRow[]) {
+    saveDestinationsManagementTable(managementTable: DestinationsTableRow[]) {
         if (managementTable) {
             this.store.dispatch(DestinationsActions.saveManagementTable({ managementTable }));
         }

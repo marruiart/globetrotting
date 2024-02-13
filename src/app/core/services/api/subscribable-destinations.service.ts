@@ -9,7 +9,7 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 
-export class SuscribableDestinationsService extends DestinationsService {
+export class SubscribableDestinationsService extends DestinationsService {
   private destinationsFacade = inject(DestinationsFacade);
   private unsubscribe!: Unsubscribe | null;
   private firebaseSvc = inject(FirebaseService);

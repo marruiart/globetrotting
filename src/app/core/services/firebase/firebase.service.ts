@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
@@ -10,10 +10,8 @@ import { Sizes } from '../../+state/firebase/firebase.reducer';
 import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
-import { Destination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { MappingService } from '../api/mapping.service';
-import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 
 export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
 

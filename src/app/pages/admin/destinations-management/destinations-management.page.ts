@@ -3,7 +3,7 @@ import { ConfirmationService, MessageService } from "primeng/api";
 import { Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
-import { Destination, PaginatedDestination, TableRow } from "src/app/core/models/globetrotting/destination.interface";
+import { Destination, PaginatedDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { User } from "src/app/core/models/globetrotting/user.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
@@ -17,7 +17,7 @@ import { SubscriptionsService } from "src/app/core/services/subscriptions.servic
 })
 export class DestinationsManagementPage {
   public loading: boolean = false;
-  public data: TableRow[] = [];
+  public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
   public currentUser: User | null = null; // TODO clases de esto
   public showEditForm: boolean = false;
@@ -55,7 +55,7 @@ export class DestinationsManagementPage {
       },
       {
         component: 'DestinationsPage',
-        sub: this.displayTable().subscribe((table: TableRow[]) => {
+        sub: this.displayTable().subscribe((table: DestinationsTableRow[]) => {
           this.destinationsFacade.saveDestinationsManagementTable(table);
         })
       }
@@ -66,10 +66,10 @@ export class DestinationsManagementPage {
 * Obtains from the agent service an array of destinations and maps each of them into a TableRow.
 * @returns an observable of an array of TableRow.
 */
-  private displayTable(): Observable<TableRow[]> {
+  private displayTable(): Observable<DestinationsTableRow[]> {
     if (this.currentUser?.role == 'AGENT' || this.currentUser?.role == 'ADMIN') {
       return this.destinationsFacade.destinationsPage$.pipe(
-        switchMap((page: PaginatedDestination): Observable<TableRow[]> => this.mapDestinationsRows(page.data)),
+        switchMap((page: PaginatedDestination): Observable<DestinationsTableRow[]> => this.mapDestinationsRows(page.data)),
         catchError(err => of(err))
       )
     } else {
@@ -105,7 +105,7 @@ export class DestinationsManagementPage {
     ]
   }
 
-  private mapTableRow(destination: Destination): TableRow {
+  private mapTableRow(destination: Destination): DestinationsTableRow {
     return {
       id: destination.id,
       name: destination.name,
@@ -121,7 +121,7 @@ export class DestinationsManagementPage {
   * @param destinations array of all the destinations
   * @returns an observable with all the rows of the table to be displayed
   */
-  private mapDestinationsRows(destinations: Destination[]): Observable<TableRow[]> {
+  private mapDestinationsRows(destinations: Destination[]): Observable<DestinationsTableRow[]> {
     return of(destinations.map((destination: Destination) => this.mapTableRow(destination)));
   }
 

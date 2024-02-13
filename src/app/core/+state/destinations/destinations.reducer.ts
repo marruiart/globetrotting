@@ -1,12 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import * as DestinationsActions from './destinations.actions';
-import { Destination, PaginatedDestination, TableRow } from '../../models/globetrotting/destination.interface';
+import { Destination, PaginatedDestination, DestinationsTableRow } from '../../models/globetrotting/destination.interface';
 import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 
 export const DESTINATIONS_FEATURE_KEY = 'destinations'
 
 export type DestinationsState = {
-    managementTable: TableRow[],
+    managementTable: DestinationsTableRow[],
     destinationsPage: PaginatedDestination,
     destinations: Destination[],
     error: any | null

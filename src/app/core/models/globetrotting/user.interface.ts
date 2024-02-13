@@ -116,3 +116,14 @@ export type AgentUser = {
 }
 
 export type User = AgentUser | ClientUser
+
+export interface AgentsTableRow {
+    id: number,
+    user_id?: number,
+    agent_id: number,
+    name: string,
+    surname: string,
+    email: string,
+    username: string,
+    nickname: string
+  }

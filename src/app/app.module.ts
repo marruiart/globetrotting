@@ -36,6 +36,9 @@ import { FavoritesModule } from './core/+state/favorites/favorites.module';
 import { DestinationsModule } from './core/+state/destinations/destinations.module';
 import { DestinationsService } from './core/services/api/destinations.service';
 import { DestinationsServiceFactory } from './core/factories/destinations-service.factory';
+import { AgentServiceFactory } from './core/factories/agent-service.factory';
+import { AgentService } from './core/services/api/agent.service';
+import { AgentsModule } from './core/+state/agents/agents.module';
 
 @NgModule({
   declarations: [
@@ -60,7 +63,8 @@ import { DestinationsServiceFactory } from './core/factories/destinations-servic
     AuthModule,
     FirebaseModule,
     FavoritesModule,
-    DestinationsModule
+    DestinationsModule,
+    AgentsModule
   ],
   providers: [
     // PrimeNg
@@ -105,6 +109,11 @@ import { DestinationsServiceFactory } from './core/factories/destinations-servic
       provide: DestinationsService,
       deps: ['backend', DataService, MappingService],
       useFactory: DestinationsServiceFactory,
+    },
+    {
+      provide: AgentService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: AgentServiceFactory,
     },
     {
       provide: 'firebase-config',

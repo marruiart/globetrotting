@@ -18,8 +18,8 @@ export abstract class AuthService {
 
   public abstract updateIdentifiers(user: any): Observable<UserCredentialsOptions>;
 
-  public abstract getUserIdentifiers(id: number): Observable<UserCredentialsOptions>;
+  public abstract getUserIdentifiers(id: number | string): Observable<UserCredentialsOptions>;
 
-  public abstract deleteUser(id: number): Observable<UserCredentialsOptions>;
+  public abstract deleteUser(id: number | string): Observable<UserCredentialsOptions>;
 
 }

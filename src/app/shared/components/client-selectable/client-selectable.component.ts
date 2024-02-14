@@ -93,7 +93,7 @@ export class ClientSelectableComponent implements ControlValueAccessor {
     this.hideClientSelectable();
   }
 
-  public async selectClient(id: number | undefined, propagate: boolean = false) {
+  public async selectClient(id: number | string | undefined, propagate: boolean = false) {
     let clientId = id ? await lastValueFrom(this.clientsSvc.getClientByExtUserId(id)) : null;
     if (propagate && clientId) {
       this.selectedClient = clientId.id;

@@ -2,33 +2,31 @@ import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import * as AgentsActions from './agents.actions'
 import * as AgentsSelector from './agents.selectors'
-import { AgentsTableRow } from "../../models/globetrotting/user.interface";
+import { AgentsTableRow } from '../../models/globetrotting/agent.interface';
 import { NewTravelAgent, PaginatedAgent, TravelAgent } from "../../models/globetrotting/agent.interface";
+import { AgentUser } from "../../models/globetrotting/user.interface";
 
 @Injectable()
 export class AgentsFacade {
 
     private readonly store = inject(Store);
     agents$ = this.store.pipe(select(AgentsSelector.selectAgents));
-    agentsPage$ = this.store.pipe(select(AgentsSelector.selectPage));
-    agentTable$ = this.store.pipe(select(AgentsSelector.selectManagementTable));
+    agentTable$ = this.store.pipe(select(AgentsSelector.selectMgmtTable));
     error$ = this.store.pipe(select(AgentsSelector.selectError));
 
-    saveAgents(agents: TravelAgent[]) {
-        if (agents) {
-            this.store.dispatch(AgentsActions.saveAgents({ agents }));
-        }
+    saveAgents(agents: AgentUser[]) {
+        this.store.dispatch(AgentsActions.saveAgents({ agents }));
     }
 
-    savePaginatedAgents(agentsPage: PaginatedAgent) {
-        if (agentsPage) {
-            this.store.dispatch(AgentsActions.savePage({ agentsPage }));
-        }
+    retrieveAgentInfo(agents: TravelAgent[]) {
+        this.store.dispatch(AgentsActions.retrieveAgentsInfo({ agents }));
     }
 
-    saveAgentsManagementTable(managementTable: AgentsTableRow[]) {
-        if (managementTable) {
-            this.store.dispatch(AgentsActions.saveManagementTable({ managementTable }));
+    saveAgentsManagementTable(mgmtTable: AgentsTableRow[]) {
+        if (mgmtTable) {
+            this.store.dispatch(AgentsActions.saveMgmtTableSuccess({ mgmtTable }));
+        } else {
+            this.store.dispatch(AgentsActions.saveMgmtTableFailure({ error: 'Error: Management Table is empty.' }));
         }
     }
 

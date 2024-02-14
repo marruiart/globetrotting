@@ -33,16 +33,16 @@ export class UsersService {
     }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
   }
 
-  public getUser(id: number): Observable<ExtUser> {
+  public getUser(id: number | string): Observable<ExtUser> {
     return this.dataSvc.obtain<ExtUser>(this.path, id, this.mapSvc.mapExtUser, this.queries)
       .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
   }
 
-  public getAgentUser(id: number | null): Observable<ExtUser | null> {
+  public getAgentUser(id: number | string | null): Observable<ExtUser | null> {
     return this.extendedMe(id);
   }
 
-  public getClientUser(id: number | string | null): Observable<ExtUser | null> {
+  public getClientUser(id: number | string | string | null): Observable<ExtUser | null> {
     return this.extendedMe(id);
   }
 
@@ -82,7 +82,7 @@ export class UsersService {
     }), catchError((err) => throwError(() => { 'No se ha podido modificar el usuario'; console.error(err) })));
   }
 
-  public deleteUser(id: number): Observable<ExtUser> {
+  public deleteUser(id: number | string): Observable<ExtUser> {
     const queries = {}
     return this.dataSvc.delete<ExtUser>(this.path, this.mapSvc.mapExtUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();

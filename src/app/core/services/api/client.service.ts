@@ -78,7 +78,7 @@ export class ClientService {
       .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
   }
 
-  public getClientByExtUserId(user_id: number): Observable<Client> {
+  public getClientByExtUserId(user_id: number | string): Observable<Client> {
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["filters[user]"] = `${user_id}`;
     return this.dataSvc.obtainAll<Client[]>(this.path, _queries, this.mapSvc.mapClients)

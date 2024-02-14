@@ -7,6 +7,7 @@ import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-i
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
 import { Booking } from "./booking.interface"
 import { ClientFavDestination } from "./fav.interface"
+import { DocumentReference } from "firebase/firestore"
 
 export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
 
@@ -14,7 +15,7 @@ export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
 export type UserCredentialsOptions = FirebaseUserCredentials | StrapiUserCredentials;
 export type UserRegisterInfoOptions = FirebaseUserRegisterInfo | StrapiUserRegisterInfo;
 export interface ExtUser extends NewExtUser {
-    id: number
+    id: number | string
 }
 export interface NewExtUser {
     nickname: string,
@@ -22,7 +23,7 @@ export interface NewExtUser {
     name?: string,
     surname?: string,
     age?: string,
-    user_id?: number
+    user_id?: number | string
 }
 
 /* interface Media {
@@ -116,14 +117,3 @@ export type AgentUser = {
 }
 
 export type User = AgentUser | ClientUser
-
-export interface AgentsTableRow {
-    id: number,
-    user_id?: number,
-    agent_id: number,
-    name: string,
-    surname: string,
-    email: string,
-    username: string,
-    nickname: string
-  }

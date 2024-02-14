@@ -26,8 +26,8 @@ export class StrapiAuthService extends AuthService {
   private authFacade = inject(AuthFacade);
 
   constructor(
-    private jwtSvc:JwtService,
-    private api:ApiService
+    private jwtSvc: JwtService,
+    private api: ApiService
   ) {
     super();
     this.init();
@@ -249,7 +249,7 @@ export class StrapiAuthService extends AuthService {
   }
 
   public getUserIdentifiers(id: number): Observable<UserCredentialsOptions> {
-    return this.dataSvc.obtain<UserCredentialsOptions>("/api/users", id, this.mappingSvc.mapUserCredentials, {});
+    return this.dataSvc.obtain<UserCredentialsOptions>("/api/users", id, this.mappingSvc.mapUserCredentials, { "populate": "role" });
   }
 
   public deleteUser(id: number): Observable<UserCredentialsOptions> {

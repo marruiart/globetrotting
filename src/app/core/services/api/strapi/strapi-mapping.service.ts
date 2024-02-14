@@ -4,7 +4,7 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, User, UserCredentials, AgentUser, ClientUser } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -14,8 +14,9 @@ import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-book
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
-import { TravelAgent, PaginatedAgent, NewTravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
+import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
 import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-auth.interface';
+import { isType } from 'src/app/core/utilities/utilities';
 
 export class StrapiMappingService extends MappingService {
 
@@ -61,8 +62,39 @@ export class StrapiMappingService extends MappingService {
   }
 
   // AUTH & USER
-  public mapUser(res: StrapiMeResponse): User {
-    throw new Error("Method not implemented.");
+  public mapUser(user: StrapiUserCredentials, specificUser: TravelAgent | Client, extUser: ExtUser): User {
+    if (isType<TravelAgent>(specificUser)) {
+      return {
+        role: user.role ?? 'AGENT',
+        user_id: specificUser.user_id,
+        ext_id: extUser.id,
+        specific_id: specificUser.id,
+        username: user.username ?? '',
+        email: user.email ?? '',
+        nickname: extUser.nickname,
+        avatar: extUser.avatar ?? null,
+        name: extUser.name ?? '',
+        surname: extUser.surname ?? '',
+        age: extUser.age ?? '',
+        bookings: specificUser.bookings ?? []
+      } as AgentUser
+    } else {
+      return {
+        role: user.role ?? 'AUTHENTICATED',
+        user_id: specificUser.user_id,
+        ext_id: extUser.id,
+        specific_id: specificUser.id,
+        username: user.username ?? '',
+        email: user.email ?? '',
+        nickname: extUser.nickname,
+        avatar: extUser.avatar ?? null,
+        name: extUser.name ?? '',
+        surname: extUser.surname ?? '',
+        age: extUser.age ?? '',
+        bookings: specificUser.bookings ?? [],
+        favorites: specificUser.favorites ?? []
+      } as ClientUser
+    }
   }
 
   // DESTINATIONS
@@ -117,7 +149,8 @@ export class StrapiMappingService extends MappingService {
       id: res.id,
       username: res.username,
       email: res.email,
-      password: null
+      password: null,
+      role: res.role.type?.toUpperCase() ?? ''
     }
     return credentials;
   }
@@ -183,6 +216,13 @@ export class StrapiMappingService extends MappingService {
 
   public mapPaginatedAgents = (res: StrapiArrayResponse<StrapiAgent>): PaginatedAgent =>
     this.extractPaginatedData<TravelAgent, StrapiAgent>(res, this.mapAgentData);
+
+  public override mapAgentTableRow = (agent: AgentUser): AgentsTableRow => ({
+    agent_id: agent.specific_id ?? agent.user_id,
+    name: agent.name,
+    surname: agent.surname,
+    email: agent.email
+  })
 
   // BOOKING
 

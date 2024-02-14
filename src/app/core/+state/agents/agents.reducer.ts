@@ -1,30 +1,27 @@
 import { createReducer, on } from '@ngrx/store';
 import * as AgentsActions from './agents.actions';
-import { PaginatedAgent, TravelAgent } from '../../models/globetrotting/agent.interface';
-import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
-import { AgentsTableRow } from '../../models/globetrotting/user.interface';
+import { AgentsTableRow } from '../../models/globetrotting/agent.interface';
+import { AgentUser } from '../../models/globetrotting/user.interface';
 
 export const AGENTS_FEATURE_KEY = 'agents'
 
 export type AgentsState = {
-    managementTable: AgentsTableRow[],
-    agentsPage: PaginatedAgent,
-    agents: TravelAgent[],
+    agentsMgmtTable: AgentsTableRow[],
+    agents: AgentUser[],
     error: any | null
 }
 
 export const initialState: AgentsState = {
-    managementTable: [],
-    agentsPage: emptyPaginatedData,
+    agentsMgmtTable: [],
     agents: [],
     error: null
 };
 
 export const agentsReducer = createReducer(
     initialState,
-    on(AgentsActions.savePage, (state, { agentsPage }) => ({ ...state, agentsPage: agentsPage, error: null })),
-    on(AgentsActions.saveAgents, (state, { agents }) => ({ ...state, agents: agents, error: null })),
-    on(AgentsActions.saveManagementTable, (state, { managementTable }) => ({ ...state, managementTable: managementTable, error: null })),
+    on(AgentsActions.saveAgents, (state, { agents }) => ({ ...state, agents })),
+    on(AgentsActions.saveAgentsFailure, (state, { error }) => ({ ...state, error: error })),
+    on(AgentsActions.saveMgmtTableSuccess, (state, { mgmtTable }) => ({ ...state, agentsMgmtTable: [...mgmtTable], error: null })),
     on(AgentsActions.addAgentSuccess, (state) => ({ ...state, error: null })),
     on(AgentsActions.addAgentFailure, (state, { error }) => ({ ...state, error: error })),
     on(AgentsActions.updateAgentSuccess, (state) => ({ ...state, error: null })),

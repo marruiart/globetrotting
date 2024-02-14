@@ -11,7 +11,7 @@ import { DestinationsFacade } from '../../+state/destinations/destinations.facad
   providedIn: 'root'
 })
 export class DestinationsService {
-  private destinationFacade = inject(DestinationsFacade);
+  protected destinationsFacade = inject(DestinationsFacade);
   private path: string = "/api/destinations";
   private body = (destination: NewDestination) => this.mappingSvc.mapDestinationPayload(destination);
   private queries: { [query: string]: string } = { 'sort': 'name' }
@@ -27,12 +27,11 @@ export class DestinationsService {
     protected dataSvc: DataService,
     protected mappingSvc: MappingService
   ) {
-    this.destinationFacade.destinations$.pipe(switchMap(destinations => {
+    this.destinationsFacade.destinations$.pipe(switchMap(destinations => {
       this._destinations = destinations;
-      return this.destinationFacade.destinationsPage$.pipe(tap(page =>
+      return this.destinationsFacade.destinationsPage$.pipe(tap(page =>
         this._next = page.pagination.next));
-    }),
-      catchError(error => { throw Error(error) })
+    }), catchError(error => { throw Error(error) })
     ).subscribe();
   }
 
@@ -57,8 +56,8 @@ export class DestinationsService {
           data: page.data,
           pagination: page.pagination
         }
-        this.destinationFacade.saveDestinations(_newDestinations);
-        this.destinationFacade.savePaginatedDestinations(_pagination);
+        this.destinationsFacade.saveDestinations(_newDestinations);
+        this.destinationsFacade.savePaginatedDestinations(_pagination);
       } else {
         this.endOfData = true;
       }

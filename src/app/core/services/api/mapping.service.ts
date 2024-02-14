@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentialsOptions, User } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentialsOptions, User, UserCredentials, AgentUser } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { TravelAgent, PaginatedAgent, NewTravelAgent } from '../../models/globetrotting/agent.interface';
+import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from '../../models/globetrotting/agent.interface';
+import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export abstract class MappingService {
 
   // Map to app
 
-  public abstract mapUser(res: any): User
+  public abstract mapUser(user: any, specificUser?: any, extUser?: any): User
 
   public abstract mapDestination(res: any): Destination
   public abstract mapPaginatedDestinations(res: any): PaginatedDestination
@@ -33,7 +34,8 @@ export abstract class MappingService {
   public abstract mapPaginatedClients(res: any): PaginatedClient
 
   public abstract mapAgent(res: any): TravelAgent
-  public abstract mapPaginatedAgents(res: any): PaginatedAgent
+  public abstract mapPaginatedAgents(res: any): PaginatedData<any>
+  public abstract mapAgentTableRow(res: any): AgentsTableRow
 
   public abstract mapBooking(res: any): Booking
   public abstract mapBookings(res: any): Booking[]

@@ -8,7 +8,8 @@ export interface StrapiUserCredentials {
     id?: number,
     username: string,
     email?: string,
-    password: string | null
+    password: string | null,
+    role?: string
 }
 
 export interface StrapiUserRegisterInfo {
@@ -19,7 +20,8 @@ export interface StrapiUserRegisterInfo {
 
 export interface StrapiDataUser {
     username: string,
-    email: string
+    email: string,
+    role: any
 }
 
 export interface StrapiUser extends StrapiDataUser {
@@ -63,6 +65,6 @@ export interface StrapiExtendedUser {
     /**
     * Strapi user data as a response or user id (number) as payload 
     */
-    user?: StrapiResponse<StrapiUser> | number,
+    user?: StrapiResponse<StrapiUser> | number | string,
     avatar: StrapiResponse<StrapiMedia> | null
 }

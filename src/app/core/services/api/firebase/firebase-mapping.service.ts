@@ -1,10 +1,10 @@
-import { TravelAgent, PaginatedAgent, NewTravelAgent } from "src/app/core/models/globetrotting/agent.interface";
+import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
 import { Booking, PaginatedBooking, NewBooking } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, UserCredentials, AgentUser, ClientUser } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
@@ -34,10 +34,12 @@ export class FirebaseMappingService extends MappingService {
     }
 
     private mapPagination(res: FirebaseCollectionResponse) {
+        const pageCount = (res.size && res.pageSize) ? (res.size / res.pageSize) : 1;
+        const isLastPage = res.docs.length !== res.pageSize || pageCount === 1;
         return {
-            next: res.docs.length == res.pageSize ? res.docs[res.docs.length - 1] as DocumentSnapshot<DocumentData> : null,
+            next: isLastPage ? null : res.docs[res.docs.length - 1] as DocumentSnapshot<DocumentData>,
             pageSize: res.pageSize ?? res.docs.length,
-            pageCount: res.size && res.pageSize ? res.size / res.pageSize : 1,
+            pageCount: pageCount,
             total: res.size ?? res.docs.length
         }
     }
@@ -53,8 +55,31 @@ export class FirebaseMappingService extends MappingService {
     }
 
     // AUTH & USER
-    public override mapUser(user: any): User {
-        return this.removeEmptyValues(user) as User;
+    public override mapUser(user: FirebaseDocument): User {
+        const role = user.data['role'];
+        let _user = {
+            role: user.data['role'],
+            user_id: user.id,
+            username: user.data['username'] ?? '',
+            email: user.data['email'] ?? '',
+            nickname: user.data['nickname'] ?? '',
+            avatar: user.data['avatar'] ?? null,
+            name: user.data['name'] ?? '',
+            surname: user.data['surname'] ?? '',
+            age: user.data['age'] ?? ''
+        }
+        if (role === 'ADMIN' || role === 'AGENT') {
+            return {
+                ..._user,
+                bookings: user.data['bookings'] ?? []
+            } as AgentUser
+        } else {
+            return {
+                ..._user,
+                bookings: user.data['bookings'] ?? [],
+                favorites: user.data['favorites'] ?? []
+            } as ClientUser
+        }
     }
 
     // DESTINATIONS
@@ -117,12 +142,23 @@ export class FirebaseMappingService extends MappingService {
 
     // AGENT
 
-    public override mapAgent(res: any): TravelAgent {
-        throw new Error("Method not implemented.");
-    }
-    public override mapPaginatedAgents(res: any): PaginatedAgent {
-        throw new Error("Method not implemented.");
-    }
+    public override mapAgent = (res: FirebaseDocument): TravelAgent => ({
+        id: res.id,
+        user_id: res.id,
+        bookings: []
+    })
+
+    public override mapPaginatedAgents = (res: FirebaseCollectionResponse): PaginatedData<AgentUser> => ({
+        data: res.docs.map(agent => this.mapUser(agent) as AgentUser),
+        pagination: this.mapPagination(res)
+    })
+
+    public override mapAgentTableRow = (agent: AgentUser): AgentsTableRow => ({
+        agent_id: agent.user_id,
+        name: agent.name,
+        surname: agent.surname,
+        email: agent.email    
+    })
 
     // BOOKING
 

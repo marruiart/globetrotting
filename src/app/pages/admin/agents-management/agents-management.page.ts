@@ -1,9 +1,10 @@
 import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, forkJoin, lastValueFrom, of, switchMap, tap, throwError, zip } from "rxjs";
+import { catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
+import { AgentsFacade } from "src/app/core/+state/agents/agents.facade";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
-import { PaginatedAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { ExtUser, User, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
+import { AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
+import { User } from "src/app/core/models/globetrotting/user.interface";
 import { AgentService } from "src/app/core/services/api/agent.service";
 import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
@@ -11,32 +12,19 @@ import { CustomTranslateService } from "src/app/core/services/custom-translate.s
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 import { FormType } from "src/app/shared/components/user-form/user-form.component";
 
-interface TableRow {
-  id: number,
-  user_id?: number,
-  agent_id: number,
-  name: string,
-  surname: string,
-  email: string,
-  username: string,
-  nickname: string
-}
-
 @Component({
   selector: 'app-agents-management',
   templateUrl: './agents-management.page.html',
   styleUrls: ['./agents-management.page.scss'],
 })
 export class AgentsManagementPage {
-  private _agentTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
-  public agentTable$: Observable<TableRow[]> = this._agentTable.asObservable();
 
-  public selectedAgent: TableRow | null = null;
+  public selectedAgent: AgentsTableRow | null = null;
   public isUpdating: boolean = false;
   public formType!: FormType;
-  public currentUser: User | null = null; // TODO clases de esto
+  public currentUser: User | null = null;
   public showForm: boolean = false;
-  public data: TableRow[] = [];
+  public data: AgentsTableRow[] = [];
   public cols: any[] = [];
 
   constructor(
@@ -47,8 +35,10 @@ export class AgentsManagementPage {
     private subsSvc: SubscriptionsService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-    private translate: CustomTranslateService
+    private translate: CustomTranslateService,
+    public agentsFacade: AgentsFacade
   ) {
+    this.init();
     this.subsSvc.addSubscriptions([
       {
         component: 'AgentsManagementPage',
@@ -62,33 +52,12 @@ export class AgentsManagementPage {
           switchMap((_: string) => this.getCols()),
           catchError(err => of(err))
         ).subscribe()
-      },
-      {
-        component: 'AgentsManagementPage',
-        sub: this.agentsSvc.getAllAgents().subscribe()
-      },
-      {
-        component: 'AgentsManagementPage',
-        sub: this.displayTable().subscribe((table: TableRow[]) => {
-          this._agentTable.next(table);
-        })
       }
     ])
   }
 
-  /**
-   * Obtains from the agent service an array of agents and maps each of them into a TableRow.
-   * @returns an observable of an array of TableRow.
-   */
-  private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.role === 'ADMIN') {
-      return this.agentsSvc.agentsPage$.pipe(
-        switchMap((page: PaginatedAgent | null): Observable<TableRow[]> => this.mapAgentsRows(page?.data ?? [])),
-        catchError(err => of(err))
-      )
-    } else {
-      return of([]);
-    }
+  private async init() {
+    await lastValueFrom(this.agentsSvc.getAllAgents()).catch(err => console.error(err));
   }
 
   private getCols() {
@@ -120,53 +89,8 @@ export class AgentsManagementPage {
       { field: 'options', header: options }]
   }
 
-  private mapTableRow(agent: TravelAgent, extUser: ExtUser, user: UserCredentials): TableRow {
-    return {
-      id: extUser.id,
-      user_id: extUser.user_id,
-      agent_id: agent.id,
-      name: extUser.name ?? '',
-      surname: extUser.surname ?? '',
-      email: user.email ?? '',
-      username: user.username ?? '',
-      nickname: extUser.nickname
-    }
-  }
-
-  /**
- * Receives an array of travel agents and turn it into an array of rows ready to display on a table.
- * @param agents array of all the travel agents
- * @returns an observable with all the rows of the table to be displayed
- */
-  private mapAgentsRows(agents: TravelAgent[]): Observable<TableRow[]> {
-    let tableRowObs: Observable<TableRow>[] = [];
-
-    for (let agent of agents) {
-      const extUser$ = this.userSvc.getAgentUser(agent.user_id);
-      // For each booking, add a TableRow observable
-      tableRowObs.push(extUser$.pipe(
-        switchMap((extUser): Observable<TableRow> => {
-          if (extUser && extUser.user_id) {
-            return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
-              switchMap((user: UserCredentials): Observable<TableRow> => {
-                if (user) {
-                  return of(this.mapTableRow(agent, extUser, user));
-                }
-                return throwError(() => "No se han podido obtener las credenciales del usuario");
-              })
-            )
-          }
-          return throwError(() => "No se han podido obtener los datos del extended user");
-        }), catchError(err => {
-          return of(err);
-        })))
-    }
-    // ForkJoin the "array of observables" to return "an observable of an array"
-    return forkJoin(tableRowObs);
-  }
-
-  public showAgentForm(formType: FormType, tableRow?: TableRow, actionUpdate: boolean = false) {
-    if (tableRow && tableRow.user_id) {
+  public showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
+    if (tableRow && tableRow.agent_id) {
       this.selectedAgent = tableRow;
     }
     this.formType = formType;
@@ -205,7 +129,7 @@ export class AgentsManagementPage {
     this.hideAgentForm();
   }
 
-  private deleteAgent(agent_id: number, extuser_id: number, user_id: number) {
+  private deleteAgent(agent_id: number | string, extuser_id: number | string, user_id: number | string) {
     lastValueFrom(this.agentsSvc.deleteAgent(agent_id))
       .catch(err => console.error(err));
     lastValueFrom(this.authSvc.deleteUser(user_id))
@@ -214,14 +138,14 @@ export class AgentsManagementPage {
       .catch(err => console.error(err));
   }
 
-  showConfirmDialog(tableRow: TableRow) {
+  showConfirmDialog(tableRow: AgentsTableRow) {
     this.confirmationService.confirm({
       message: '¿Desea eliminar el usuario? \nEsta acción devolverá al estado "sin confirmar" todas las reservas asociadas al agente.',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        if (tableRow.user_id) {
-          this.deleteAgent(tableRow.agent_id, tableRow.id, tableRow.user_id);
+        if (tableRow.agent_id) {
+          //this.deleteAgent(tableRow.agent_id, tableRow.id, tableRow.user_id); // TODO obtener los datos de este agent
           this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Usuario eliminado' });
         } else {
           console.error("El usuario no pudo ser eliminado, se desconoce el id asociado");

@@ -44,8 +44,12 @@ export class AuthFacade {
         this.store.dispatch(AuthActions.logout());
     }
 
-    register(registerInfo: UserRegisterInfo) {
-        this.store.dispatch(AuthActions.register({ registerInfo }));
+    register(registerInfo: UserRegisterInfo, isAgent: boolean = false) {
+        this.store.dispatch(AuthActions.register({ registerInfo, isAgent }));
+    }
+
+    registerAgent(registerInfo: UserRegisterInfo) {
+        this.register(registerInfo, true);
     }
 
 }

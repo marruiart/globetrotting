@@ -39,11 +39,11 @@ export class UsersService {
   }
 
   public getAgentUser(id: number | string | null): Observable<ExtUser | null> {
-    return this.extendedMe(id);
+    return id ? this.extendedMe(id) : of(null);
   }
 
   public getClientUser(id: number | string | string | null): Observable<ExtUser | null> {
-    return this.extendedMe(id);
+    return id ? this.extendedMe(id) : of(null);
   }
 
   /** Returns the corresponding extended user with the id */

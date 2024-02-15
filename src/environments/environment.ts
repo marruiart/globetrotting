@@ -6,13 +6,13 @@ export type Strapi = 'Strapi';
 export type Firebase = 'Firebase';
 export type BackendTypes = Firebase | Strapi;
 
-export type Backend = Firebase;
-export const BACKEND: BackendTypes = 'Firebase';
+export type Backend = Strapi;
+export const BACKEND: BackendTypes = 'Strapi';
 
 export const environment = {
   production: false,
   backend: BACKEND,
-  strapiUrl: "http://localhost:1337",
+  strapiUrl: "https://globetrotting-service.onrender.com",
   apiUrl: "https://rickandmortyapi.com/api",
   apiUpdate: false,
   firebaseConfig: {

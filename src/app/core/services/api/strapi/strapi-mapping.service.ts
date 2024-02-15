@@ -4,12 +4,12 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, User, UserCredentials, AgentUser, ClientUser } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, User, AgentUser, ClientUser, Role } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { Client, ClientBooking, NewClient, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
-import { Booking, NewBooking, PaginatedBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { Client, NewClient, PaginatedClient } from 'src/app/core/models/globetrotting/client.interface';
+import { AdminBookingsTableRow, AgentRowInfo, AgentBookingsTableRow, Booking, BookingsTableRow, ClientRowInfo, ClientBookingsTableRow, NewBooking, PaginatedBooking, ClientBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { StrapiBooking } from 'src/app/core/models/strapi-interfaces/strapi-booking.interface';
 import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-client.interface';
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
@@ -224,9 +224,37 @@ export class StrapiMappingService extends MappingService {
     email: agent.email
   })
 
+  public override mapBookingTableRow = (role: Role, booking: Booking, client?: ClientRowInfo, agent?: AgentRowInfo): BookingsTableRow => {
+    let tableRow = {
+      booking_id: booking.id,
+      destination_id: booking.destination_id,
+      destinationName: booking.destinationName ?? 'Unknown',
+      start: booking.start,
+      end: booking.end,
+      travelers: booking.travelers,
+      isConfirmed: booking.isConfirmed ?? false
+    }
+    if (role === 'ADMIN' && client !== undefined && agent !== undefined) {
+      return {...tableRow, ...agent, ...client} as AdminBookingsTableRow;
+    } else if (role === 'AGENT' && client !== undefined) {
+      return {...tableRow, ...client} as AgentBookingsTableRow;
+    } else if (role === 'AUTHENTICATED' && agent !== undefined) {
+      return {...tableRow, ...agent} as ClientBookingsTableRow;
+    } else {
+      throw Error('Error: Required bookings table information was not provided.')
+    }
+  }
+
   // BOOKING
 
   private mapBookingData = (data: StrapiData<StrapiBooking>): Booking => {
+    const destination = data.attributes.destination ? data.attributes.destination as StrapiResponse<StrapiDestination> : undefined;
+    const client = data.attributes.client ? data.attributes.client as StrapiResponse<StrapiClient> : undefined;
+    const agent = data.attributes.agent ? data.attributes.agent as StrapiResponse<StrapiAgent> : undefined;
+    const destinationData = destination?.data ? this.mapDestination(destination) : undefined;
+    const clientData = client?.data ? this.mapClient(client) : undefined;
+    const agentData = agent?.data ? this.mapAgent(agent) : undefined;
+
     return {
       id: data.id,
       start: data.attributes.start,
@@ -235,9 +263,10 @@ export class StrapiMappingService extends MappingService {
       isActive: data.attributes.isActive,
       isConfirmed: data.attributes.isConfirmed,
       travelers: data.attributes.travelers,
-      client_id: (data.attributes.client as StrapiResponse<StrapiClient>)?.data?.id,
-      destination_id: (data.attributes.destination as StrapiResponse<StrapiDestination>)?.data?.id,
-      agent_id: (data.attributes.agent as StrapiResponse<StrapiAgent>)?.data?.id
+      client_id: clientData?.user_id ?? 0,
+      destination_id: destinationData?.id ?? 0,
+      agent_id: agentData?.user_id,
+      destinationName: destinationData?.name
     }
   }
 

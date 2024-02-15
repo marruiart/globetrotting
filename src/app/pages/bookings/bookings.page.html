@@ -5,7 +5,7 @@
       <p-table
         styleClass="bookings-table"
         [columns]="cols"
-        [value]="(bookingTable$ | async) ?? []"
+        [value]="(bookingsFacade.bookingTable$| async) ?? []"
         [lazy]="true"
         dataKey="destination_id"
         rowGroupMode="subheader"
@@ -19,7 +19,7 @@
               {{ "bookingsPage.tableHeader" | translate | uppercase }}
             </div>
             <div
-              *ngIf="currentUser?.role == 'AGENT'"
+              *ngIf="currentUser?.role == 'AGENT' || currentUser?.role == 'ADMIN'"
               styleClass="table-caption__th"
             >
               <p-button
@@ -57,7 +57,7 @@
                   {{ "bookingsPage.tableDestination" | translate }}:
                 </span>
                 <span class="group-name"
-                  >{{ booking?.destination | uppercase }}</span
+                  >{{ booking?.destinationName | uppercase }}</span
                 >
               </td>
             </tr>
@@ -121,7 +121,7 @@
                     [rounded]="true"
                   ></p-tag>
                   <p-button
-                    *ngIf="!booking[col.field] && currentUser?.role == 'AGENT'"
+                    *ngIf="!booking[col.field] && (currentUser?.role == 'AGENT' || currentUser?.role == 'ADMIN')"
                     [label]="'bookingsPage.confirmBtn' | translate | uppercase"
                     icon="pi pi-thumbs-up"
                     styleClass="p-button-secondary p-button-rounded light-tag"

@@ -1,10 +1,10 @@
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
-import { Booking, PaginatedBooking, NewBooking } from "src/app/core/models/globetrotting/booking.interface";
+import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, UserCredentials, AgentUser, ClientUser } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, UserCredentials, AgentUser, ClientUser, Role } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
@@ -171,6 +171,11 @@ export class FirebaseMappingService extends MappingService {
     public override mapPaginatedBookings(res: any): PaginatedBooking {
         throw new Error("Method not implemented.");
     }
+
+    public override mapBookingTableRow(role: Role, booking: Booking, client?: ClientRowInfo, agent?: AgentRowInfo): BookingsTableRow {
+        throw new Error("Method not implemented.");
+    }
+
 
     // MEDIA
 

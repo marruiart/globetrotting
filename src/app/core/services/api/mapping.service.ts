@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentialsOptions, User, UserCredentials, AgentUser } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedExtUser, ExtUser, UserCredentialsOptions, User, UserCredentials, AgentUser, Role } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
-import { Booking, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
+import { AgentRowInfo, Booking, BookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from '../../models/globetrotting/agent.interface';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
@@ -40,6 +40,7 @@ export abstract class MappingService {
   public abstract mapBooking(res: any): Booking
   public abstract mapBookings(res: any): Booking[]
   public abstract mapPaginatedBookings(res: any): PaginatedBooking
+  public abstract mapBookingTableRow (role: Role, booking: Booking, client?: ClientRowInfo, agent?: AgentRowInfo): BookingsTableRow
 
   protected abstract mapImage(res: any): Media | undefined;
 

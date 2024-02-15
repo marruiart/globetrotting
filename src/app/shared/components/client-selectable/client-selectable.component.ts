@@ -4,6 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
 import { ClientService } from 'src/app/core/services/api/client.service';
 import { UsersService } from 'src/app/core/services/api/users.service';
+import { getClientName } from 'src/app/core/utilities/utilities';
 
 export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
@@ -88,7 +89,7 @@ export class ClientSelectableComponent implements ControlValueAccessor {
   private propagateChange = (obj: any) => { }
 
   public onClientSelected(clientExtUser: ExtUser) {
-    this.name = this.getClientName(clientExtUser);
+    this.name = getClientName(clientExtUser);
     this.selectClient(clientExtUser.user_id, true);
     this.hideClientSelectable();
   }
@@ -106,16 +107,5 @@ export class ClientSelectableComponent implements ControlValueAccessor {
     this.selectClient(undefined);
     this.hideClientSelectable();
   }
-
-  getClientName(clientExtUser: ExtUser): string {
-    if (clientExtUser && clientExtUser.name) {
-      return `${clientExtUser?.name}${' ' + clientExtUser?.surname ?? ''}`;
-    } else if (clientExtUser) {
-      return clientExtUser.nickname;
-    } else {
-      return '';
-    }
-  }
-
 
 }

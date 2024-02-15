@@ -1,3 +1,4 @@
+import { ClientBooking } from "./booking.interface";
 import { ClientFavDestination } from "./fav.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
@@ -13,7 +14,3 @@ export interface NewClient {
 }
 
 export type PaginatedClient = PaginatedData<Client>
-
-export interface ClientBooking {
-    booking_id: number | string
-}

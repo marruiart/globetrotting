@@ -2,8 +2,7 @@ import { createFeatureSelector, createSelector } from "@ngrx/store";
 import { AUTH_FEATURE_KEY, AuthState } from "./auth.reducer";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { AgentUser, ClientUser, User } from "../../models/globetrotting/user.interface";
-import { ClientBooking } from "../../models/globetrotting/client.interface";
-import { Booking } from "../../models/globetrotting/booking.interface";
+import { Booking, ClientBooking } from "../../models/globetrotting/booking.interface";
 import { ClientFavDestination } from "../../models/globetrotting/fav.interface";
 
 export const selectFeature = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY);

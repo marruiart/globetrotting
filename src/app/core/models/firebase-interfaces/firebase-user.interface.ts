@@ -1,5 +1,4 @@
-import { Booking } from "../globetrotting/booking.interface"
-import { ClientBooking } from "../globetrotting/client.interface"
+import { Booking, ClientBooking } from "../globetrotting/booking.interface"
 import { ClientFavDestination } from "../globetrotting/fav.interface"
 import { Role } from "../globetrotting/user.interface"
 

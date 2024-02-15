@@ -39,6 +39,7 @@ import { DestinationsServiceFactory } from './core/factories/destinations-servic
 import { AgentServiceFactory } from './core/factories/agent-service.factory';
 import { AgentService } from './core/services/api/agent.service';
 import { AgentsModule } from './core/+state/agents/agents.module';
+import { BookingsModule } from './core/+state/bookings/bookings.module';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { AgentsModule } from './core/+state/agents/agents.module';
     FirebaseModule,
     FavoritesModule,
     DestinationsModule,
-    AgentsModule
+    AgentsModule,
+    BookingsModule
   ],
   providers: [
     // PrimeNg

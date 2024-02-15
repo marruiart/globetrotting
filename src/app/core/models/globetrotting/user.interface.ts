@@ -1,13 +1,11 @@
-import { Backend, Firebase } from "src/environments/environment"
 import { TravelAgent } from "./agent.interface"
-import { Client, ClientBooking } from "./client.interface"
+import { Client } from "./client.interface"
 import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
 import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-interfaces/firebase-user.interface"
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
-import { Booking } from "./booking.interface"
+import { Booking, ClientBooking } from "./booking.interface"
 import { ClientFavDestination } from "./fav.interface"
-import { DocumentReference } from "firebase/firestore"
 
 export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
 

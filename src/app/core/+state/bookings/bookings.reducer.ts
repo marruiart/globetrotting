@@ -24,4 +24,5 @@ export const bookingsReducer = createReducer(
     on(BookingsActions.updateBookingFailure, (state, { error }) => ({ ...state, error: error })),
     on(BookingsActions.deleteBookingSuccess, (state) => ({ ...state, error: null })),
     on(BookingsActions.deleteBookingFailure, (state, { error }) => ({ ...state, error: error })),
+    on(BookingsActions.logout, (_) => ({ ...initialState })),
 );

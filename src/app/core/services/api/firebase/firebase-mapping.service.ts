@@ -1,17 +1,20 @@
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
-import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo } from "src/app/core/models/globetrotting/booking.interface";
+import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo, AdminBookingsTableRow, AgentBookingsTableRow, ClientBookingsTableRow } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, UserCredentials, AgentUser, ClientUser, Role } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, AgentUser, ClientUser, Role } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
-import { DocumentData, DocumentSnapshot } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
+import { inject } from "@angular/core";
+import { DatePipe } from "@angular/common";
 
 export class FirebaseMappingService extends MappingService {
+    private datePipe: DatePipe = inject(DatePipe);
 
     private extractPaginatedData<T>(res: FirebaseCollectionResponse): PaginatedData<T> {
         return {
@@ -157,13 +160,36 @@ export class FirebaseMappingService extends MappingService {
         agent_id: agent.user_id,
         name: agent.name,
         surname: agent.surname,
-        email: agent.email    
+        email: agent.email
     })
 
     // BOOKING
 
-    public override mapBooking(res: any): Booking {
-        throw new Error("Method not implemented.");
+    private timestampToYearMonthDay(timestamp: Timestamp): string {
+        const milliseconds = timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6);
+        const date = new Date(milliseconds);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    public override mapBooking(res: FirebaseDocument): Booking {
+        return {
+            id: res.id,
+            start: this.timestampToYearMonthDay(res.data['start']),
+            end: this.timestampToYearMonthDay(res.data['end']),
+            travelers: res.data['travelers'],
+            rating: res.data['rating'],
+            isActive: res.data['isActive'],
+            isConfirmed: res.data['isConfirmed'],
+            agent_id: res.data['agent_id'],
+            agentName: res.data['agentName'],
+            client_id: res.data['client_id'],
+            clientName: res.data['clientName'],
+            destination_id: res.data['destination_id'],
+            destinationName: res.data['destinationName']
+        }
     }
     public override mapBookings(res: any): Booking[] {
         throw new Error("Method not implemented.");
@@ -173,9 +199,25 @@ export class FirebaseMappingService extends MappingService {
     }
 
     public override mapBookingTableRow(role: Role, booking: Booking, client?: ClientRowInfo, agent?: AgentRowInfo): BookingsTableRow {
-        throw new Error("Method not implemented.");
+        let tableRow = {
+            booking_id: booking.id,
+            destination_id: booking.destination_id,
+            destinationName: booking.destinationName ?? 'Unknown',
+            start: booking.start,
+            end: booking.end,
+            travelers: booking.travelers,
+            isConfirmed: booking.isConfirmed ?? false
+        }
+        if (role === 'ADMIN' && client !== undefined && agent !== undefined) {
+            return { ...tableRow, ...agent, ...client } as AdminBookingsTableRow;
+        } else if (role === 'AGENT' && client !== undefined) {
+            return { ...tableRow, ...client } as AgentBookingsTableRow;
+        } else if (role === 'AUTHENTICATED' && agent !== undefined) {
+            return { ...tableRow, ...agent } as ClientBookingsTableRow;
+        } else {
+            throw Error('Error: Required bookings table information was not provided.')
+        }
     }
-
 
     // MEDIA
 

@@ -29,7 +29,6 @@ export const selectUser = createSelector(selectFeature, (state: AuthState): User
             name: state.name,
             surname: state.surname,
             age: state.age,
-            bookings: (state.bookings ?? []) as ClientBooking[],
             favorites: (state.favorites ?? []) as ClientFavDestination[]
         } as ClientUser
     } else if (state.role === 'ADMIN' || state.role === 'AGENT'){
@@ -44,7 +43,6 @@ export const selectUser = createSelector(selectFeature, (state: AuthState): User
             name: state.name,
             surname: state.surname,
             age: state.age,
-            bookings: (state.bookings ?? []) as Booking[]
         } as AgentUser
     } else {
         return null;

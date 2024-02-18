@@ -1,43 +1,16 @@
 import { DatePipe } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, tap, zip } from 'rxjs';
+import { catchError, lastValueFrom, of, switchMap, tap, zip } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
-import { BookingsTableRow, ClientBookingsTableRow, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
-import { AgentService } from 'src/app/core/services/api/agent.service';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
-import { ClientService } from 'src/app/core/services/api/client.service';
-import { DestinationsService } from 'src/app/core/services/api/destinations.service';
-import { UsersService } from 'src/app/core/services/api/users.service';
 import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-
-interface TableRow {
-  booking_id: number | string,
-  destination_id: number | string,
-  destination: string,
-  start: string | null,
-  end: string | null,
-  travelers: number,
-  isConfirmed: boolean
-}
-
-interface ClientTableRow extends TableRow {
-  agentName: string | null
-}
-
-interface AgentTableRow extends TableRow {
-  clientName: string,
-}
-
-interface AdminTableRow extends TableRow {
-  agentName: string | number | null
-  clientName: string,
-}
 
 @Component({
   selector: 'app-bookings',
@@ -93,8 +66,9 @@ export class BookingsPage {
         component: 'BookingsPage',
         sub: this.bookingsFacade.bookingTable$
           .subscribe((table) => {
-            if (table)
+            if (table) {
               this.loading = false;
+            }
           })
       }
     ])
@@ -134,6 +108,7 @@ export class BookingsPage {
           return [
             { field: 'booking_id', header: bookingId },
             { field: 'clientName', header: client },
+            { field: 'agentName', header: agent },
             { field: 'dates', header: dates },
             { field: 'travelers', header: travelers },
             { field: 'isConfirmed', header: confirmationState }
@@ -180,7 +155,6 @@ export class BookingsPage {
       client_id: booking.client_id,
       destination_id: booking.destination_id
     }
-
     lastValueFrom(this.bookingsSvc.addBooking(_booking)).catch(err => console.error(err));
     this.hideBookingForm();
   }

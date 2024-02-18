@@ -1,17 +1,14 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as BookingsActions from './bookings.actions'
-import { Observable, catchError, concatMap, forkJoin, lastValueFrom, map, of, switchMap, zip } from "rxjs";
+import { logoutSuccess as AuthActionsLogoutSuccess } from '../auth/auth.actions'
+import { Observable, catchError, forkJoin, map, of, switchMap, zip } from "rxjs";
 import { UsersService } from "../../services/api/users.service";
 import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
-import { ClientService } from "../../services/api/client.service";
-import { DestinationsService } from "../../services/api/destinations.service";
-import { ExtUser, User } from "../../models/globetrotting/user.interface";
-import { AgentService } from "../../services/api/agent.service";
-import { AgentsTableRow } from "../../models/globetrotting/agent.interface";
-import { AuthFacade } from "../auth/auth.facade";
+import { ExtUser } from "../../models/globetrotting/user.interface";
 import { getClientName } from "../../utilities/utilities";
+import { BookingsService } from "../../services/api/bookings.service";
 
 @Injectable()
 export class BookingsEffects {
@@ -19,6 +16,7 @@ export class BookingsEffects {
     constructor(
         private actions$: Actions,
         private usersSvc: UsersService,
+        private bookingsSvc: BookingsService,
         private mappingSvc: MappingService
     ) { }
 
@@ -67,7 +65,7 @@ export class BookingsEffects {
                                 const agent = agents[i];
                                 const agentInfo = (agent) ? { agentName: `${agent.name} ${agent.surname}`, agent_id: agent?.user_id } as AgentRowInfo
                                     : { agentName: null, agent_id: null } as AgentRowInfo;
-                                    bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, undefined, agentInfo));
+                                bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, undefined, agentInfo));
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
                         }), catchError(error => { throw Error(error) }))
@@ -88,7 +86,7 @@ export class BookingsEffects {
                     });
                     return BookingsActions.saveBookingsTableSuccess({ bookingsTable })
                 } else {
-                    return BookingsActions.saveMgmtTableFailure({ error: 'Error: Unable to create bookings table. Bookings information was not provided.' })
+                    return BookingsActions.saveBookingsTableFailure({ error: 'Error: Unable to create bookings table. Bookings information was not provided.' })
                 }
             })
         ))

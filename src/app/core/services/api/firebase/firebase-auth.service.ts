@@ -54,7 +54,6 @@ export class FirebaseAuthService extends AuthService {
                   nickname: nickname,
                   name: _agentInfo.name,
                   surname: _agentInfo.surname,
-                  bookings: [],
                 } as AgentUser
               } else {
                 userInfo = {
@@ -63,7 +62,6 @@ export class FirebaseAuthService extends AuthService {
                   username: registerInfo.username,
                   email: registerInfo.email,
                   nickname: nickname,
-                  bookings: [],
                   favorites: []
                 } as ClientUser;
               }

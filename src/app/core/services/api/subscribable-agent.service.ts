@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { MappingService } from './mapping.service';
 import { PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { DataService } from './data.service';
@@ -20,15 +20,19 @@ export class SubscribableAgentService extends AgentService {
     dataSvc: DataService,
     mappingSvc: MappingService,
   ) {
-    super(dataSvc, mappingSvc)
-    if (!this.unsubscribe) {
-      this.subscribeToAgents();
-    }
+    super(dataSvc, mappingSvc);
+    this.authFacade.currentUser$.pipe(tap(user => {
+      if (!this.unsubscribe && user) {
+        this.subscribeToAgents();
+      } else if (!user) {
+        this.unsubscribe = null;
+      }
+    }))
   }
 
   private subscribeToAgents() {
     const _agents = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollection('agents_users', _agents);
+    this.unsubscribe = this.firebaseSvc.subscribeToCollection('mgmt_agents', _agents);
     _agents.subscribe(res => {
       if (res) {
         const agents = res.docs.map(doc => this.mappingSvc.mapUser(doc) as AgentUser);

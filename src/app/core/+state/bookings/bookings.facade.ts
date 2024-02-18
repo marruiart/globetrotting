@@ -20,7 +20,7 @@ export class BookingsFacade {
         if (bookings) {
             this.store.dispatch(BookingsActions.saveBookingsTable({ bookings, role }));
         } else {
-            this.store.dispatch(BookingsActions.saveMgmtTableFailure({ error: 'Error: Management Table is empty.' }));
+            this.store.dispatch(BookingsActions.saveBookingsTableFailure({ error: 'Error: Management Table is empty.' }));
         }
     }
 
@@ -34,5 +34,9 @@ export class BookingsFacade {
 
     deleteBooking(id: string | number) {
         this.store.dispatch(BookingsActions.deleteBooking({ id }));
+    }
+
+    logout() {
+        this.store.dispatch(BookingsActions.logout());
     }
 }

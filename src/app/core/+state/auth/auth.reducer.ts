@@ -53,8 +53,8 @@ export const authReducer = createReducer(
     on(AuthActions.registerFailure, (_, { error }) => resetState(error))
 );
 
-function assignUserMapping(state: AuthState, user: User | null): AuthState {
-    return (user) ? {
+function assignUserMapping(state: AuthState, user: User): AuthState {
+    return {
         ...state,
         isLogged: true,
         user_id: (user.user_id as (Backend extends Firebase ? string : number)),
@@ -67,14 +67,13 @@ function assignUserMapping(state: AuthState, user: User | null): AuthState {
         name: user.name,
         surname: user.surname,
         age: user.age,
-        bookings: user.bookings,
         favorites: isType<ClientUser>(user) ? user.favorites : undefined,
         error: null
-    } : resetState();
+    };
 }
 
 function updateUserMapping(state: AuthState, user: User): AuthState {
-    return  {
+    return {
         ...state,
         email: user?.email ?? '',
         favorites: isType<ClientUser>(user) ? user.favorites : undefined,
@@ -82,7 +81,7 @@ function updateUserMapping(state: AuthState, user: User): AuthState {
         nickname: user.nickname,
         role: user.role,
         surname: user.surname,
-    } 
+    }
 }
 
 function resetState(error?: any): AuthState {

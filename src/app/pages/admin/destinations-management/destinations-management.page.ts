@@ -28,7 +28,7 @@ export class DestinationsManagementPage {
     private authFacade: AuthFacade,
     public destinationsFacade: DestinationsFacade,
     private subsSvc: SubscriptionsService,
-    private confirmationService: ConfirmationService,
+    private confirmationSvc: ConfirmationService,
     private messageService: MessageService,
     private translate: CustomTranslateService
   ) {
@@ -150,7 +150,7 @@ export class DestinationsManagementPage {
   }
 
   showConfirmDialog(id: number) {
-    this.confirmationService.confirm({
+    this.confirmationSvc.confirm({
       message: '¿Desea eliminar el destino?',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',

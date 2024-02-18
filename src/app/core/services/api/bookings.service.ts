@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, tap } from 'rxjs';
 import { Booking, NewBooking } from '../../models/globetrotting/booking.interface';
 import { ApiService } from './api.service';
@@ -13,6 +13,8 @@ import { BookingsFacade } from '../../+state/bookings/bookings.facade';
   providedIn: 'root'
 })
 export class BookingsService extends ApiService {
+  protected authFacade = inject(AuthFacade);
+  protected bookingsFacade = inject(BookingsFacade);
   private path: string = "/api/bookings";
   private body = (booking: NewBooking) => this.mappingSvc.mapBookingPayload(booking);
   private queries: { [query: string]: string } = {
@@ -20,17 +22,19 @@ export class BookingsService extends ApiService {
     "sort": "destination.name"
   }
 
-  private currentUser: User | null = null; // TODO cambiar las clases de esto
+  protected currentUser: User | null = null;
 
   constructor(
     private dataSvc: DataService,
-    private authFacade: AuthFacade,
-    private bookingsFacade: BookingsFacade,
-    private mappingSvc: MappingService
+    protected mappingSvc: MappingService
   ) {
     super();
     this.authFacade.currentUser$.subscribe(user => {
-      this.currentUser = user;
+      if (user) {
+        this.currentUser = user;
+      } else {
+        this.bookingsFacade.logout();
+      }
     })
   }
 

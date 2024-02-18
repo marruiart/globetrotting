@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { BACKEND, environment } from 'src/environments/environment';
 import { LocationsApiService } from './core/services/api/data-api/locations-api.service';
 import { CharactersApiService } from './core/services/api/data-api/characters-api.service';
@@ -9,13 +9,14 @@ import { FirebaseFacade } from './core/+state/firebase/firebase.facade';
 import { SubscriptionsService } from './core/services/subscriptions.service';
 import { FavoritesFacade } from './core/+state/favorites/favorites.facade';
 import { DestinationsFacade } from './core/+state/destinations/destinations.facade';
+import { BookingsFacade } from './core/+state/bookings/bookings.facade';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   public language = "es";
   private subs: Subscription[] = [];
 
@@ -25,6 +26,7 @@ export class AppComponent {
     public translate: CustomTranslateService,
     private authFacade: AuthFacade,
     private firebaseFacade: FirebaseFacade,
+    private bookingsFacade: BookingsFacade,
     private favsFacade: FavoritesFacade,
     private destinationsFacade: DestinationsFacade,
     private subsSvc: SubscriptionsService
@@ -64,6 +66,12 @@ export class AppComponent {
         sub: this.destinationsFacade.error$.pipe(tap(error => {
           if (error) console.error(error);
         })).subscribe()
+      },
+      {
+        component: 'AppComponent',
+        sub: this.bookingsFacade.error$.pipe(tap(error => {
+          if (error) console.error(error);
+        })).subscribe()
       }
     ]);
   }
@@ -94,7 +102,7 @@ export class AppComponent {
     lastValueFrom(this.translate.changeLanguage(this.language));
   }
 
-  onDestroy() {
+  ngOnDestroy() {
     if (this.subs) {
       this.subs.forEach(sub => sub.unsubscribe());
     }

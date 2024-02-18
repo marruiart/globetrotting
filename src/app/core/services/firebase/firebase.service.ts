@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { initializeApp, getApp, FirebaseApp } from "firebase/app";
-import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
@@ -10,8 +10,6 @@ import { Sizes } from '../../+state/firebase/firebase.reducer';
 import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
-import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
-import { MappingService } from '../api/mapping.service';
 
 export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
 
@@ -28,10 +26,8 @@ export class FirebaseService {
   constructor(
     @Inject('firebase-config') config: any,
     private authFacade: AuthFacade,
-    private destinationsFacade: DestinationsFacade,
     private favsFacade: FavoritesFacade,
     private firebaseFacade: FirebaseFacade,
-    private mappingSvc: MappingService
   ) {
     this.init(config);
   }
@@ -47,6 +43,8 @@ export class FirebaseService {
     this.authFacade.currentUser$.subscribe(user => {
       if (user?.role == 'AUTHENTICATED') {
         this.favsFacade.assignClientFavs(user.favorites);
+      } else {
+        this.favsFacade.logout();
       }
     })
   }
@@ -316,6 +314,30 @@ export class FirebaseService {
       return null;
     }
     return onSnapshot(collection(this._db, collectionName), (querySnapshot) => {
+      const res = {
+        name: collectionName,
+        size: querySnapshot.size,
+        pageSize: querySnapshot.size,
+        docs: querySnapshot.docs.map<FirebaseDocument>(doc => ({ id: doc.id, data: doc.data() }))
+      }
+      subject.next(res);
+    }, error => { throw new Error(error.message) });
+  }
+
+
+  public subscribeToCollectionQuery(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>, compositeFilter: QueryCompositeFilterConstraint, ...queryConstraints: QueryNonFilterConstraint[]): Unsubscribe | null;
+  public subscribeToCollectionQuery(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>, ...queryConstraints: QueryConstraint[]): Unsubscribe | null;
+  public subscribeToCollectionQuery(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>, compositeFilter: any = null, ...queryConstraints: (QueryConstraint | QueryNonFilterConstraint)[]): Unsubscribe | null {
+    if (!this._db) {
+      return null;
+    }
+    let _query;
+    if (compositeFilter) {
+      _query = query(collection(this._db!, collectionName), compositeFilter, ...queryConstraints);
+    } else {
+      _query = query(collection(this._db!, collectionName), ...queryConstraints);
+    }
+    return onSnapshot(_query, (querySnapshot) => {
       const res = {
         name: collectionName,
         size: querySnapshot.size,

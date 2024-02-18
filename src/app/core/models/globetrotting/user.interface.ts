@@ -95,7 +95,6 @@ export type ClientUser = {
     name?: string,
     surname?: string,
     age?: string,
-    bookings: ClientBooking[],
     favorites: ClientFavDestination[]
 }
 
@@ -111,7 +110,6 @@ export type AgentUser = {
     name: string,
     surname: string,
     age?: string,
-    bookings: Booking[]
 }
 
 export type User = AgentUser | ClientUser

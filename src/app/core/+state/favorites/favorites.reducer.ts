@@ -9,13 +9,11 @@ export type Sizes = {
 }
 
 export type FavoritesState = {
-    specific_id: string | number | null
     clientFavs: ClientFavDestination[]
     error: any | null
 }
 
 export const initialState: FavoritesState = {
-    specific_id: null,
     clientFavs: [],
     error: null
 };
@@ -28,4 +26,5 @@ export const favoritesReducer = createReducer(
     on(FavoritesActions.addFavFailure, (state, { error }) => ({ ...state, error: error })),
     on(FavoritesActions.deleteFavSuccess, (state) => ({ ...state, error: null })),
     on(FavoritesActions.deleteFavFailure, (state, { error }) => ({ ...state, error: error })),
+    on(FavoritesActions.logout, (_) => ({ ...initialState })),
 );

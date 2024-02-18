@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
-import { BehaviorSubject, Observable, lastValueFrom, map, of, switchMap } from 'rxjs';
+import { lastValueFrom, map, of, switchMap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
 import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade';

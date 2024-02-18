@@ -4,8 +4,8 @@ import { Role } from '../../models/globetrotting/user.interface';
 
 export const retrieveBookingsInfo = createAction('[Bookings API] Retrieve Bookings Info', props<{ bookings: Booking[], role: Role }>());
 export const saveBookingsTable = createAction('[Bookings API] Save Bookings', props<{ bookings: Booking[], role: Role }>());
-export const saveBookingsTableSuccess = createAction('[Bookings API] Save Management Table Success', props<{ bookingsTable: BookingsTableRow[] }>());
-export const saveMgmtTableFailure = createAction('[Bookings API] Save Management Table Failure', props<{ error: any }>());
+export const saveBookingsTableSuccess = createAction('[Bookings API] Save Bookings Table Success', props<{ bookingsTable: BookingsTableRow[] }>());
+export const saveBookingsTableFailure = createAction('[Bookings API] Save Bookings Table Failure', props<{ error: any }>());
 
 export const addBooking = createAction('[Bookings API] Add Booking', props<{ newBooking: NewBooking }>());
 export const addBookingSuccess = createAction('[Bookings API] Add Booking Success');
@@ -18,3 +18,5 @@ export const updateBookingFailure = createAction('[Bookings API] Update Booking 
 export const deleteBooking = createAction('[Bookings API] Delete Booking', props<{ id: number | string }>());
 export const deleteBookingSuccess = createAction('[Bookings API] Delete Booking Success');
 export const deleteBookingFailure = createAction('[Bookings API] Delete Booking Failure', props<{ error: any }>());
+
+export const logout = createAction('[Bookings API] Logout');

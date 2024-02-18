@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as FavoritesActions from './favorites.actions'
-import { catchError, concatMap, exhaustMap, map, of, switchMap } from "rxjs";
+import { catchError, exhaustMap, map, of, switchMap } from "rxjs";
 import { FavoritesService } from "../../services/api/favorites.service";
 import { Fav } from "../../models/globetrotting/fav.interface";
 

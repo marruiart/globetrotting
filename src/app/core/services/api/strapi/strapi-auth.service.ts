@@ -195,7 +195,6 @@ export class StrapiAuthService extends AuthService {
                             name: extUser?.name ?? '',
                             surname: extUser?.surname ?? '',
                             age: extUser?.age,
-                            bookings: agent.bookings
                           }
                           return user;
                         } else {
@@ -218,7 +217,6 @@ export class StrapiAuthService extends AuthService {
                             name: extUser?.name ?? '',
                             surname: extUser?.surname ?? '',
                             age: extUser?.age,
-                            bookings: client.bookings,
                             favorites: client.favorites
                           }
                           return user;

@@ -40,6 +40,8 @@ import { AgentServiceFactory } from './core/factories/agent-service.factory';
 import { AgentService } from './core/services/api/agent.service';
 import { AgentsModule } from './core/+state/agents/agents.module';
 import { BookingsModule } from './core/+state/bookings/bookings.module';
+import { BookingsService } from './core/services/api/bookings.service';
+import { BookingsServiceFactory } from './core/factories/bookings-service.factory';
 
 @NgModule({
   declarations: [
@@ -69,8 +71,8 @@ import { BookingsModule } from './core/+state/bookings/bookings.module';
     BookingsModule
   ],
   providers: [
-    // PrimeNg
     DatePipe,
+    // PrimeNG
     ConfirmationService,
     MessageService,
     // General
@@ -116,6 +118,11 @@ import { BookingsModule } from './core/+state/bookings/bookings.module';
       provide: AgentService,
       deps: ['backend', DataService, MappingService],
       useFactory: AgentServiceFactory,
+    },
+    {
+      provide: BookingsService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: BookingsServiceFactory,
     },
     {
       provide: 'firebase-config',

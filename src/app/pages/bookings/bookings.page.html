@@ -86,6 +86,17 @@
                   ></p-chip>
                 </ng-container>
 
+                <ng-container *ngSwitchCase="'agentName'">
+                  <p-chip
+                    *ngIf="booking[col.field]"
+                    [label]="booking[col.field]"
+                    image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  ></p-chip>
+                  <ng-container *ngIf="!booking[col.field]">
+                    {{ '-' }}
+                  </ng-container>
+                </ng-container>
+
                 <ng-container *ngSwitchCase="'dates'">
                   <div
                     class="dates-align"
@@ -131,7 +142,7 @@
 
                 <!-- Otherwise, display the content of the field -->
                 <ng-container *ngSwitchDefault>
-                  {{ booking[col.field] }}
+                  {{ booking[col.field] ?? '-' }}
                 </ng-container>
               </ng-template>
             </td>

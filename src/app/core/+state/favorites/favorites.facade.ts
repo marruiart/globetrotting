@@ -22,4 +22,8 @@ export class FavoritesFacade {
     deleteFav(id: string | number) {
         this.store.dispatch(FavoritesActions.deleteFav({ id }));
     }
+
+    logout() {
+        this.store.dispatch(FavoritesActions.logout());
+    }
 }

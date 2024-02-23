@@ -14,7 +14,6 @@ import { inject } from "@angular/core";
 import { DatePipe } from "@angular/common";
 
 export class FirebaseMappingService extends MappingService {
-    private datePipe: DatePipe = inject(DatePipe);
 
     private extractPaginatedData<T>(res: FirebaseCollectionResponse): PaginatedData<T> {
         return {
@@ -165,7 +164,7 @@ export class FirebaseMappingService extends MappingService {
 
     // BOOKING
 
-    private timestampToYearMonthDay(timestamp: Timestamp): string {
+    public timestampToYearMonthDay(timestamp: Timestamp): string {
         const milliseconds = timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6);
         const date = new Date(milliseconds);
         const yyyy = date.getFullYear();
@@ -175,10 +174,12 @@ export class FirebaseMappingService extends MappingService {
     }
 
     public override mapBooking(res: FirebaseDocument): Booking {
+        const start = this.timestampToYearMonthDay(res.data['start']);
+        const end = this.timestampToYearMonthDay(res.data['end']);
         return {
             id: res.id,
-            start: this.timestampToYearMonthDay(res.data['start']),
-            end: this.timestampToYearMonthDay(res.data['end']),
+            start: start,
+            end: end,
             travelers: res.data['travelers'],
             rating: res.data['rating'],
             isActive: res.data['isActive'],
@@ -242,7 +243,20 @@ export class FirebaseMappingService extends MappingService {
     public override mapAgentPayload(client: NewTravelAgent) {
         throw new Error("Method not implemented.");
     }
-    public override mapBookingPayload(destination: NewBooking) {
-        throw new Error("Method not implemented.");
+    public override mapBookingPayload(booking: NewBooking) {
+        return {
+            //agentName: booking.agentName,
+            //agent_id: booking.agent_id,
+            clientName: booking.clientName,
+            client_id: booking.client_id,
+            destination_id: booking.destination_id,
+            destinationName: booking.destinationName,
+            end: booking.start,
+            isActive: booking.isActive,
+            isConfirmed: booking.isConfirmed,
+            start: booking.start,
+            travelers: booking.travelers
+        }
+
     }
 }

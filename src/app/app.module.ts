@@ -29,7 +29,6 @@ import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
 import { DataServiceFactory } from './core/factories/data-service.factory';
 import { JwtService } from './core/services/auth/jwt.service';
-import { FirebaseModule } from './core/+state/firebase/firebase.module';
 import { FavoritesService } from './core/services/api/favorites.service';
 import { FavoritesServiceFactory } from './core/factories/favorites-service.factory';
 import { FavoritesModule } from './core/+state/favorites/favorites.module';
@@ -64,7 +63,6 @@ import { BookingsServiceFactory } from './core/factories/bookings-service.factor
       }
     }),
     AuthModule,
-    FirebaseModule,
     FavoritesModule,
     DestinationsModule,
     AgentsModule,

@@ -15,10 +15,12 @@ import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-clien
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
-import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-auth.interface';
 import { isType } from 'src/app/core/utilities/utilities';
+import { DatePipe } from '@angular/common';
+import { inject } from '@angular/core';
 
 export class StrapiMappingService extends MappingService {
+  private datePipe: DatePipe = inject(DatePipe);
 
   private extractPaginatedData<T, S>(res: StrapiArrayResponse<S>, callback: (data: StrapiData<S>) => T): PaginatedData<T> {
     return {
@@ -362,8 +364,8 @@ export class StrapiMappingService extends MappingService {
   public mapBookingPayload(booking: NewBooking): StrapiPayload<StrapiBooking> {
     return {
       data: {
-        start: booking.start,
-        end: booking.start,
+        start: this.datePipe.transform(booking.start, 'yyyy-MM-dd'),
+        end: this.datePipe.transform(booking.end, 'yyyy-MM-dd'),
         isActive: booking.isActive,
         isConfirmed: booking.isConfirmed,
         travelers: booking.travelers,

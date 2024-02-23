@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BookingForm } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { Role } from 'src/app/core/models/globetrotting/user.interface';
 import { UsersService } from 'src/app/core/services/api/users.service';
 
 @Component({
@@ -15,11 +16,11 @@ export class BookingFormComponent {
     @Input() emptyForm?: FormGroup;
     @Input() destinations: Destination[] = [];
 
-    private _currentUserType?: 'AGENT' | 'AUTHENTICATED';
-    @Input() set currentUserType(currentUserType: 'AGENT' | 'AUTHENTICATED' | undefined) {
+    private _currentUserType?: Role;
+    @Input() set currentUserType(currentUserType: Role | undefined) {
         if (currentUserType) {
             this._currentUserType = currentUserType;
-            if (this._currentUserType == 'AGENT') {
+            if (this._currentUserType === 'AGENT' || this._currentUserType === 'ADMIN') {
                 this.bookingForm = this.fb.group({
                     client: [null, [Validators.required]],
                     destination: [null, [Validators.required]],
@@ -34,7 +35,7 @@ export class BookingFormComponent {
             }
         }
     }
-    get currentUserType(): 'AGENT' | 'AUTHENTICATED' | undefined {
+    get currentUserType(): Role | undefined {
         return this._currentUserType;
     }
 

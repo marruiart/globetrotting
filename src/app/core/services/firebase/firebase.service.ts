@@ -6,12 +6,12 @@ import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "f
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
-import { Sizes } from '../../+state/firebase/firebase.reducer';
-import { FirebaseFacade } from '../../+state/firebase/firebase.facade';
+import { Sizes } from '../../+state/favorites/favorites.reducer';
+import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
 
-export type Collections = 'destinations' | 'sizes' | 'users' | 'favorites';
+export type Collections = 'destinations' | 'sizes' | 'users' | 'bookings';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,7 @@ export class FirebaseService {
     @Inject('firebase-config') config: any,
     private authFacade: AuthFacade,
     private favsFacade: FavoritesFacade,
-    private firebaseFacade: FirebaseFacade,
+    private destinationsFacade: DestinationsFacade
   ) {
     this.init(config);
   }
@@ -38,7 +38,6 @@ export class FirebaseService {
     this._db = getFirestore(this._app);
     this._webStorage = getStorage(this._app);
     this._auth = initializeAuth(getApp(), { persistence: indexedDBLocalPersistence });
-    this.initCollectionsSize();
     this.initSubscriptions();
     this.authFacade.currentUser$.subscribe(user => {
       if (user?.role == 'AUTHENTICATED') {
@@ -54,6 +53,12 @@ export class FirebaseService {
     this.subscribeToSizes();
   }
 
+  private async subscribeToSizes() {
+    this.destinationsFacade.destinations$.subscribe(dests => {
+      this._sizes['destinations'] = dests.length;
+    })
+  }
+
   private subscribeToUser() {
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
@@ -65,28 +70,6 @@ export class FirebaseService {
         this.authFacade.logout()
       };
     });
-  }
-
-  private subscribeToSizes() {
-    let isFirstTime = true;
-    this.firebaseFacade.sizes$.subscribe({
-      next: sizes => {
-        Object.entries(sizes).forEach(async ([collectionDoc, size]) => {
-          if (!isFirstTime && (this._sizes[collectionDoc] ?? 0 != size)) {
-            await this.updateDocument('sizes', collectionDoc, { size: size }).catch(err => console.error(err));
-          }
-          this._sizes = { ...sizes };
-        })
-        isFirstTime = Object.keys(sizes).length === 0;
-      },
-      error: error => console.error(error)
-    });
-  }
-
-  public initCollectionsSize() {
-    this.getDocuments('sizes')
-      .then(res => this.firebaseFacade.initSizes(res.docs))
-      .catch(err => console.error(err));
   }
 
   public generateId(): string {

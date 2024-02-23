@@ -51,6 +51,6 @@ export abstract class MappingService {
   public abstract mapExtendedUserPayload(user: NewExtUser): any;
   public abstract mapClientPayload(client: NewClient): any
   public abstract mapAgentPayload(client: NewTravelAgent): any
-  public abstract mapBookingPayload(destination: NewBooking): any;
+  public abstract mapBookingPayload(booking: NewBooking): any;
 
 }

@@ -1,6 +1,6 @@
 <form [formGroup]="bookingForm" (ngSubmit)="onAccept($event)">
-  <!-- AÑADIR SOLO SI ES AGENT!! -->
-  <ng-container *ngIf="currentUserType == 'AGENT'">
+  <!-- TODO AÑADIR SOLO SI ES AGENT!! (?) -->
+  <ng-container *ngIf="currentUserType === 'AGENT' || currentUserType === 'ADMIN'">
     <label htmlFor="client">{{ "bookingsForm.client" | translate }}:</label>
     <app-client-selectable
       id="client"

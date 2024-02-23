@@ -1,13 +1,11 @@
 import { Observable, from, map } from 'rxjs';
 import { DataService } from '../data.service';
 import { Collections, FirebaseService } from '../../firebase/firebase.service';
-import { DocumentSnapshot } from 'firebase/firestore';
+import { DocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { FirebaseCollectionResponse, FirebaseDocument } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
-import { FirebaseFacade } from 'src/app/core/+state/firebase/firebase.facade';
 import { inject } from '@angular/core';
 
 export class FirebaseDataService extends DataService {
-    private firebaseFacade = inject(FirebaseFacade);
     private firebaseSvc = inject(FirebaseService);
 
     public override obtainAll<T>(path: string, queries: { [query: string]: string | DocumentSnapshot; }, callback: (res: FirebaseCollectionResponse) => T): Observable<T> {
@@ -34,17 +32,36 @@ export class FirebaseDataService extends DataService {
     ): Observable<T> {
         const collection: Collections = path.split('/')[2] as Collections;
         const id = this.firebaseSvc.generateId();
-        body = { ...body, id: id }
-        return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(
-            map(docId => {
-                this.firebaseFacade.updateSize(collection);
-                return callback(docId);
-            }))
+        body = { ...body, id: id, updatedAt: new Date() }
+        return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(map(_ => {
+            let doc: FirebaseDocument;
+            if (collection == 'bookings') {
+                const start = this.isoDateToTimestamp(body.start);
+                const end = this.isoDateToTimestamp(body.end);
+                doc = {
+                    id: body.id,
+                    data: { ...body, start: start, end: end }
+                }
+            } else {
+                doc = {
+                    id: body.id,
+                    data: { ...body }
+                }
+            }
+            return callback(doc);
+        }))
+    }
+
+    private isoDateToTimestamp(isoDate: string) {
+        const date = new Date(isoDate);
+        const seconds = Math.min(Math.max(date.getTime() / 1000, -62167219200), 2678416406);
+        const nanoseconds = (date.getTime() % 1000) * 1000000;
+        return new Timestamp(seconds, nanoseconds);
     }
 
     public override update<T>(path: string, id: string, body: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = path.split('/')[2];
-        return from(this.firebaseSvc.updateDocument(collection, `${id}`, body)).pipe(map(res => {
+        return from(this.firebaseSvc.updateDocument(collection, `${id}`, body)).pipe(map(_ => {
             const doc: FirebaseDocument = {
                 id: body.id,
                 data: body

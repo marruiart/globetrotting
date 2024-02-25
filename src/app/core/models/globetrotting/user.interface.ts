@@ -14,6 +14,7 @@ export type UserCredentialsOptions = FirebaseUserCredentials | StrapiUserCredent
 export type UserRegisterInfoOptions = FirebaseUserRegisterInfo | StrapiUserRegisterInfo;
 export interface ExtUser extends NewExtUser {
     id: number | string
+    role?: Role
 }
 export interface NewExtUser {
     nickname: string,

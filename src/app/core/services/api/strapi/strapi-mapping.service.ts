@@ -122,18 +122,21 @@ export class StrapiMappingService extends MappingService {
   // USERS
 
   private mapUserData = (data: StrapiData<StrapiExtendedUser>): ExtUser => {
-    const user_id = (data.attributes.user as StrapiResponse<StrapiUser>)?.data?.id ?? null;
+    const user = data.attributes.user as StrapiResponse<StrapiUser>;
+    const role = user.data.attributes.role?.data?.attributes?.type;
+    const user_id = user?.data?.id ?? null;
     if (!user_id) {
       console.info(`Usuario con id ${data.id} no asociado a un user_id`);
     }
     return {
       id: data.id,
+      role: role?.toUpperCase() ?? undefined,
       avatar: data.attributes.avatar ? this.mapImage(data.attributes.avatar) : undefined,
       nickname: data.attributes.nickname,
       name: data.attributes.name,
       surname: data.attributes.surname,
       age: data.attributes.age,
-      user_id: user_id,
+      user_id: user_id
     }
   }
 

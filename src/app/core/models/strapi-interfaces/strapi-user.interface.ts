@@ -1,15 +1,32 @@
 import { StrapiMedia } from "./strapi-media.interface";
 import { StrapiResponse } from "./strapi-data.interface";
+import { Role } from "../globetrotting/user.interface";
 
+export interface StrapiRole {
+    id: number,
+    name: string,
+    description: string,
+    type: string
+}
+
+export interface StrapiRolesResponse {
+    roles: StrapiRole[]
+}
+
+/**
+ * Represents the credentials of a user in Strapi.
+ * @property {number} [id] - The unique identifier for the user from the user-permissions table.
+ * @property {string} username - The username.
+ * @property {string} [email] - The email.
+ * @property {string} password - The user's password for authentication.
+ * @property {string} [role] - The role of the user: 'AUTHENTICATED', 'ADMIN' or 'AGENT'.
+ */
 export interface StrapiUserCredentials {
-    /**
-     * id of the User-Permissions table
-     */
     id?: number,
     username: string,
     email?: string,
     password: string | null,
-    role?: string
+    role?: Role
 }
 
 export interface StrapiUserRegisterInfo {
@@ -21,11 +38,14 @@ export interface StrapiUserRegisterInfo {
 export interface StrapiDataUser {
     username: string,
     email: string,
-    role: any
+    role: StrapiResponse<StrapiRole>
 }
 
-export interface StrapiUser extends StrapiDataUser {
-    id: number
+export interface StrapiUser {
+    id: number,
+    username: string,
+    email: string,
+    role: StrapiRole
 }
 
 /**
@@ -57,14 +77,14 @@ export interface StrapiLoginResponse {
 
 export type StrapiRegisterResponse = StrapiLoginResponse;
 
+/**
+ * @property {StrapiResponse<StrapiDataUser> | number | string} user - Strapi user data as a response or user id (number) as payload.
+ */
 export interface StrapiExtendedUser {
     nickname: string,
     name?: string,
     surname?: string,
     age?: string,
-    /**
-    * Strapi user data as a response or user id (number) as payload 
-    */
-    user?: StrapiResponse<StrapiUser> | number | string,
+    user?: StrapiResponse<StrapiDataUser> | number | string,
     avatar: StrapiResponse<StrapiMedia> | null
 }

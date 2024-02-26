@@ -4,7 +4,7 @@ import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrot
 import { MappingService } from '../mapping.service';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { DataService } from '../data.service';
-import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { AdminAgentOrClientUser } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseService } from '../../firebase/firebase.service';
 
 
@@ -15,7 +15,7 @@ export class FirebaseFavoritesService {
   private firebaseSvc = inject(FirebaseService);
   private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
   public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
-  private user: User | null = null;
+  private user: AdminAgentOrClientUser | null = null;
   private authFacade: AuthFacade = inject(AuthFacade);
   private _favs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
   public favs$: Observable<Fav[]> = this._favs.asObservable();

@@ -4,7 +4,7 @@ import { catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
 import { AgentsFacade } from "src/app/core/+state/agents/agents.facade";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
-import { User } from "src/app/core/models/globetrotting/user.interface";
+import { AdminAgentOrClientUser } from "src/app/core/models/globetrotting/user.interface";
 import { AgentService } from "src/app/core/services/api/agent.service";
 import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
@@ -22,7 +22,7 @@ export class AgentsManagementPage {
   public selectedAgent: AgentsTableRow | null = null;
   public isUpdating: boolean = false;
   public formType!: FormType;
-  public currentUser: User | null = null;
+  public currentUser: AdminAgentOrClientUser | null = null;
   public showForm: boolean = false;
   public data: AgentsTableRow[] = [];
   public cols: any[] = [];

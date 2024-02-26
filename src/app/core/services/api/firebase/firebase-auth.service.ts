@@ -1,7 +1,7 @@
 import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
-import { AgentRegisterInfo, AgentUser, ClientUser, Role, User, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { AgentRegisterInfo, AgentUser, ClientUser, Role, AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { inject } from '@angular/core';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
@@ -10,6 +10,10 @@ import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 export class FirebaseAuthService extends AuthService {
   private authFacade = inject(AuthFacade);
   private firebaseSvc = inject(FirebaseService);
+
+  public getRoles(): Observable<any> {
+    throw new Error('Method not implemented.');
+  }
 
   public login(credentials: UserCredentials): Observable<void> {
     return new Observable<any>(observer => {
@@ -44,7 +48,7 @@ export class FirebaseAuthService extends AuthService {
           }
           if (credentials) {
             if (credentials.user.user.uid) {
-              let userInfo: User;
+              let userInfo: AdminAgentOrClientUser;
               if (isAgent) {
                 userInfo = {
                   role: 'AGENT',
@@ -80,7 +84,7 @@ export class FirebaseAuthService extends AuthService {
     });
   }
 
-  private postRegister(userInfo: User): Observable<any> {
+  private postRegister(userInfo: AdminAgentOrClientUser): Observable<any> {
     // TODO FirebaseRegisterPayload
     if (userInfo.role == 'AUTHENTICATED') {
       return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`)).pipe(
@@ -92,15 +96,15 @@ export class FirebaseAuthService extends AuthService {
     }
   }
 
-  public me(): Observable<User> {
+  public me(): Observable<AdminAgentOrClientUser> {
 
-    return new Observable<User>(observer => {
+    return new Observable<AdminAgentOrClientUser>(observer => {
       this.authFacade.userId$.pipe(map(async uid => {
         if (uid) {
           try {
             const doc: FirebaseDocument = await this.firebaseSvc.getDocument('users', `${uid}`); // no cambiar el uid, debe ser string
             const role = doc.data['role'] as Role;
-            let user: User; // TODO funciones de mapeo
+            let user: AdminAgentOrClientUser; // TODO funciones de mapeo
             if (role === 'ADMIN' || role === 'AGENT') {
               user = {
                 role: role,

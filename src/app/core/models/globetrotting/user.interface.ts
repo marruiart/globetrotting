@@ -4,7 +4,6 @@ import { Media } from "./media.interface"
 import { PaginatedData } from "./pagination-data.interface"
 import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-interfaces/firebase-user.interface"
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
-import { Booking, ClientBooking } from "./booking.interface"
 import { ClientFavDestination } from "./fav.interface"
 
 export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
@@ -14,7 +13,6 @@ export type UserCredentialsOptions = FirebaseUserCredentials | StrapiUserCredent
 export type UserRegisterInfoOptions = FirebaseUserRegisterInfo | StrapiUserRegisterInfo;
 export interface ExtUser extends NewExtUser {
     id: number | string
-    role?: Role
 }
 export interface NewExtUser {
     nickname: string,
@@ -37,7 +35,7 @@ export interface NewExtUser {
     }
 } */
 
-export type PaginatedExtUser = PaginatedData<ExtUser>
+export type PaginatedUser = PaginatedData<User>
 
 /**
  * Represents the credentials required for user authentication.
@@ -84,8 +82,22 @@ export interface FullUser {
     specificUser: Client | TravelAgent | null
 }
 
-export type ClientUser = {
-    role: 'AUTHENTICATED',
+/**
+ * Represents a user.
+ * @property {Role} role - 'AUTHENTICATED', 'ADMIN' or 'AGENT' role.
+ * @property {string | number} user_id - Identification of the user.
+ * @property {string | number} [ext_id] - Identification of the extended user (optional).
+ * @property {string | number} [specific_id] - Identification of the specific user (optional).
+ * @property {string} username - The username associated with the user's account.
+ * @property {string} email - The email address associated with the user's account.
+ * @property {string} nickname - The nickname of the user.
+ * @property {string} [avatar] - The avatar of the user (optional).
+ * @property {string} [name] - The name of the user (optional).
+ * @property {string} [surname] - The surname of the user (optional).
+ * @property {string} [age] - The birth date of the user (optional).
+ */
+export type User = {
+    role: Role,
     user_id: string | number,
     ext_id?: string | number,
     specific_id?: string | number,
@@ -96,21 +108,66 @@ export type ClientUser = {
     name?: string,
     surname?: string,
     age?: string,
+}
+
+/**
+ * Represents a client user.
+ * @property {'AUTHENTICATED'} role - 'AUTHENTICATED' role.
+ * @property {string | number} user_id - Identification of the user.
+ * @property {string | number} [ext_id] - Identification of the extended user (optional).
+ * @property {string | number} [specific_id] - Identification of the specific user (optional).
+ * @property {string} username - The username associated with the user's account.
+ * @property {string} email - The email address associated with the user's account.
+ * @property {string} nickname - The nickname of the user.
+ * @property {string} [avatar] - The avatar of the user (optional).
+ * @property {string} [name] - The name of the user (optional).
+ * @property {string} [surname] - The surname of the user (optional).
+ * @property {string} [age] - The birth date of the user (optional).
+ * @property {ClientFavDestination[]} favorites - An array of the favorite destinations of the user.
+ */
+export type ClientUser = User & {
+    role: 'AUTHENTICATED',
     favorites: ClientFavDestination[]
 }
 
-export type AgentUser = {
-    role: 'AGENT' | 'ADMIN',
-    user_id: string | number,
-    ext_id?: string | number,
-    specific_id?: string | number,
-    username: string,
-    email: string,
-    nickname: string,
-    avatar?: any,
+/**
+ * Represents an agent user.
+ * @property {'AGENT'} role - 'AGENT' or 'ADMIN' role.
+ * @property {string | number} user_id - Identification of the user.
+ * @property {string | number} [ext_id] - Identification of the extended user (optional).
+ * @property {string | number} [specific_id] - Identification of the specific user (optional).
+ * @property {string} username - The username associated with the user's account.
+ * @property {string} email - The email address associated with the user's account.
+ * @property {string} nickname - The nickname of the user.
+ * @property {string} [avatar] - The avatar of the user (optional).
+ * @property {string} name - The name of the user.
+ * @property {string} surname - The surname of the user.
+ * @property {string} [age] - The birth date of the user (optional).
+ */
+export type AgentUser = User & {
+    role: 'AGENT',
     name: string,
     surname: string,
-    age?: string,
 }
 
-export type User = AgentUser | ClientUser
+/**
+ * Represents an agent user.
+ * @property {'ADMIN'} role - 'AGENT' or 'ADMIN' role.
+ * @property {string | number} user_id - Identification of the user.
+ * @property {string | number} [ext_id] - Identification of the extended user (optional).
+ * @property {string | number} [specific_id] - Identification of the specific user (optional).
+ * @property {string} username - The username associated with the user's account.
+ * @property {string} email - The email address associated with the user's account.
+ * @property {string} nickname - The nickname of the user.
+ * @property {string} [avatar] - The avatar of the user (optional).
+ * @property {string} name - The name of the user.
+ * @property {string} surname - The surname of the user.
+ * @property {string} [age] - The birth date of the user (optional).
+ */
+export type AdminUser = User & {
+    role: 'ADMIN',
+    name: string,
+    surname: string,
+}
+
+export type AdminAgentOrClientUser = AdminUser | AgentUser | ClientUser

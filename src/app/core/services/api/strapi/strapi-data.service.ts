@@ -27,7 +27,7 @@ export class StrapiDataService extends DataService {
   public obtainAll<T>(
     path: string,
     queries: { [query: string]: string } = {},
-    callback: ((res: T) => T)
+    callback: ((res: T) => T) = res => res
   ): Observable<T> {
 
     const url = this.getUrl(path);

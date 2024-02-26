@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { StrapiPayload } from '../../models/strapi-interfaces/strapi-data.interface';
 import { DataService } from './data.service';
-import { User } from '../../models/globetrotting/user.interface';
+import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { BookingsFacade } from '../../+state/bookings/bookings.facade';
 
@@ -22,7 +22,7 @@ export class BookingsService extends ApiService {
     "sort": "destination.name"
   }
 
-  protected currentUser: User | null = null;
+  protected currentUser: AdminAgentOrClientUser | null = null;
 
   constructor(
     private dataSvc: DataService,

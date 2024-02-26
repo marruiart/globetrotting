@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { AgentRegisterInfo, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo } from '../../models/globetrotting/user.interface';
-import { AuthUser } from '../../models/globetrotting/auth.interface';
+import { AgentRegisterInfo, AdminAgentOrClientUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo } from '../../models/globetrotting/user.interface';
+import { StrapiRole } from '../../models/strapi-interfaces/strapi-user.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,9 @@ export abstract class AuthService {
 
   public abstract logout(): Observable<any>;
 
-  public abstract me(): Observable<User>;
+  public abstract me(): Observable<AdminAgentOrClientUser>;
+
+  public abstract getRoles(): Observable<any>;
 
   public abstract updateIdentifiers(user: any): Observable<UserCredentialsOptions>;
 

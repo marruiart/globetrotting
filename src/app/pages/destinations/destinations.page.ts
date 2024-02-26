@@ -7,7 +7,7 @@ import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade'
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { ClientFavDestination, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { AdminAgentOrClientUser } from 'src/app/core/models/globetrotting/user.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
@@ -25,7 +25,7 @@ export interface FavClickedEvent {
 })
 export class DestinationsPage implements OnInit, OnDestroy {
   private _selectedDestination: Destination | null = null;
-  public currentUser: User | null = null;
+  public currentUser: AdminAgentOrClientUser | null = null;
   private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;

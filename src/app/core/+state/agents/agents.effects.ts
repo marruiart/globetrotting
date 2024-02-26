@@ -35,7 +35,7 @@ export class AgentsEffects {
                                 return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
                                     switchMap((user: UserCredentials): Observable<AgentUser> => {
                                         if (user) {
-                                            return of(this.mappingSvc.mapUser(user, agent, extUser) as AgentUser);
+                                            return of(this.mappingSvc.mapAdminAgentOrClientUser(user, agent, extUser) as AgentUser);
                                         }
                                         return throwError(() => "Error: Unable to retrieve user credentials.");
                                     }), catchError(err => of(err)))

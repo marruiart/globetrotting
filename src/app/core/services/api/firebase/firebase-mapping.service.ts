@@ -1,17 +1,15 @@
-import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
+import { TravelAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
 import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo, AdminBookingsTableRow, AgentBookingsTableRow, ClientBookingsTableRow } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedExtUser, UserCredentialsOptions, NewExtUser, User, AgentUser, ClientUser, Role } from "src/app/core/models/globetrotting/user.interface";
+import { ExtUser, PaginatedUser, UserCredentialsOptions, NewExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, Role, User } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
-import { inject } from "@angular/core";
-import { DatePipe } from "@angular/common";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -57,7 +55,7 @@ export class FirebaseMappingService extends MappingService {
     }
 
     // AUTH & USER
-    public override mapUser(user: FirebaseDocument): User {
+    public override mapAdminAgentOrClientUser(user: FirebaseDocument): AdminAgentOrClientUser {
         const role = user.data['role'];
         let _user = {
             role: user.data['role'],
@@ -104,13 +102,13 @@ export class FirebaseMappingService extends MappingService {
 
     // USERS
 
-    public override mapExtUser(res: any): ExtUser {
+    public override mapUser(res: any): User {
         throw new Error("Method not implemented.");
     }
-    public override mapExtUsers(res: any): ExtUser[] {
-        throw new Error("Method not implemented.");
+    public override mapUsers(res: any): User[] {
+        return res
     }
-    public override mapPaginatedUsers(res: any): PaginatedExtUser {
+    public override mapPaginatedUsers(res: any): PaginatedUser {
         throw new Error("Method not implemented.");
     }
     public override mapUserCredentials(res: any): UserCredentialsOptions {
@@ -151,7 +149,7 @@ export class FirebaseMappingService extends MappingService {
     })
 
     public override mapPaginatedAgents = (res: FirebaseCollectionResponse): PaginatedData<AgentUser> => ({
-        data: res.docs.map(agent => this.mapUser(agent) as AgentUser),
+        data: res.docs.map(agent => this.mapAdminAgentOrClientUser(agent) as AgentUser),
         pagination: this.mapPagination(res)
     })
 

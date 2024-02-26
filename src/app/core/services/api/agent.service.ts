@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, lastValueFrom, map, of, switchMap, tap } from 'rxjs';
+import { Observable, map, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
@@ -7,7 +7,7 @@ import { DataService } from './data.service';
 import { AgentsFacade } from '../../+state/agents/agents.facade';
 import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { AuthFacade } from '../../+state/auth/auth.facade';
-import { User } from '../../models/globetrotting/user.interface';
+import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class AgentService extends ApiService {
   protected authFacade = inject(AuthFacade);
   private path: string = "/api/agents";
 
-  private _user: User | null = null;
+  private _user: AdminAgentOrClientUser | null = null;
   private _next: DocumentSnapshot<DocumentData> | number | null = null;
   public _agents: TravelAgent[] = [];
   private queries: { [query: string]: string } = {

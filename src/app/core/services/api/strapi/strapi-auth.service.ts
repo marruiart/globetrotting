@@ -1,10 +1,10 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { catchError, lastValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
-import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, Role, UserCredentialsOptions, UserCredentials, User, AgentUser, ClientUser } from '../../../models/globetrotting/user.interface';
+import { catchError, lastValueFrom, map, switchMap, throwError } from 'rxjs';
+import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRole, StrapiRolesResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
@@ -41,6 +41,10 @@ export class StrapiAuthService extends AuthService {
 
   private getUrl(path: string, id: number | null = null) {
     return `${environment.strapiUrl}${path}${id ? `/${id}` : ''}`;
+  }
+
+  public getRoles(): Observable<StrapiRolesResponse> {
+    return this.dataSvc.obtainAll<StrapiRolesResponse>("/api/users-permissions/roles")
   }
 
 
@@ -87,44 +91,38 @@ export class StrapiAuthService extends AuthService {
         .subscribe({
           next: async (response: StrapiRegisterResponse | null) => {
             if (response) {
-              console.info(`Usuario creado con id ${response.user.id}`);
+              const userId = response.user.id;
+              console.info(`Usuario creado con id ${userId}`);
               if (!isAgent) {
                 // Save token in local storage
                 await lastValueFrom(this.jwtSvc.saveToken(response.jwt))
                   .catch(err => {
                     observer.error(err)
                   });
+              } else {
+                const response = await lastValueFrom(this.getRoles());
+                const roleId: number = response.roles.filter(role => role.type.toUpperCase() === 'AGENT')[0].id;
+                const url = this.getUrl("/api/users", userId);
+                await lastValueFrom(this.api.put<StrapiRegisterResponse>(url, { "role": roleId }));
               }
 
               // Create related extended user
-              const user: NewExtUser = {
-                user_id: response.user.id,
-                name: _agentInfo?.name,
-                surname: _agentInfo?.surname,
+              let _user: NewExtUser = {
+                user_id: userId,
                 nickname: nickname
               }
-              const newUser = await lastValueFrom(this.userSvc.addUser(user)
-                .pipe(switchMap((newUser: ExtUser): Observable<ExtUser> => {
-                  if (isAgent) {
-                    let _user: any = {
-                      id: newUser.id,
-                      role: 3 // agent
-                    }
-                    return this.userSvc.updateUser(_user)
-                      .pipe(tap(_ => {
-                        console.info(`Usuario con id ${newUser.user_id} asignado al rol de agente correctamente`);
-                      }),
-                        catchError(err => {
-                          console.info("Rol del agente no asignado correctamente");
-                          console.error(err);
-                          return of(newUser);
-                        }))
-                  } else {
-                    return of(newUser);
+              if (isAgent) {
+                _user = {
+                  ..._user, ...{
+                    name: _agentInfo?.name,
+                    surname: _agentInfo?.surname,
                   }
-                })));
+                }
+              }
+
+              const newUser = await lastValueFrom(this.userSvc.addUser(_user));
               (newUser) ?
-                console.info(`Extended user creado con id ${newUser?.id} asociado a ${newUser.user_id}`)
+                console.info(`Extended user creado con id ${newUser?.ext_id} asociado a ${newUser.user_id}`)
                 : "Extended user no creado";
 
               if (isAgent) {
@@ -169,7 +167,7 @@ export class StrapiAuthService extends AuthService {
     return this.jwtSvc.destroyToken();
   }
 
-  public me(): Observable<User> {
+  public me(): Observable<AdminAgentOrClientUser> {
     return this.dataSvc.obtainMe<StrapiMeResponse>("/api/users/me").pipe(
       switchMap((me: StrapiMeResponse) => {
         if (me) {
@@ -183,7 +181,7 @@ export class StrapiAuthService extends AuthService {
                     return this.agentSvc.agentMe(me.id).pipe(
                       map((agent: TravelAgent | null) => {
                         if (agent) {
-                          let user: AgentUser = {
+                          let user: AgentUser | AdminUser = {
                             role: role,
                             user_id: me.id,
                             ext_id: extUser?.id,

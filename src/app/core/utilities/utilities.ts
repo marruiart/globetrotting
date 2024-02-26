@@ -1,8 +1,8 @@
-import { ExtUser, User } from "../models/globetrotting/user.interface";
+import { ExtUser, AdminAgentOrClientUser } from "../models/globetrotting/user.interface";
 
 export const isType = <T>(item: any): item is T => true;
 
-export function getClientName(clientExtUser: ExtUser | User): string {
+export function getClientName(clientExtUser: ExtUser | AdminAgentOrClientUser): string {
     if (clientExtUser && clientExtUser.name) {
       return `${clientExtUser?.name}${' ' + clientExtUser?.surname ?? ''}`;
     } else if (clientExtUser) {
@@ -11,3 +11,9 @@ export function getClientName(clientExtUser: ExtUser | User): string {
       return '';
     }
   }
+
+export class Roles {
+  static AUTHENTICATED = 'AUTHENTICATED'
+  static ADMIN = 'ADMIN'
+  static AGENT = 'AGENT'
+}

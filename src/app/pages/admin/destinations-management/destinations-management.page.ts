@@ -4,7 +4,7 @@ import { Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
 import { Destination, PaginatedDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
-import { User } from "src/app/core/models/globetrotting/user.interface";
+import { AdminAgentOrClientUser } from "src/app/core/models/globetrotting/user.interface";
 import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
@@ -19,7 +19,7 @@ export class DestinationsManagementPage {
   public loading: boolean = false;
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
-  public currentUser: User | null = null; // TODO clases de esto
+  public currentUser: AdminAgentOrClientUser | null = null;
   public showEditForm: boolean = false;
   public selectedDestination: Destination | null = null;
 

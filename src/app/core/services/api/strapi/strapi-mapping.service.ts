@@ -2,9 +2,9 @@ import { MappingService } from '../mapping.service';
 import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
-import { StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedExtUser, ExtUser, User, AgentUser, ClientUser, Role } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedUser, ExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, Role, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -64,7 +64,7 @@ export class StrapiMappingService extends MappingService {
   }
 
   // AUTH & USER
-  public mapUser(user: StrapiUserCredentials, specificUser: TravelAgent | Client, extUser: ExtUser): User {
+  public mapAdminAgentOrClientUser(user: StrapiUserCredentials, specificUser: TravelAgent | Client, extUser: ExtUser): AdminAgentOrClientUser {
     if (isType<TravelAgent>(specificUser)) {
       return {
         role: user.role ?? 'AGENT',
@@ -99,6 +99,7 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
+
   // DESTINATIONS
 
   private mapDestinationData = (data: StrapiData<StrapiDestination>): Destination => (
@@ -121,33 +122,35 @@ export class StrapiMappingService extends MappingService {
 
   // USERS
 
-  private mapUserData = (data: StrapiData<StrapiExtendedUser>): ExtUser => {
-    const user = data.attributes.user as StrapiResponse<StrapiUser>;
-    const role = user.data.attributes.role?.data?.attributes?.type;
+  private mapUserData = (data: StrapiData<StrapiExtendedUser>): User => {
+    const user = data.attributes.user as StrapiResponse<StrapiUserRoleResponse>;
+    const role = user.data.attributes.role?.data.attributes.type;
     const user_id = user?.data?.id ?? null;
     if (!user_id) {
       console.info(`Usuario con id ${data.id} no asociado a un user_id`);
     }
     return {
-      id: data.id,
-      role: role?.toUpperCase() ?? undefined,
-      avatar: data.attributes.avatar ? this.mapImage(data.attributes.avatar) : undefined,
+      role: role?.toUpperCase() as Role ?? undefined,
+      user_id: user_id,
+      ext_id: data.id,
+      username: user.data.attributes.username,
+      email: user.data.attributes.email,
       nickname: data.attributes.nickname,
+      avatar: data.attributes.avatar ? this.mapImage(data.attributes.avatar) : undefined,
       name: data.attributes.name,
       surname: data.attributes.surname,
-      age: data.attributes.age,
-      user_id: user_id
+      age: data.attributes.age
     }
   }
 
-  public mapExtUser = (res: StrapiResponse<StrapiExtendedUser>): ExtUser =>
+  public mapUser = (res: StrapiResponse<StrapiExtendedUser>): User =>
     this.mapUserData(res.data);
 
-  public mapExtUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): ExtUser[] =>
-    this.extractArrayData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
+  public mapUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): User[] =>
+    this.extractArrayData<User, StrapiExtendedUser>(res, this.mapUserData);
 
-  public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedExtUser =>
-    this.extractPaginatedData<ExtUser, StrapiExtendedUser>(res, this.mapUserData);
+  public mapPaginatedUsers = (res: StrapiArrayResponse<StrapiExtendedUser>): PaginatedUser =>
+    this.extractPaginatedData<User, StrapiExtendedUser>(res, this.mapUserData);
 
   public mapUserCredentials = (res: StrapiUser): StrapiUserCredentials => {
     const credentials: StrapiUserCredentials = {
@@ -155,7 +158,7 @@ export class StrapiMappingService extends MappingService {
       username: res.username,
       email: res.email,
       password: null,
-      role: res.role.type?.toUpperCase() ?? ''
+      role: res.role?.type.toUpperCase() as Role ?? undefined
     }
     return credentials;
   }
@@ -190,7 +193,7 @@ export class StrapiMappingService extends MappingService {
   private mapClientData = (data: StrapiData<StrapiClient>): Client => {
     return {
       id: data.id,
-      user_id: (data.attributes.user as StrapiResponse<StrapiUser>)?.data?.id,
+      user_id: (data.attributes.user as StrapiResponse<StrapiUserRoleResponse>)?.data?.id,
       type: 'AUTHENTICATED',
       bookings: this.mapClientBookings(this.mapBookings(data.attributes.bookings)),
       favorites: this.mapClientFavs(this.mapFavs(data.attributes.favorites))
@@ -211,7 +214,7 @@ export class StrapiMappingService extends MappingService {
   private mapAgentData = (data: StrapiData<StrapiAgent>): TravelAgent => {
     return {
       id: data.id,
-      user_id: (data.attributes.user as StrapiResponse<StrapiUser>).data.id,
+      user_id: (data.attributes.user as StrapiResponse<StrapiUserRoleResponse>).data.id,
       bookings: this.mapBookings(data.attributes.bookings)
     }
   }
@@ -240,11 +243,11 @@ export class StrapiMappingService extends MappingService {
       isConfirmed: booking.isConfirmed ?? false
     }
     if (role === 'ADMIN' && client !== undefined && agent !== undefined) {
-      return {...tableRow, ...agent, ...client} as AdminBookingsTableRow;
+      return { ...tableRow, ...agent, ...client } as AdminBookingsTableRow;
     } else if (role === 'AGENT' && client !== undefined) {
-      return {...tableRow, ...client} as AgentBookingsTableRow;
+      return { ...tableRow, ...client } as AgentBookingsTableRow;
     } else if (role === 'AUTHENTICATED' && agent !== undefined) {
-      return {...tableRow, ...agent} as ClientBookingsTableRow;
+      return { ...tableRow, ...agent } as ClientBookingsTableRow;
     } else {
       throw Error('Error: Required bookings table information was not provided.')
     }

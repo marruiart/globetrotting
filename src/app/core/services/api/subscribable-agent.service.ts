@@ -35,7 +35,7 @@ export class SubscribableAgentService extends AgentService {
     this.unsubscribe = this.firebaseSvc.subscribeToCollection('mgmt_agents', _agents);
     _agents.subscribe(res => {
       if (res) {
-        const agents = res.docs.map(doc => this.mappingSvc.mapUser(doc) as AgentUser);
+        const agents = res.docs.map(doc => this.mappingSvc.mapAdminAgentOrClientUser(doc) as AgentUser);
         this.agentsFacade.saveAgents(agents);
       }
     });

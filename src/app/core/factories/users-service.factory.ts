@@ -1,20 +1,20 @@
 import { BackendTypes } from "src/environments/environment";
 import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
-import { BookingsService } from "../services/api/bookings.service";
-import { SubscribableBookingsService } from "../services/api/subscribable-bookings.service";
+import { UsersService } from "../services/api/users.service";
+import { SubscribableUsersService } from "../services/api/subscribable-users.service";
 import { Backends } from "../utilities/utilities";
 
-export function BookingsServiceFactory(
+export function UsersServiceFactory(
     backend: BackendTypes,
     dataSvc: DataService,
     mappingSvc: MappingService
 ) {
     switch (backend) {
         case Backends.STRAPI:
-            return new BookingsService(dataSvc, mappingSvc);
+            return new UsersService(dataSvc, mappingSvc);
         case Backends.FIREBASE:
-            return new SubscribableBookingsService(dataSvc, mappingSvc);
+            return new SubscribableUsersService(dataSvc, mappingSvc);
         default:
             throw new Error('Backend not implemented');
     }

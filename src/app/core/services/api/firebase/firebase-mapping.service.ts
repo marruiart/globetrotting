@@ -102,8 +102,8 @@ export class FirebaseMappingService extends MappingService {
 
     // USERS
 
-    public override mapUser(res: any): User {
-        throw new Error("Method not implemented.");
+    public override mapUser(res: FirebaseDocument): User {
+        return res.data as User;
     }
     public override mapUsers(res: any): User[] {
         return res

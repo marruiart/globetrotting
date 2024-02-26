@@ -1,15 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as ClientsActions from './clients.actions'
-import { catchError, map, of, switchMap } from "rxjs";
-import { UsersService } from "../../services/api/users.service";
+import { map } from "rxjs";
 
 @Injectable()
 export class ClientsEffects {
 
     constructor(
-        private actions$: Actions,
-        private usersSvc: UsersService
+        private actions$: Actions
     ) { }
 
     saveClientUsers$ = createEffect(() =>

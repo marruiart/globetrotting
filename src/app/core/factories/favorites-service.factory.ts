@@ -3,6 +3,7 @@ import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { StrapiFavoritesService } from "../services/api/strapi/strapi-favorites.service";
 import { FirebaseFavoritesService } from "../services/api/firebase/firebase-favorites.service";
+import { Backends } from "../utilities/utilities";
 
 export function FavoritesServiceFactory(
   backend: BackendTypes,
@@ -10,9 +11,9 @@ export function FavoritesServiceFactory(
   mappingSvc: MappingService
 ) {
   switch (backend) {
-    case 'Strapi':
+    case Backends.STRAPI:
       return new StrapiFavoritesService(dataSvc, mappingSvc);
-    case 'Firebase':
+    case Backends.FIREBASE:
       return new FirebaseFavoritesService(dataSvc, mappingSvc);
     default:
       throw new Error('Backend not implemented');

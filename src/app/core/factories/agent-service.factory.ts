@@ -3,6 +3,7 @@ import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { AgentService } from "../services/api/agent.service";
 import { SubscribableAgentService } from "../services/api/subscribable-agent.service";
+import { Backends } from "../utilities/utilities";
 
 export function AgentServiceFactory(
     backend: BackendTypes,
@@ -10,9 +11,9 @@ export function AgentServiceFactory(
     mappingSvc: MappingService
 ) {
     switch (backend) {
-        case 'Strapi':
+        case Backends.STRAPI:
             return new AgentService(dataSvc, mappingSvc);
-        case 'Firebase':
+        case Backends.FIREBASE:
             return new SubscribableAgentService(dataSvc, mappingSvc);
         default:
             throw new Error('Backend not implemented');

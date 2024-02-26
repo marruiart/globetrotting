@@ -3,6 +3,7 @@ import { FirebaseAuthService } from "../services/api/firebase/firebase-auth.serv
 import { BackendTypes } from "src/environments/environment";
 import { JwtService } from "../services/auth/jwt.service";
 import { ApiService } from "../services/api/api.service";
+import { Backends } from "../utilities/utilities";
 
 export function AuthServiceFactory(
   backend: BackendTypes,
@@ -10,9 +11,9 @@ export function AuthServiceFactory(
   apiSvc: ApiService
 ) {
   switch (backend) {
-    case 'Strapi':
+    case Backends.STRAPI:
       return new StrapiAuthService(jwtSvc, apiSvc);
-    case 'Firebase':
+    case Backends.FIREBASE:
       return new FirebaseAuthService();
     default:
       throw new Error('Backend not implemented');

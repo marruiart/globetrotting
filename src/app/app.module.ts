@@ -42,6 +42,8 @@ import { BookingsModule } from './core/+state/bookings/bookings.module';
 import { BookingsService } from './core/services/api/bookings.service';
 import { BookingsServiceFactory } from './core/factories/bookings-service.factory';
 import { ClientsModule } from './core/+state/clients/clients.module';
+import { UsersService } from './core/services/api/users.service';
+import { UsersServiceFactory } from './core/factories/users-service.factory';
 
 @NgModule({
   declarations: [
@@ -123,6 +125,11 @@ import { ClientsModule } from './core/+state/clients/clients.module';
       provide: BookingsService,
       deps: ['backend', DataService, MappingService],
       useFactory: BookingsServiceFactory,
+    },    
+    {
+      provide: UsersService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: UsersServiceFactory,
     },
     {
       provide: 'firebase-config',

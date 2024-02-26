@@ -17,3 +17,8 @@ export class Roles {
   static ADMIN = 'ADMIN'
   static AGENT = 'AGENT'
 }
+
+export class Backends {
+  static STRAPI = 'Strapi'
+  static FIREBASE = 'Firebase'
+}

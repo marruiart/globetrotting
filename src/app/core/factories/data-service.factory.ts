@@ -3,15 +3,16 @@ import { BackendTypes } from "src/environments/environment";
 import { FirebaseDataService } from "../services/api/firebase/firebase-data.service";
 import { StrapiDataService } from "../services/api/strapi/strapi-data.service";
 import { FirebaseService } from "../services/firebase/firebase.service";
+import { Backends } from "../utilities/utilities";
 
 export function DataServiceFactory(
   backend: BackendTypes,
   apiSvc: ApiService,
 ) {
   switch (backend) {
-    case 'Strapi':
+    case Backends.STRAPI:
       return new StrapiDataService(apiSvc);
-     case 'Firebase':
+     case Backends.FIREBASE:
       return new FirebaseDataService(); 
     default:
       throw new Error('Backend not implemented');

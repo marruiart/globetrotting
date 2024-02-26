@@ -2,20 +2,26 @@ import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 interface Sub {
-  component: string, sub: Subscription
+  component: string, sub: Subscription | null
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class SubscriptionsService {
-  private _subs: { [component: string]: Subscription[] } = {}
+  private _subs: { [component: string]: (Subscription | null)[] } = {}
 
   constructor() { }
 
   public unsubscribe(component: string) {
     if (component in this._subs) {
-      this._subs[component].forEach(s => s.unsubscribe());
+      this._subs[component].forEach(s => {
+        if (s) {
+          console.info("unsubscribe: ", s);
+          s.unsubscribe();
+          s = null;
+        }
+      });
       delete this._subs[component];
     }
   }
@@ -30,7 +36,7 @@ export class SubscriptionsService {
     })
   }
 
-  public addSubscription(subs: Sub) {
-    this.addSubscriptions([subs]);
+  public addSubscription(sub: Sub) {
+    this.addSubscriptions([sub]);
   }
 }

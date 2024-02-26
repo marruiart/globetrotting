@@ -1,14 +1,16 @@
 import { DatePipe } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { catchError, lastValueFrom, of, switchMap, tap, zip } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
+import { ClientsFacade } from 'src/app/core/+state/clients/clients.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
 import { NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { AdminAgentOrClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
+import { UsersService } from 'src/app/core/services/api/users.service';
 import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 
@@ -17,9 +19,10 @@ import { SubscriptionsService } from 'src/app/core/services/subscriptions.servic
   templateUrl: './bookings.page.html',
   styleUrls: ['./bookings.page.scss'],
 })
-export class BookingsPage {
+export class BookingsPage implements OnInit, OnDestroy {
   public destinations: Destination[] = [];
-  public currentUser: User | null = null;
+  public currentUser: AdminAgentOrClientUser | null = null;
+  public clients: User[] | null = null;
   public cols: any[] = [];
   public loading: boolean = true;
   public showForm: boolean = false;
@@ -32,15 +35,16 @@ export class BookingsPage {
 
   constructor(
     public bookingsFacade: BookingsFacade,
+    public usersSvc: UsersService,
     private bookingsSvc: BookingsService,
     private destinationsFacade: DestinationsFacade,
+    private clientsFacade: ClientsFacade,
     private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
     private translate: CustomTranslateService,
     private datePipe: DatePipe
   ) {
     this.isResponsive = window.innerWidth < 960;
-    this.init();
     this.subsSvc.addSubscriptions([
       {
         component: 'BookingsPage',
@@ -74,7 +78,7 @@ export class BookingsPage {
     ])
   }
 
-  private async init() {
+  async ngOnInit() {
     await lastValueFrom(this.bookingsSvc.getAllBookings()).catch(err => console.error(err));
   }
 
@@ -102,35 +106,33 @@ export class BookingsPage {
   }
 
   private translateMenuItems(bookingId: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
-    if (this.currentUser) {
-      switch (this.currentUser.role) {
-        case 'ADMIN':
-          return [
-            { field: 'booking_id', header: bookingId },
-            { field: 'clientName', header: client },
-            { field: 'agentName', header: agent },
-            { field: 'dates', header: dates },
-            { field: 'travelers', header: travelers },
-            { field: 'isConfirmed', header: confirmationState }
-          ]
-        case 'AGENT':
-          return [
-            { field: 'booking_id', header: bookingId },
-            { field: 'clientName', header: client },
-            { field: 'dates', header: dates },
-            { field: 'travelers', header: travelers },
-            { field: 'isConfirmed', header: confirmationState }
-          ]
-        case 'AUTHENTICATED':
-          return [
-            { field: 'dates', header: dates },
-            { field: 'travelers', header: travelers },
-            { field: 'isConfirmed', header: confirmationState },
-            { field: 'agentName', header: agent }
-          ]
-      }
-    } else {
-      return [];
+    switch (this.currentUser?.role) {
+      case 'ADMIN':
+        return [
+          { field: 'booking_id', header: bookingId },
+          { field: 'clientName', header: client },
+          { field: 'agentName', header: agent },
+          { field: 'dates', header: dates },
+          { field: 'travelers', header: travelers },
+          { field: 'isConfirmed', header: confirmationState }
+        ]
+      case 'AGENT':
+        return [
+          { field: 'booking_id', header: bookingId },
+          { field: 'clientName', header: client },
+          { field: 'dates', header: dates },
+          { field: 'travelers', header: travelers },
+          { field: 'isConfirmed', header: confirmationState }
+        ]
+      case 'AUTHENTICATED':
+        return [
+          { field: 'dates', header: dates },
+          { field: 'travelers', header: travelers },
+          { field: 'isConfirmed', header: confirmationState },
+          { field: 'agentName', header: agent }
+        ]
+      default:
+        return [];
     }
   }
 
@@ -163,8 +165,12 @@ export class BookingsPage {
     this.showForm = false;
   }
 
-  public showBookingForm() {
-    this.showForm = true;
+  public async showBookingForm() {
+    await lastValueFrom(this.usersSvc.getAllClientsUsers()).catch(err => console.error(err));
+    this.clientsFacade.clients$.subscribe(clients => {
+      this.clients = clients;
+      this.showForm = true;
+    });
   }
 
   ngOnDestroy() {

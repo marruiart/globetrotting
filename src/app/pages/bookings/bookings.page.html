@@ -164,10 +164,11 @@
         contentStyleClass="agent-form-content"
       >
         <app-booking-form
-          *ngIf="showForm"
+          *ngIf="showForm && clients"
           [destinations]="destinations"
           [currentUserType]="'AGENT'"
           (onBookingAccepted)="addBooking($event)"
+          [clients]="clients"
         />
       </p-dialog>
     </div>

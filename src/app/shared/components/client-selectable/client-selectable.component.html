@@ -29,7 +29,7 @@
 >
   <ng-container *ngIf="showSelectable">
     <app-client-selectable-item
-      *ngFor="let clientExtUser of clientsExtUsers"
+      *ngFor="let clientExtUser of clients"
       [clientExtUser]="clientExtUser"
       (onClientSelected)="onClientSelected($event)"
     />

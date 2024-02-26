@@ -5,7 +5,7 @@ import * as AuthActions from './auth.actions'
 import { catchError, map, of, switchMap } from "rxjs";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
-import { User } from "../../models/globetrotting/user.interface";
+import { AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
 
 @Injectable()
 export class AuthEffects {
@@ -54,7 +54,7 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.assignUser),
             switchMap(() => this.authSvc.me().pipe(
-                map((user: User) => {
+                map((user: AdminAgentOrClientUser) => {
                     console.log(user.user_id, user.role);
                     if (user.role == 'ADMIN' || user.role == 'AGENT') {
                         this.router.navigate(['/admin']);

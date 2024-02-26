@@ -35,7 +35,8 @@ export interface StrapiUserRegisterInfo {
     password: string | null
 }
 
-export interface StrapiDataUser {
+export interface StrapiUserRoleResponse {
+    id: number,
     username: string,
     email: string,
     role: StrapiResponse<StrapiRole>
@@ -85,6 +86,6 @@ export interface StrapiExtendedUser {
     name?: string,
     surname?: string,
     age?: string,
-    user?: StrapiResponse<StrapiDataUser> | number | string,
+    user?: StrapiResponse<StrapiUserRoleResponse> | number | string,
     avatar: StrapiResponse<StrapiMedia> | null
 }

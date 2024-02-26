@@ -1,7 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import * as AuthActions from './auth.actions';
 import { Backend, Firebase } from 'src/environments/environment';
-import { ClientUser, Role, User } from '../../models/globetrotting/user.interface';
+import { ClientUser, Role, AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Booking } from '../../models/globetrotting/booking.interface';
 import { isType } from '../../utilities/utilities';
 import { ClientFavDestination } from '../../models/globetrotting/fav.interface';
@@ -53,7 +53,7 @@ export const authReducer = createReducer(
     on(AuthActions.registerFailure, (_, { error }) => resetState(error))
 );
 
-function assignUserMapping(state: AuthState, user: User): AuthState {
+function assignUserMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
     return {
         ...state,
         isLogged: true,
@@ -72,7 +72,7 @@ function assignUserMapping(state: AuthState, user: User): AuthState {
     };
 }
 
-function updateUserMapping(state: AuthState, user: User): AuthState {
+function updateUserMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
     return {
         ...state,
         email: user?.email ?? '',

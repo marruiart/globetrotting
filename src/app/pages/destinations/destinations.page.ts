@@ -42,10 +42,8 @@ export class DestinationsPage implements OnInit, OnDestroy {
     this.startSubscriptions();
   }
 
-  ngOnInit() {
-    lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => {
-      console.error(err);
-    });
+  async ngOnInit() {
+    await lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => console.error(err));
   }
 
   private startSubscriptions() {

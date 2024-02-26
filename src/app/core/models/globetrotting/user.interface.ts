@@ -125,7 +125,7 @@ export type User = {
  * @property {string} [age] - The birth date of the user (optional).
  * @property {ClientFavDestination[]} favorites - An array of the favorite destinations of the user.
  */
-export type ClientUser = User & {
+export interface ClientUser extends User {
     role: 'AUTHENTICATED',
     favorites: ClientFavDestination[]
 }
@@ -144,7 +144,7 @@ export type ClientUser = User & {
  * @property {string} surname - The surname of the user.
  * @property {string} [age] - The birth date of the user (optional).
  */
-export type AgentUser = User & {
+export interface AgentUser extends User {
     role: 'AGENT',
     name: string,
     surname: string,
@@ -164,7 +164,7 @@ export type AgentUser = User & {
  * @property {string} surname - The surname of the user.
  * @property {string} [age] - The birth date of the user (optional).
  */
-export type AdminUser = User & {
+export interface AdminUser extends User {
     role: 'ADMIN',
     name: string,
     surname: string,

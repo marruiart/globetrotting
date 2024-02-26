@@ -41,6 +41,7 @@ import { AgentsModule } from './core/+state/agents/agents.module';
 import { BookingsModule } from './core/+state/bookings/bookings.module';
 import { BookingsService } from './core/services/api/bookings.service';
 import { BookingsServiceFactory } from './core/factories/bookings-service.factory';
+import { ClientsModule } from './core/+state/clients/clients.module';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { BookingsServiceFactory } from './core/factories/bookings-service.factor
     FavoritesModule,
     DestinationsModule,
     AgentsModule,
-    BookingsModule
+    BookingsModule,
+    ClientsModule
   ],
   providers: [
     DatePipe,

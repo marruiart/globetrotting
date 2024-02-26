@@ -1,6 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
-import { User, UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
+import { AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
 import * as AuthActions from './auth.actions'
 import * as AuthSelector from './auth.selectors'
 
@@ -12,7 +12,7 @@ export class AuthFacade {
     authUser$ = this.store.pipe(select(AuthSelector.selectAuthUser));
     userId$ = this.store.pipe(select(AuthSelector.selectUserId));
     role$ = this.store.pipe(select(AuthSelector.selectRole));
-    currentUser$ = this.store.pipe(select(AuthSelector.selectUser));
+    currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
     nickname$ = this.store.pipe(select(AuthSelector.selectUserNickname));
     avatar$ = this.store.pipe(select(AuthSelector.selectUserAvatar));
     bookings$ = this.store.pipe(select(AuthSelector.selectUserBookings));
@@ -32,7 +32,7 @@ export class AuthFacade {
         this.init();
     }
 
-    updateUser(user: User) {
+    updateUser(user: AdminAgentOrClientUser) {
         this.store.dispatch(AuthActions.updateUser({ user }));
     }
 

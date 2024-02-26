@@ -1,8 +1,7 @@
 import { createFeatureSelector, createSelector } from "@ngrx/store";
 import { AUTH_FEATURE_KEY, AuthState } from "./auth.reducer";
 import { AuthUser } from "../../models/globetrotting/auth.interface";
-import { AgentUser, ClientUser, User } from "../../models/globetrotting/user.interface";
-import { Booking, ClientBooking } from "../../models/globetrotting/booking.interface";
+import { AgentUser, ClientUser, AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
 import { ClientFavDestination } from "../../models/globetrotting/fav.interface";
 
 export const selectFeature = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY);
@@ -16,7 +15,7 @@ export const selectRole = createSelector(selectFeature, (state: AuthState) => st
 export const selectUserId = createSelector(selectFeature, (state: AuthState) => state.user_id);
 export const selectLoggedState = createSelector(selectFeature, (state: AuthState) => state.isLogged);
 export const selectError = createSelector(selectFeature, (state: AuthState) => state.error);
-export const selectUser = createSelector(selectFeature, (state: AuthState): User | null => {
+export const selectCurrentUser = createSelector(selectFeature, (state: AuthState): AdminAgentOrClientUser | null => {
     if (state.role === 'AUTHENTICATED') {
         return {
             role: state.role,

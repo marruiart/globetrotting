@@ -8,7 +8,6 @@ import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
 import { ExtUser } from "../../models/globetrotting/user.interface";
 import { getClientName } from "../../utilities/utilities";
-import { BookingsService } from "../../services/api/bookings.service";
 
 @Injectable()
 export class BookingsEffects {
@@ -16,7 +15,6 @@ export class BookingsEffects {
     constructor(
         private actions$: Actions,
         private usersSvc: UsersService,
-        private bookingsSvc: BookingsService,
         private mappingSvc: MappingService
     ) { }
 
@@ -43,7 +41,7 @@ export class BookingsEffects {
                                 bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, clientInfo, agentInfo));
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
-                        }), catchError(error => { throw Error(error) }))
+                        }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                     case 'AGENT':
                         for (let booking of bookings) {
                             clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<ExtUser>);
@@ -55,7 +53,7 @@ export class BookingsEffects {
                                 bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, clientInfo));
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
-                        }), catchError(error => { throw Error(error) }))
+                        }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                     case 'AUTHENTICATED':
                         for (let booking of bookings) {
                             agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
@@ -68,7 +66,7 @@ export class BookingsEffects {
                                 bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, undefined, agentInfo));
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
-                        }), catchError(error => { throw Error(error) }))
+                        }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                 }
             }))
     );
@@ -78,6 +76,7 @@ export class BookingsEffects {
             ofType(BookingsActions.saveBookingsTable),
             map(({ bookings, role }) => {
                 if (bookings) {
+                    // TODO simplify to call only success or failure
                     const bookingsTable: BookingsTableRow[] = bookings.map(booking => {
                         const agentInfo = (booking.agentName) ? { agentName: `${booking.agentName}`, agent_id: booking.agent_id } as AgentRowInfo
                             : { agentName: null, agent_id: null } as AgentRowInfo;

@@ -2,8 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BookingForm } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { Role } from 'src/app/core/models/globetrotting/user.interface';
-import { UsersService } from 'src/app/core/services/api/users.service';
+import { Role, User } from 'src/app/core/models/globetrotting/user.interface';
 
 @Component({
     selector: 'app-booking-form',
@@ -39,11 +38,20 @@ export class BookingFormComponent {
         return this._currentUserType;
     }
 
+    private _clients: User[] = [];
+    @Input() set clients(clients: User[]) {
+        if (clients) {
+            this._clients = clients;
+        }
+    };
+    get clients(): User[] {
+        return (this._clients) ? this._clients : [];
+    }
+
     @Output() onBookingAccepted: EventEmitter<BookingForm> = new EventEmitter<BookingForm>();
 
     constructor(
-        private fb: FormBuilder,
-        public userSvc: UsersService
+        private fb: FormBuilder
     ) { }
 
     ngOnInit() {

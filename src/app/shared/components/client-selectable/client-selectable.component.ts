@@ -1,9 +1,8 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
+import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { ClientService } from 'src/app/core/services/api/client.service';
-import { UsersService } from 'src/app/core/services/api/users.service';
 import { getClientName } from 'src/app/core/utilities/utilities';
 
 export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
@@ -19,31 +18,24 @@ export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
   providers: [CLIENT_SELECTABLE_VALUE_ACCESSOR]
 })
 export class ClientSelectableComponent implements ControlValueAccessor {
-  public clientsExtUsers: ExtUser[] = [];
   public name: string = '';
   public selectedClient?: number | string;
   public disabled: boolean = false;
   public showSelectable: boolean = false;
 
-  constructor(
-    private userSvc: UsersService,
-    private clientsSvc: ClientService
-  ) {
-    this.loadClients();
-  }
-
-  private async loadClients() {
-    let users = await lastValueFrom(this.userSvc.getAllUsers());
-    let clients = await lastValueFrom(this.clientsSvc.getAllClients());
-
-    for (let client of clients?.data ?? []) {
-      for (let user of users) {
-        if (client.user_id == user.user_id) {
-          this.clientsExtUsers.push(user);
-        }
+  private _clients: User[] = [];
+  @Input() set clients(clients: User[]) {
+      if (clients) {
+          this._clients = clients;
       }
-    }
+  };
+  get clients(): User[] {
+      return (this._clients) ? this._clients : [];
   }
+
+  constructor(
+    private clientsSvc: ClientService
+  ) {  }
 
   /**
 * Writes the value of the given object to the component.
@@ -88,7 +80,7 @@ export class ClientSelectableComponent implements ControlValueAccessor {
   */
   private propagateChange = (obj: any) => { }
 
-  public onClientSelected(clientExtUser: ExtUser) {
+  public onClientSelected(clientExtUser: User) {
     this.name = getClientName(clientExtUser);
     this.selectClient(clientExtUser.user_id, true);
     this.hideClientSelectable();

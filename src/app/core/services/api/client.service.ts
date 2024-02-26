@@ -12,7 +12,7 @@ export class ClientService {
   private path: string = "/api/clients";
   private body = (client: NewClient) => this.mapSvc.mapClientPayload(client);
   private queries: { [query: string]: string } = {
-    "populate": "bookings,favorites.destination,user"
+    "populate": "bookings,favorites.destination,user.role"
   }
 
   private _clientsPage: BehaviorSubject<PaginatedClient | null> = new BehaviorSubject<PaginatedClient | null>(null);
@@ -29,9 +29,8 @@ export class ClientService {
     if (page == null) {
       return of(null);
     }
-    let _queries = JSON.parse(JSON.stringify(this.queries));
-    _queries["pagination[page]]"] = `${page}`;
-    return this.dataSvc.obtainAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
+    let _queries = { ...this.queries, ...{ "pagination[page]]": `${page}` } };
+    return this.dataSvc.obtainAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
       .pipe(tap((page: PaginatedClient) => {
         if (page.data.length > 0) {
           let _clients: Client[] = JSON.parse(JSON.stringify(page.data))

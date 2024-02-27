@@ -25,24 +25,26 @@ export class ClientSelectableComponent implements ControlValueAccessor {
 
   private _clients: User[] = [];
   @Input() set clients(clients: User[]) {
-      if (clients) {
-          this._clients = clients;
-      }
+    if (clients) {
+      this._clients = clients;
+    }
   };
   get clients(): User[] {
-      return (this._clients) ? this._clients : [];
+    return (this._clients) ? this._clients : [];
   }
 
   constructor(
     private clientsSvc: ClientService
-  ) {  }
+  ) { }
 
   /**
 * Writes the value of the given object to the component.
 * @param obj The object to write the value.
 */
   writeValue(obj: any): void {
-    this.selectClient(obj);
+    if (obj) {
+      this.selectClient(obj);
+    }
   }
 
   /** Registers a callback function that will be called when the value of this directive changes.
@@ -80,19 +82,25 @@ export class ClientSelectableComponent implements ControlValueAccessor {
   */
   private propagateChange = (obj: any) => { }
 
-  public onClientSelected(clientExtUser: User) {
+  public async onClientSelected(clientExtUser: User) {
     this.name = getClientName(clientExtUser);
-    this.selectClient(clientExtUser.user_id, true);
+    let id = clientExtUser.specific_id;
+    if (!id) {
+      let client = await lastValueFrom(this.clientsSvc.getClientByExtUserId(clientExtUser.user_id))
+        .catch(err => console.error(err));
+      id = client?.id;
+    }
+    if (id) {
+      await this.selectClient(id, true);
+    }
     this.hideClientSelectable();
   }
 
-  public async selectClient(id: number | string | undefined, propagate: boolean = false) {
-    let clientId = id ? await lastValueFrom(this.clientsSvc.getClientByExtUserId(id)) : null;
-    if (propagate && clientId) {
-      this.selectedClient = clientId.id;
+  public selectClient(id: number | string | undefined, propagate: boolean = false) {
+    if (propagate && id) {
+      this.selectedClient = id;
       this.propagateChange(this.selectedClient);
     }
-    this.hideClientSelectable();
   }
 
   public deselect() {

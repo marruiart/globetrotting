@@ -168,8 +168,10 @@ export class BookingsPage implements OnInit, OnDestroy {
   public async showBookingForm() {
     await lastValueFrom(this.usersSvc.getAllClientsUsers()).catch(err => console.error(err));
     this.clientsFacade.clients$.subscribe(clients => {
-      this.clients = clients;
-      this.showForm = true;
+      if (clients) {
+        this.clients = clients;
+        this.showForm = true;
+      }
     });
   }
 

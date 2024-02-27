@@ -5,7 +5,7 @@ import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
 import { ClientsFacade } from 'src/app/core/+state/clients/clients.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
-import { NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { AdminAgentOrClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
@@ -41,8 +41,7 @@ export class BookingsPage implements OnInit, OnDestroy {
     private clientsFacade: ClientsFacade,
     private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
-    private translate: CustomTranslateService,
-    private datePipe: DatePipe
+    private translate: CustomTranslateService
   ) {
     this.isResponsive = window.innerWidth < 960;
     this.subsSvc.addSubscriptions([
@@ -141,23 +140,16 @@ export class BookingsPage implements OnInit, OnDestroy {
       data: {
         id: id,
         isConfirmed: true,
+        // TODO add agentName
         agent_id: this.currentUser?.specific_id
       }
     }
+    // TODO 
     lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking)).catch(err => console.error(err));
   }
 
-  public addBooking(booking: any) {
-    let _booking: NewBooking = {
-      start: this.datePipe.transform(booking.start, 'yyyy-MM-dd'),
-      end: this.datePipe.transform(booking.end, 'yyyy-MM-dd'),
-      travelers: booking.travelers,
-      isConfirmed: true,
-      agent_id: this.currentUser?.specific_id,
-      client_id: booking.client_id,
-      destination_id: booking.destination_id
-    }
-    lastValueFrom(this.bookingsSvc.addBooking(_booking)).catch(err => console.error(err));
+  public addBooking(booking: NewBooking) {
+    lastValueFrom(this.bookingsSvc.addBooking(booking)).catch(err => console.error(err));
     this.hideBookingForm();
   }
 

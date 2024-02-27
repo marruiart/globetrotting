@@ -33,11 +33,17 @@ export interface NewBooking {
 }
 
 export interface BookingForm {
-    client_id?: string | number,
-    destination_id?: string | number,
     start: string,
     end: string,
     travelers: number
+    isActive: boolean,
+    isConfirmed: boolean,
+    agent_id?: string | number,
+    agentName?: string | null,
+    client_id: string | number,
+    clientName: string,
+    destination_id: string | number,
+    destinationName: string
 }
 
 export type PaginatedBooking = PaginatedData<Booking>
@@ -45,6 +51,7 @@ export type PaginatedBooking = PaginatedData<Booking>
 export type BookingsTableRow = ClientBookingsTableRow | AgentBookingsTableRow | AdminBookingsTableRow
 
 type TableRow = {
+    client_id: number | string,
     booking_id: number | string,
     destination_id: number | string,
     destinationName: string,
@@ -66,7 +73,7 @@ export type AgentRowInfo = {
 }
 
 export type ClientRowInfo = {
-    client_id: number | string | null
+    client_id: number | string,
     clientName: string
 }
 

@@ -2,7 +2,7 @@ import { Injectable, inject } from "@angular/core";
 import { Store, select } from "@ngrx/store";
 import * as BookingsActions from './bookings.actions'
 import * as BookingsSelector from './bookings.selectors'
-import { Booking, BookingsTableRow, NewBooking } from "../../models/globetrotting/booking.interface";
+import { Booking, NewBooking } from "../../models/globetrotting/booking.interface";
 import { Role } from "../../models/globetrotting/user.interface";
 
 @Injectable()

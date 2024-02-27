@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
 import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { ClientService } from 'src/app/core/services/api/client.service';
-import { getClientName } from 'src/app/core/utilities/utilities';
+import { getUserName } from 'src/app/core/utilities/utilities';
 
 export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
@@ -19,7 +19,7 @@ export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
 })
 export class ClientSelectableComponent implements ControlValueAccessor {
   public name: string = '';
-  public selectedClient?: number | string;
+  public selectedClient?: User;
   public disabled: boolean = false;
   public showSelectable: boolean = false;
 
@@ -83,22 +83,27 @@ export class ClientSelectableComponent implements ControlValueAccessor {
   private propagateChange = (obj: any) => { }
 
   public async onClientSelected(clientExtUser: User) {
-    this.name = getClientName(clientExtUser);
-    let id = clientExtUser.specific_id;
-    if (!id) {
-      let client = await lastValueFrom(this.clientsSvc.getClientByExtUserId(clientExtUser.user_id))
-        .catch(err => console.error(err));
-      id = client?.id;
+    this.name = getUserName(clientExtUser);
+    let client = clientExtUser;
+    if (!client.specific_id) {
+      let clientSpecificUser = await lastValueFrom(this.clientsSvc.getClientByExtUserId(clientExtUser.user_id))
+        .catch(err => {
+          console.error(err);
+          return undefined;
+        });
+      if (clientSpecificUser) {
+        client = { ...clientExtUser, ...{ specific_id: clientSpecificUser.id } };
+      }
     }
-    if (id) {
-      await this.selectClient(id, true);
+    if (client) {
+      await this.selectClient(client, true);
     }
     this.hideClientSelectable();
   }
 
-  public selectClient(id: number | string | undefined, propagate: boolean = false) {
-    if (propagate && id) {
-      this.selectedClient = id;
+  public selectClient(client: User | undefined, propagate: boolean = false) {
+    if (propagate && client) {
+      this.selectedClient = client;
       this.propagateChange(this.selectedClient);
     }
   }

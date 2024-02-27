@@ -4,10 +4,11 @@ import { MappingService } from './mapping.service';
 import { PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { DataService } from './data.service';
 import { AgentService } from './agent.service';
-import { Unsubscribe } from 'firebase/firestore';
+import { QueryConstraint, Unsubscribe, where } from 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 import { AgentUser } from '../../models/globetrotting/user.interface';
+import { Roles } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -22,17 +23,21 @@ export class SubscribableAgentService extends AgentService {
   ) {
     super(dataSvc, mappingSvc);
     this.authFacade.currentUser$.pipe(tap(user => {
-      if (!this.unsubscribe && user) {
+      if (!this.unsubscribe && user?.role === Roles.ADMIN) {
         this.subscribeToAgents();
       } else if (!user) {
-        this.unsubscribe = null;
+        if (this.unsubscribe) {
+          this.unsubscribe();
+          this.unsubscribe = null;
+        }
       }
-    }))
+    })).subscribe();
   }
 
   private subscribeToAgents() {
     const _agents = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollection('mgmt_agents', _agents);
+    const byRole: QueryConstraint = where('role', '!=', Roles.AUTHENTICATED);
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _agents, byRole);
     _agents.subscribe(res => {
       if (res) {
         const agents = res.docs.map(doc => this.mappingSvc.mapAdminAgentOrClientUser(doc) as AgentUser);

@@ -25,7 +25,6 @@
   </p-virtualScroller>
 </main>
 
-
 <p-dialog
   [header]="'destinationsPage.booking' | translate"
   [draggable]="false"
@@ -37,5 +36,10 @@
   styleClass="booking-form"
   contentStyleClass="booking-form-content"
 >
-  <app-booking-form (onBookingAccepted)="onBookingAccepted($event)" *ngIf="showDialog" [currentUserType]="'AUTHENTICATED'"/>
+  <app-booking-form
+    (onBookingAccepted)="onBookingAccepted($event)"
+    *ngIf="showDialog"
+    [currentUser]="currentUser"
+    [selectedDestination]="selectedDestination"
+  />
 </p-dialog>

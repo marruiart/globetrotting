@@ -12,7 +12,7 @@ import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { getClientName } from 'src/app/core/utilities/utilities';
+import { getUserName } from 'src/app/core/utilities/utilities';
 
 export interface FavClickedEvent {
   fav: boolean;
@@ -24,7 +24,7 @@ export interface FavClickedEvent {
   styleUrls: ['./destinations.page.scss'],
 })
 export class DestinationsPage implements OnInit, OnDestroy {
-  private _selectedDestination: Destination | null = null;
+  public selectedDestination: Destination | null = null;
   public currentUser: AdminAgentOrClientUser | null = null;
   private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
@@ -97,27 +97,27 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   public showBookingForm(destination: Destination) {
-    this._selectedDestination = destination;
+    this.selectedDestination = destination;
     this.showDialog = true;
   }
 
   private hideDialog() {
-    this._selectedDestination = null;
+    this.selectedDestination = null;
     this.showDialog = false;
   }
 
   public onBookingAccepted(booking: BookingForm) {
-    if (this.currentUser?.specific_id && this._selectedDestination) {
+    if (this.currentUser?.specific_id && this.selectedDestination) {
       let _booking: NewBooking = {
-        clientName: getClientName(this.currentUser),
+        clientName: getUserName(this.currentUser),
         client_id: this.currentUser.specific_id,
-        destination_id: this._selectedDestination.id,
-        destinationName: this._selectedDestination.name,
+        destination_id: this.selectedDestination.id,
+        destinationName: this.selectedDestination.name,
         end: booking.end,
         isActive: true,
         isConfirmed: false,
         start: booking.start,
-        travelers: booking.travelers,
+        travelers: booking.travelers
       }
       lastValueFrom(this.bookingsSvc.addBooking(_booking)).catch(err => console.error(err));
     }

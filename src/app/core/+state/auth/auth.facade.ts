@@ -9,13 +9,11 @@ export class AuthFacade {
 
     private readonly store = inject(Store);
     isLogged$ = this.store.pipe(select(AuthSelector.selectLoggedState));
-    authUser$ = this.store.pipe(select(AuthSelector.selectAuthUser));
+    currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
     userId$ = this.store.pipe(select(AuthSelector.selectUserId));
     role$ = this.store.pipe(select(AuthSelector.selectRole));
-    currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
     nickname$ = this.store.pipe(select(AuthSelector.selectUserNickname));
     avatar$ = this.store.pipe(select(AuthSelector.selectUserAvatar));
-    bookings$ = this.store.pipe(select(AuthSelector.selectUserBookings));
     favorites$ = this.store.pipe(select(AuthSelector.selectUserFavorites));
     error$ = this.store.pipe(select(AuthSelector.selectError));
 

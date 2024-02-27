@@ -103,10 +103,22 @@ export class FirebaseMappingService extends MappingService {
     // USERS
 
     public override mapUser(res: FirebaseDocument): User {
-        return res.data as User;
+        return {
+            role: res.data['role'] as Role,
+            user_id: res.id,
+            ext_id: res.id,
+            specific_id: res.id,
+            username: res.data['username'],
+            email: res.data['email'],
+            nickname: res.data['nickname'],
+            avatar: res.data['avatar'],
+            name: res.data['name'],
+            surname: res.data['surname'],
+            age: res.data['age']
+        } as User;
     }
     public override mapUsers(res: any): User[] {
-        return res
+        throw new Error("Method not implemented.");
     }
     public override mapPaginatedUsers(res: any): PaginatedUser {
         throw new Error("Method not implemented.");
@@ -172,6 +184,7 @@ export class FirebaseMappingService extends MappingService {
     }
 
     public override mapBooking(res: FirebaseDocument): Booking {
+        // TODO Cannot read properties of undefined (reading 'timestampToYearMonthDay')at mapBooking (firebase-mapping.service.ts:187:28)
         const start = this.timestampToYearMonthDay(res.data['start']);
         const end = this.timestampToYearMonthDay(res.data['end']);
         return {

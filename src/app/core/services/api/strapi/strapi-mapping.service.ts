@@ -235,6 +235,7 @@ export class StrapiMappingService extends MappingService {
   public override mapBookingTableRow = (role: Role, booking: Booking, client?: ClientRowInfo, agent?: AgentRowInfo): BookingsTableRow => {
     let tableRow = {
       booking_id: booking.id,
+      client_id: client?.client_id ?? role,
       destination_id: booking.destination_id,
       destinationName: booking.destinationName ?? 'Unknown',
       start: booking.start,

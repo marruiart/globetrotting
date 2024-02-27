@@ -1,7 +1,7 @@
 <form [formGroup]="bookingForm" (ngSubmit)="onAccept($event)">
   <!-- TODO AÑADIR SOLO SI ES AGENT!! (?) -->
   <ng-container
-    *ngIf="currentUserType === 'AGENT' || currentUserType === 'ADMIN'"
+    *ngIf="currentUser?.role === 'AGENT' || currentUser?.role === 'ADMIN'"
   >
     <label htmlFor="client">{{ "bookingsForm.client" | translate }}:</label>
     <app-client-selectable
@@ -15,13 +15,13 @@
       {{ "bookingsForm.destination" | translate }}:
     </label>
     <p-dropdown
-      id="destination"
       [placeholder]="'bookingsForm.selectDestination' | translate"
       formControlName="destination"
       [options]="destinations"
       optionLabel="name"
     ></p-dropdown>
   </ng-container>
+
 
   <label htmlFor="travelers">{{ "bookingsForm.travelers" | translate }}:</label>
   <p-inputNumber

@@ -21,7 +21,6 @@ export type AuthState = {
     name?: string,
     surname?: string,
     age?: string,
-    bookings?: ClientBooking[] | Booking[],
     favorites?: ClientFavDestination[]
     error: any | null
 }

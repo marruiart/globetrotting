@@ -5,9 +5,9 @@
       <p-table
         styleClass="bookings-table"
         [columns]="cols"
-        [value]="(bookingsFacade.bookingTable$| async) ?? []"
+        [value]="(bookingsFacade.bookingTable$ | async) ?? []"
         [lazy]="true"
-        dataKey="destination_id"
+        dataKey="booking_id"
         rowGroupMode="subheader"
         groupRowsBy="destination_id"
         responsiveLayout="stack"
@@ -166,7 +166,7 @@
         <app-booking-form
           *ngIf="showForm && clients"
           [destinations]="destinations"
-          [currentUserType]="'AGENT'"
+          [currentUser]="currentUser"
           (onBookingAccepted)="addBooking($event)"
           [clients]="clients"
         />

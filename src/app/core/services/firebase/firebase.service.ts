@@ -292,6 +292,7 @@ export class FirebaseService {
     });
   }
 
+  // TODO Add mapping to subscriptions
   public subscribeToCollection(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>): Unsubscribe | null {
     if (!this._db) {
       return null;

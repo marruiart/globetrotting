@@ -4,7 +4,7 @@ import { User } from '../../models/globetrotting/user.interface';
 import { MappingService } from './mapping.service';
 import { DataService } from './data.service';
 import { UsersService } from './users.service';
-import { Unsubscribe } from 'firebase/firestore';
+import { QueryConstraint, Unsubscribe, where } from 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 import { Roles } from '../../utilities/utilities';
@@ -16,7 +16,7 @@ export class UserNotFoundException extends Error { }
   providedIn: 'root'
 })
 export class SubscribableUsersService extends UsersService {
-  private unsubscribe!: Unsubscribe | null;
+  private unsubscribe: Unsubscribe | null = null;
   private firebaseSvc = inject(FirebaseService);
 
   constructor(
@@ -31,11 +31,11 @@ export class SubscribableUsersService extends UsersService {
 
   private subscribeToUsers() {
     const _users = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollection('users', _users);
-    _users.subscribe(res => {
-      if (res) {
-        const clients = res.docs.filter(doc => doc.data['role'] === Roles.AUTHENTICATED)
-        this.clientsFacade.saveClients(clients.map(client => this.mappingSvc.mapUser(client)));
+    const byRole: QueryConstraint = where('role', '==', Roles.AUTHENTICATED);
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _users, byRole);
+    _users.subscribe(clients => {
+      if (clients) {
+        this.clientsFacade.saveClients(clients.docs.map(client => this.mappingSvc.mapUser(client)));
       }
     });
   }

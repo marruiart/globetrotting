@@ -2,11 +2,11 @@ import { ExtUser, AdminAgentOrClientUser, User } from "../models/globetrotting/u
 
 export const isType = <T>(item: any): item is T => true;
 
-export function getClientName(clientExtUser: ExtUser | User): string {
-    if (clientExtUser && clientExtUser.name) {
-      return `${clientExtUser?.name}${' ' + clientExtUser?.surname ?? ''}`;
-    } else if (clientExtUser) {
-      return clientExtUser.nickname;
+export function getUserName(user: ExtUser | User): string {
+    if (user && user.name) {
+      return `${user?.name}${' ' + user?.surname ?? ''}`;
+    } else if (user) {
+      return user.nickname;
     } else {
       return '';
     }

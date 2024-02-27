@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { User } from 'src/app/core/models/globetrotting/user.interface';
-import { getClientName } from 'src/app/core/utilities/utilities';
+import { getUserName } from 'src/app/core/utilities/utilities';
 
 @Component({
   selector: 'app-client-selectable-item',
@@ -13,7 +13,7 @@ export class ClientSelectableItemComponent {
   private _clientExtUser: User | null = null;
   @Input() set clientExtUser(clientExtUser: User | null) {
     if (clientExtUser) {
-      this.name = getClientName(clientExtUser);
+      this.name = getUserName(clientExtUser);
       this._clientExtUser = clientExtUser;
     }
   };

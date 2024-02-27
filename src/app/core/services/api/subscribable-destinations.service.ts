@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { MappingService } from './mapping.service';
@@ -9,7 +9,7 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 
 export class SubscribableDestinationsService extends DestinationsService {
-  private unsubscribe!: Unsubscribe | null;
+  private unsubscribe: Unsubscribe | null = null;
   private firebaseSvc = inject(FirebaseService);
 
   constructor(

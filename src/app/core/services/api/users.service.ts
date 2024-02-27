@@ -16,9 +16,7 @@ export class UsersService {
   protected clientsFacade = inject(ClientsFacade);
   private path: string = "/api/extended-users";
   private _users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
-  public users$: Observable<User[]> = this._users.asObservable();
   private _extendedMe: BehaviorSubject<ExtUser | null> = new BehaviorSubject<ExtUser | null>(null);
-  public extendedMe$: Observable<ExtUser | null> = this._extendedMe.asObservable();
   public jwt: string = "";
   private queries: { [query: string]: string } = {
     "populate": "user.role"

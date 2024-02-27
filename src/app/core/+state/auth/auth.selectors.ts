@@ -1,16 +1,9 @@
 import { createFeatureSelector, createSelector } from "@ngrx/store";
 import { AUTH_FEATURE_KEY, AuthState } from "./auth.reducer";
-import { AuthUser } from "../../models/globetrotting/auth.interface";
 import { AgentUser, ClientUser, AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
 import { ClientFavDestination } from "../../models/globetrotting/fav.interface";
 
 export const selectFeature = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY);
-export const selectAuthUser = createSelector(selectFeature, (state: AuthState): AuthUser | null => {
-    return (state.user_id && state.role) ? {
-        user_id: state.user_id ?? 0,
-        role: state.role ?? 'AUTHENTICATED'
-    } : null
-});
 export const selectRole = createSelector(selectFeature, (state: AuthState) => state.role);
 export const selectUserId = createSelector(selectFeature, (state: AuthState) => state.user_id);
 export const selectLoggedState = createSelector(selectFeature, (state: AuthState) => state.isLogged);
@@ -50,5 +43,4 @@ export const selectCurrentUser = createSelector(selectFeature, (state: AuthState
 });
 export const selectUserNickname = createSelector(selectFeature, (state: AuthState) => state.nickname);
 export const selectUserAvatar = createSelector(selectFeature, (state: AuthState) => state.avatar);
-export const selectUserBookings = createSelector(selectFeature, (state: AuthState) => state.bookings);
 export const selectUserFavorites = createSelector(selectFeature, (state: AuthState) => state.favorites);

@@ -1,13 +1,12 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as BookingsActions from './bookings.actions'
-import { logoutSuccess as AuthActionsLogoutSuccess } from '../auth/auth.actions'
 import { Observable, catchError, forkJoin, map, of, switchMap, zip } from "rxjs";
 import { UsersService } from "../../services/api/users.service";
 import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
 import { ExtUser } from "../../models/globetrotting/user.interface";
-import { getClientName } from "../../utilities/utilities";
+import { getUserName } from "../../utilities/utilities";
 
 @Injectable()
 export class BookingsEffects {
@@ -37,7 +36,7 @@ export class BookingsEffects {
                                 const agentInfo = (agent) ? { agentName: `${agent.name} ${agent.surname}`, agent_id: agent?.user_id } as AgentRowInfo
                                     : { agentName: null, agent_id: null } as AgentRowInfo;
                                 const client = clients[i];
-                                const clientInfo = { clientName: getClientName(client), client_id: client?.user_id } as ClientRowInfo;
+                                const clientInfo = { clientName: getUserName(client), client_id: client?.user_id } as ClientRowInfo;
                                 bookingsTable.push(this.mappingSvc.mapBookingTableRow(role, booking, clientInfo, agentInfo));
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });

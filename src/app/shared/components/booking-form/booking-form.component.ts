@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BookingForm } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { Role, User } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { Roles, getUserName } from 'src/app/core/utilities/utilities';
 
 @Component({
     selector: 'app-booking-form',
@@ -11,15 +12,14 @@ import { Role, User } from 'src/app/core/models/globetrotting/user.interface';
 })
 export class BookingFormComponent {
     public bookingForm: FormGroup = this.fb.group({});
-    public selectedDestination: Destination | null = null;
     @Input() emptyForm?: FormGroup;
     @Input() destinations: Destination[] = [];
 
-    private _currentUserType?: Role;
-    @Input() set currentUserType(currentUserType: Role | undefined) {
-        if (currentUserType) {
-            this._currentUserType = currentUserType;
-            if (this._currentUserType === 'AGENT' || this._currentUserType === 'ADMIN') {
+    private _currentUser: User | null = null;
+    @Input() set currentUser(currentUser: User | null) {
+        if (currentUser) {
+            this._currentUser = currentUser;
+            if (currentUser.role === Roles.AGENT || currentUser.role === Roles.ADMIN) {
                 this.bookingForm = this.fb.group({
                     client: [null, [Validators.required]],
                     destination: [null, [Validators.required]],
@@ -34,8 +34,15 @@ export class BookingFormComponent {
             }
         }
     }
-    get currentUserType(): Role | undefined {
-        return this._currentUserType;
+    get currentUser(): User | null {
+        return this._currentUser;
+    }
+
+    private _selectedDestination: Destination | null = null;
+    @Input() set selectedDestination(selectedDestination: Destination | null) {
+        if (selectedDestination) {
+            this._selectedDestination = selectedDestination;
+        }
     }
 
     private _clients: User[] = [];
@@ -61,23 +68,40 @@ export class BookingFormComponent {
     }
 
     public onAccept(event: Event) {
-        let bookingForm: BookingForm;
-        if (this.bookingForm.value.destination && this.bookingForm.value.client) {
-            bookingForm = {
-                client_id: this.bookingForm.value.client,
-                destination_id: this.bookingForm.value.destination.id,
-                start: this.bookingForm.value.dates[0],
-                end: this.bookingForm.value.dates[1],
-                travelers: this.bookingForm.value.travelers
+        const values = this.bookingForm.value;
+        let bookingForm!: BookingForm;
+        if (this._currentUser) {
+            if (values.client) {
+                bookingForm = {
+                    start: values.dates[0],
+                    end: values.dates[1],
+                    travelers: values.travelers,
+                    isActive: true,
+                    isConfirmed: false,
+                    agent_id: this._currentUser.specific_id,
+                    agentName: getUserName(this._currentUser),
+                    client_id: values.client.specific_id,
+                    clientName: getUserName(values.client),
+                    destination_id: values.destination.id,
+                    destinationName: values.destination.name
+                }
+            } else if (this._selectedDestination) {
+                bookingForm = {
+                    start: values.dates[0],
+                    end: values.dates[1],
+                    travelers: values.travelers,
+                    isActive: true,
+                    isConfirmed: false,
+                    client_id: this._currentUser.specific_id ?? this._currentUser.user_id,
+                    clientName: getUserName(this._currentUser),
+                    destination_id: this._selectedDestination.id,
+                    destinationName: this._selectedDestination.name
+                }
             }
-        } else {
-            bookingForm = {
-                start: this.bookingForm.value.dates[0],
-                end: this.bookingForm.value.dates[1],
-                travelers: this.bookingForm.value.travelers
+            if (bookingForm) {
+                this.onBookingAccepted.emit(bookingForm);
             }
         }
-        this.onBookingAccepted.emit(bookingForm);
         this.resetForm();
         event.stopPropagation();
     }

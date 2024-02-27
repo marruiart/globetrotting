@@ -12,7 +12,7 @@ import { FirebaseService } from '../firebase/firebase.service';
   providedIn: 'root'
 })
 export class SubscribableBookingsService extends BookingsService {
-  private unsubscribe: Unsubscribe | null = null;
+  private unsubscriptions: (Unsubscribe | null)[] = [];
   private firebaseSvc = inject(FirebaseService);
 
   constructor(
@@ -21,10 +21,16 @@ export class SubscribableBookingsService extends BookingsService {
   ) {
     super(dataSvc, mappingSvc);
     this.authFacade.currentUser$.subscribe(user => {
-      if (!this.unsubscribe && user) {
+      if (this.unsubscriptions.length == 0 && user) {
+        this.unsubscriptions = [];
         this.subscribeToBookings();
       } else if (!user) {
-        this.unsubscribe = null;
+        for (let unsubscribe of this.unsubscriptions) {
+          if (unsubscribe) {
+            unsubscribe();
+          }
+        }
+        this.unsubscriptions = [];
       }
     });
   }
@@ -34,13 +40,12 @@ export class SubscribableBookingsService extends BookingsService {
     let _bookings = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
     if (this.currentUser?.role != 'ADMIN') {
       let _notConfirmed = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-      const userTypeId = this.currentUser!.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
-      const byUser: QueryConstraint = where(userTypeId, '==', this.currentUser!.user_id);
-      const byConfirmation: QueryConstraint = where('isConfirmed', '==', false);
-      this.firebaseSvc.subscribeToCollectionQuery('bookings', _notConfirmed, byConfirmation);
-      this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('bookings', _bookings, byUser);
+      this.subscribeToNotConfirmedBookings(_notConfirmed);
+      this.subscribeToBookingsByUser(_bookings);
+
       zip(_bookings, _notConfirmed).subscribe(([userBookings, notConfirmed]) => {
         if (userBookings && notConfirmed) {
+          // TODO check duplicates in userBookings and not confirmed
           const _userBookings = userBookings.docs.map(doc => this.mappingSvc.mapBooking(doc));
           const _notConfirmed = notConfirmed.docs.map(doc => this.mappingSvc.mapBooking(doc));
           const bookings = [..._userBookings, ..._notConfirmed]
@@ -50,7 +55,7 @@ export class SubscribableBookingsService extends BookingsService {
         }
       });
     } else {
-      this.unsubscribe = this.firebaseSvc.subscribeToCollection('bookings', _bookings);
+      this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection('bookings', _bookings));
       _bookings.subscribe(res => {
         if (res) {
           const bookings = res.docs.map(doc => this.mappingSvc.mapBooking(doc));
@@ -60,6 +65,17 @@ export class SubscribableBookingsService extends BookingsService {
         }
       });
     }
+  }
+
+  private subscribeToNotConfirmedBookings(behaviorSubject: BehaviorSubject<FirebaseCollectionResponse | null>) {
+    const byConfirmation: QueryConstraint = where('isConfirmed', '==', false);
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery('bookings', behaviorSubject, byConfirmation));
+  }
+
+  private subscribeToBookingsByUser(behaviorSubject: BehaviorSubject<FirebaseCollectionResponse | null>) {
+    const userTypeId = this.currentUser!.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
+    const byUser: QueryConstraint = where(userTypeId, '==', this.currentUser!.user_id);
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery('bookings', behaviorSubject, byUser));
   }
 
   public override getAllBookings(): Observable<Booking[]> {

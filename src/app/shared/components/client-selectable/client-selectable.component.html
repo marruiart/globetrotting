@@ -25,10 +25,9 @@
   [dismissableMask]="true"
   styleClass="client-selectable"
   contentStyleClass="client-selectable-content"
-  (click)="showSelectable = true"
 >
   <ng-container *ngIf="showSelectable">
-    <app-client-selectable-item
+    <app-client-selectable-item 
       *ngFor="let clientExtUser of clients"
       [clientExtUser]="clientExtUser"
       (onClientSelected)="onClientSelected($event)"

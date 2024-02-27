@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { getClientName } from 'src/app/core/utilities/utilities';
 
 @Component({

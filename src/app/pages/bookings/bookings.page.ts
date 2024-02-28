@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy } from '@angular/core';
 import { catchError, lastValueFrom, of, switchMap, tap, zip } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
@@ -20,6 +20,9 @@ import { Roles } from 'src/app/core/utilities/utilities';
   styleUrls: ['./bookings.page.scss'],
 })
 export class BookingsPage implements OnDestroy {
+  private readonly RESPONSIVE_SIZE = 960;
+  private readonly COMPONENT = 'BookingsPage';
+
   public destinations: Destination[] = [];
   public currentUser: AdminAgentOrClientUser | null = null;
   public clients: User[] | null = null;
@@ -30,7 +33,7 @@ export class BookingsPage implements OnDestroy {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.isResponsive = window.innerWidth < 960;
+    this.isResponsive = this.checkResponsiveState();
   }
 
   constructor(
@@ -45,14 +48,24 @@ export class BookingsPage implements OnDestroy {
     private clientsFacade: ClientsFacade,
     private destinationsFacade: DestinationsFacade
   ) {
-    this.isResponsive = window.innerWidth < 960;
+    this.isResponsive = this.checkResponsiveState();
     this.bookingsFacade.initBookings();
-    this.subsSvc.addSubscriptions('BookingsPage',
+    this.initSubscriptions();
+  }
+
+  private initSubscriptions() {
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      // Fetch data
       this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
-      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
+      this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false }),
       this.destinationsFacade.destinations$.subscribe((destinations) => this.destinations = destinations),
-      this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false })
+      // Translation
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe()
     );
+  }
+
+  private checkResponsiveState(): boolean {
+    return window.innerWidth < this.RESPONSIVE_SIZE;
   }
 
   private getCols() {

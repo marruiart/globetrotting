@@ -1,7 +1,7 @@
 import { TravelAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
 import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo, AdminBookingsTableRow, AgentBookingsTableRow, ClientBookingsTableRow } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
-import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
+import { Destination, PaginatedDestination, NewDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
 import { PaginatedUser, UserCredentialsOptions, NewExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from "src/app/core/models/globetrotting/user.interface";
@@ -100,6 +100,18 @@ export class FirebaseMappingService extends MappingService {
 
     public mapPaginatedDestinations = (res: FirebaseCollectionResponse): PaginatedDestination =>
         this.extractPaginatedData<Destination>(res);
+
+
+    public mapDestinationTableRow(destination: Destination): DestinationsTableRow {
+        return {
+            id: destination.id,
+            name: destination.name,
+            type: destination.type,
+            dimension: destination.dimension === 'unknown' ? '' : destination.dimension,
+            price: destination.price,
+            description: destination.description
+        }
+    }
 
     // USERS
 

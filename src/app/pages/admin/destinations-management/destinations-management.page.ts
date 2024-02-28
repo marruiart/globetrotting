@@ -1,10 +1,11 @@
 import { Component, OnDestroy } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { Observable, catchError, of, switchMap, tap, zip } from "rxjs";
+import { catchError, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
-import { Destination, PaginatedDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
+import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { AdminAgentOrClientUser } from "src/app/core/models/globetrotting/user.interface";
+import { MappingService } from "src/app/core/services/api/mapping.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
 import { Roles } from "src/app/core/utilities/utilities";
@@ -16,6 +17,8 @@ import { Roles } from "src/app/core/utilities/utilities";
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage implements OnDestroy {
+  private readonly COMPONENT = 'DestinationsManagementPage';
+
   public loading: boolean = false;
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
@@ -24,37 +27,36 @@ export class DestinationsManagementPage implements OnDestroy {
   public selectedDestination: Destination | null = null;
 
   constructor(
+    // Services
+    private subsSvc: SubscriptionsService,
+    private mappingSvc: MappingService,
+    private translate: CustomTranslateService,
+    // Facades
     public destinationsFacade: DestinationsFacade,
     private authFacade: AuthFacade,
-    private subsSvc: SubscriptionsService,
-    private translate: CustomTranslateService,
     // PrimeNG
     private confirmationSvc: ConfirmationService,
     private messageSvc: MessageService
   ) {
     this.destinationsFacade.initDestinations();
-    this.subsSvc.addSubscriptions('DestinationsManagementPage',
-      this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
-      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
-      this.displayTable().subscribe((table: DestinationsTableRow[]) => this.destinationsFacade.saveDestinationsManagementTable(table))
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      // Fetch data
+      this.authFacade.currentUser$.pipe(tap(user => {
+        this.currentUser = user;
+        const role = this.currentUser?.role;
+        if (role === Roles.AGENT || role === Roles.ADMIN) {
+          this.subsSvc.addSubscriptions(this.COMPONENT,
+            this.destinationsFacade.destinationsPage$.subscribe(page => {
+              const destinations: Destination[] = page.data;
+              const table: DestinationsTableRow[] = destinations.map(destination => this.mappingSvc.mapDestinationTableRow(destination));
+              this.destinationsFacade.saveDestinationsManagementTable(table);
+            }))
+        }
+      })).subscribe(),
+      // Translation
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe()
     )
   }
-
-  /**
-* Obtains from the agent service an array of destinations and maps each of them into a TableRow.
-* @returns an observable of an array of TableRow.
-*/
-  private displayTable(): Observable<DestinationsTableRow[]> {
-    if (this.currentUser?.role == Roles.AGENT || this.currentUser?.role == Roles.ADMIN) {
-      return this.destinationsFacade.destinationsPage$.pipe(
-        switchMap((page: PaginatedDestination): Observable<DestinationsTableRow[]> => this.mapDestinationsRows(page.data)),
-        catchError(err => of(err))
-      )
-    } else {
-      return of([]);
-    }
-  }
-
 
   private getCols() {
     const name$ = this.translate.getTranslation("destManagement.tableName");
@@ -81,26 +83,6 @@ export class DestinationsManagementPage implements OnDestroy {
       { field: 'description', header: description },
       { field: 'options', header: options }
     ]
-  }
-
-  private mapTableRow(destination: Destination): DestinationsTableRow {
-    return {
-      id: destination.id,
-      name: destination.name,
-      type: destination.type,
-      dimension: destination.dimension == 'unknown' ? '' : destination.dimension,
-      price: destination.price,
-      description: destination.description
-    }
-  }
-
-  /**
-  * Receives an array of destinations and turn it into an array of rows ready to display on a table.
-  * @param destinations array of all the destinations
-  * @returns an observable with all the rows of the table to be displayed
-  */
-  private mapDestinationsRows(destinations: Destination[]): Observable<DestinationsTableRow[]> {
-    return of(destinations.map((destination: Destination) => this.mapTableRow(destination)));
   }
 
   public showDestinationForm(destination?: Destination) {

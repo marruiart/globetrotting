@@ -3,7 +3,7 @@ import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from '
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
+import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
 import { NewExtUser, PaginatedUser, ExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
@@ -119,6 +119,17 @@ export class StrapiMappingService extends MappingService {
 
   public mapPaginatedDestinations = (res: StrapiArrayResponse<StrapiDestination>): PaginatedDestination =>
     this.extractPaginatedData<Destination, StrapiDestination>(res, this.mapDestinationData);
+
+  public mapDestinationTableRow(destination: Destination): DestinationsTableRow {
+    return {
+      id: destination.id,
+      name: destination.name,
+      type: destination.type,
+      dimension: destination.dimension === 'unknown' ? '' : destination.dimension,
+      price: destination.price,
+      description: destination.description
+    }
+  }
 
   // USERS
 

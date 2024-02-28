@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from "@ngrx/store";
 import { AUTH_FEATURE_KEY, AuthState } from "./auth.reducer";
 import { AgentUser, ClientUser, AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
 import { ClientFavDestination } from "../../models/globetrotting/fav.interface";
+import { Roles } from "../../utilities/utilities";
 
 export const selectFeature = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY);
 export const selectRole = createSelector(selectFeature, (state: AuthState) => state.role);
@@ -9,7 +10,7 @@ export const selectUserId = createSelector(selectFeature, (state: AuthState) => 
 export const selectLoggedState = createSelector(selectFeature, (state: AuthState) => state.isLogged);
 export const selectError = createSelector(selectFeature, (state: AuthState) => state.error);
 export const selectCurrentUser = createSelector(selectFeature, (state: AuthState): AdminAgentOrClientUser | null => {
-    if (state.role === 'AUTHENTICATED') {
+    if (state.role === Roles.AUTHENTICATED) {
         return {
             role: state.role,
             user_id: state.user_id,
@@ -23,7 +24,7 @@ export const selectCurrentUser = createSelector(selectFeature, (state: AuthState
             age: state.age,
             favorites: (state.favorites ?? []) as ClientFavDestination[]
         } as ClientUser
-    } else if (state.role === 'ADMIN' || state.role === 'AGENT'){
+    } else if (state.role === Roles.ADMIN || state.role === Roles.AGENT){
         return {
             role: state.role,
             user_id: state.user_id,

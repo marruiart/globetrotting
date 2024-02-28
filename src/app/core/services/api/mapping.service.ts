@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedUser, ExtUser, UserCredentialsOptions, AdminAgentOrClientUser, UserCredentials, AgentUser, Role, User } from '../../models/globetrotting/user.interface';
+import { NewExtUser, PaginatedUser, UserCredentialsOptions, AdminAgentOrClientUser, User } from '../../models/globetrotting/user.interface';
 import { Media } from '../../models/globetrotting/media.interface';
 import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
 import { AgentRowInfo, Booking, BookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from '../../models/globetrotting/agent.interface';
+import { TravelAgent, NewTravelAgent, AgentsTableRow } from '../../models/globetrotting/agent.interface';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { Role } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'

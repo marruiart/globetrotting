@@ -4,12 +4,13 @@ import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetro
 import { Destination, PaginatedDestination, NewDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { ExtUser, PaginatedUser, UserCredentialsOptions, NewExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, Role, User } from "src/app/core/models/globetrotting/user.interface";
+import { PaginatedUser, UserCredentialsOptions, NewExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
+import { Role } from "src/app/core/utilities/utilities";
 
 export class FirebaseMappingService extends MappingService {
 

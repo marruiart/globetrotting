@@ -1,5 +1,4 @@
-import { Backend, Firebase } from "src/environments/environment"
-import { Role } from "./user.interface";
+import { Role } from "../../utilities/utilities"
 
 export interface JwtAuth {
     jwt: string

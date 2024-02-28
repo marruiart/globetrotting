@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Booking, BookingsTableRow, NewBooking } from '../../models/globetrotting/booking.interface';
-import { Role } from '../../models/globetrotting/user.interface';
+import { Role } from '../../utilities/utilities';
 
 export const retrieveBookingsInfo = createAction('[Bookings API] Retrieve Bookings Info', props<{ bookings: Booking[], role: Role }>());
 export const saveBookingsTable = createAction('[Bookings API] Save Bookings', props<{ bookings: Booking[], role: Role }>());

@@ -1,11 +1,12 @@
 import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { AuthService } from '../../auth/auth.service';
-import { AgentRegisterInfo, AgentUser, ClientUser, Role, AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { AgentRegisterInfo, AgentUser, ClientUser, AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { inject } from '@angular/core';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { Role } from 'src/app/core/utilities/utilities';
 
 export class FirebaseAuthService extends AuthService {
   private authFacade = inject(AuthFacade);

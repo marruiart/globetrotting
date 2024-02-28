@@ -1,6 +1,6 @@
 import { StrapiMedia } from "./strapi-media.interface";
 import { StrapiResponse } from "./strapi-data.interface";
-import { Role } from "../globetrotting/user.interface";
+import { Role } from "../../utilities/utilities";
 
 export interface StrapiRole {
     id: number,

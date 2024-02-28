@@ -1,9 +1,8 @@
-import { BackendTypes } from "src/environments/environment";
 import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { UsersService } from "../services/api/users.service";
 import { SubscribableUsersService } from "../services/api/subscribable-users.service";
-import { Backends } from "../utilities/utilities";
+import { BackendTypes, Backends } from "../utilities/utilities";
 
 export function UsersServiceFactory(
     backend: BackendTypes,

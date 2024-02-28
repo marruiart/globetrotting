@@ -4,7 +4,7 @@ import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
 import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedUser, ExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, Role, User } from 'src/app/core/models/globetrotting/user.interface';
+import { NewExtUser, PaginatedUser, ExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -15,7 +15,7 @@ import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-clien
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
-import { isType } from 'src/app/core/utilities/utilities';
+import { Role, isType } from 'src/app/core/utilities/utilities';
 import { DatePipe } from '@angular/common';
 import { inject } from '@angular/core';
 

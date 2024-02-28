@@ -1,6 +1,6 @@
+import { Role } from "../../utilities/utilities"
 import { Booking, ClientBooking } from "../globetrotting/booking.interface"
 import { ClientFavDestination } from "../globetrotting/fav.interface"
-import { Role } from "../globetrotting/user.interface"
 
 export interface FirebaseUserCredentials {
     email: string,

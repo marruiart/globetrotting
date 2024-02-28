@@ -1,5 +1,3 @@
-import { Role } from "../globetrotting/user.interface";
-
 export interface StrapiMeResponse {
     id: number
     username: string,

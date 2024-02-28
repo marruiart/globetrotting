@@ -1,24 +1,38 @@
-import { ExtUser, AdminAgentOrClientUser, User } from "../models/globetrotting/user.interface";
+import { ExtUser, User } from "../models/globetrotting/user.interface";
 
 export const isType = <T>(item: any): item is T => true;
 
 export function getUserName(user: ExtUser | User): string {
-    if (user && user.name) {
-      return `${user?.name}${' ' + user?.surname ?? ''}`;
-    } else if (user) {
-      return user.nickname;
-    } else {
-      return '';
-    }
+  if (user && user.name) {
+    return `${user?.name}${' ' + user?.surname ?? ''}`;
+  } else if (user) {
+    return user.nickname;
+  } else {
+    return '';
   }
+}
 
+// TYPES
+export type Strapi = 'Strapi';
+export type Firebase = 'Firebase';
+export type BackendTypes = Firebase | Strapi;
+export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
+export type Collection = 'destinations' | 'users' | 'bookings';
+
+// CONSTANTS
 export class Roles {
-  static AUTHENTICATED = 'AUTHENTICATED'
-  static ADMIN = 'ADMIN'
-  static AGENT = 'AGENT'
+  static AUTHENTICATED: Role = 'AUTHENTICATED'
+  static ADMIN: Role = 'ADMIN'
+  static AGENT: Role = 'AGENT'
+}
+
+export class Collections {
+  static destinations: Collection = 'destinations'
+  static users: Collection = 'users'
+  static bookings: Collection = 'bookings'
 }
 
 export class Backends {
-  static STRAPI = 'Strapi'
-  static FIREBASE = 'Firebase'
+  static STRAPI: BackendTypes = 'Strapi'
+  static FIREBASE: BackendTypes = 'Firebase'
 }

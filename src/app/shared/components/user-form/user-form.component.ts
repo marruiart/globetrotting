@@ -7,7 +7,8 @@ import { FullUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo, Us
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
-import { BACKEND, BackendTypes, environment } from 'src/environments/environment';
+import { BACKEND, environment } from 'src/environments/environment';
+import { BackendTypes } from 'src/environments/environment.prod';
 
 export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
 const Pattern = {

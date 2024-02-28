@@ -6,7 +6,7 @@ import { UsersService } from "../../services/api/users.service";
 import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
 import { ExtUser } from "../../models/globetrotting/user.interface";
-import { getUserName } from "../../utilities/utilities";
+import { Roles, getUserName } from "../../utilities/utilities";
 
 @Injectable()
 export class BookingsEffects {
@@ -25,7 +25,7 @@ export class BookingsEffects {
                 let agentsObs: Observable<ExtUser | null>[] = [];
                 let bookingsTable: BookingsTableRow[] = [];
                 switch (role) {
-                    case 'ADMIN':
+                    case Roles.ADMIN:
                         for (let booking of bookings) {
                             clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<ExtUser>);
                             agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
@@ -41,7 +41,7 @@ export class BookingsEffects {
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
-                    case 'AGENT':
+                    case Roles.AGENT:
                         for (let booking of bookings) {
                             clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<ExtUser>);
                         }
@@ -53,7 +53,7 @@ export class BookingsEffects {
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
-                    case 'AUTHENTICATED':
+                    case Roles.AUTHENTICATED:
                         for (let booking of bookings) {
                             agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
                         }
@@ -66,6 +66,8 @@ export class BookingsEffects {
                             }
                             return BookingsActions.saveBookingsTableSuccess({ bookingsTable });
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
+                    default:
+                        return of(BookingsActions.saveBookingsTableFailure({ error: 'ERROR: unknown user role.' }))
                 }
             }))
     );

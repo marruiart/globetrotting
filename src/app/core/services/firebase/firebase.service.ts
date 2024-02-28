@@ -11,8 +11,6 @@ import { DestinationsFacade } from '../../+state/destinations/destinations.facad
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
 
-export type Collections = 'destinations' | 'sizes' | 'users' | 'bookings';
-
 @Injectable({
   providedIn: 'root'
 })

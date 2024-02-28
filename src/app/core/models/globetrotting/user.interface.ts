@@ -5,8 +5,7 @@ import { PaginatedData } from "./pagination-data.interface"
 import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-interfaces/firebase-user.interface"
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
 import { ClientFavDestination } from "./fav.interface"
-
-export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
+import { Role } from "../../utilities/utilities"
 
 // Options depending on the implemented backend possibilities.
 export type UserCredentialsOptions = FirebaseUserCredentials | StrapiUserCredentials;

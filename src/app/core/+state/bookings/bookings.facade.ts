@@ -3,7 +3,7 @@ import { Store, select } from "@ngrx/store";
 import * as BookingsActions from './bookings.actions'
 import * as BookingsSelector from './bookings.selectors'
 import { Booking, NewBooking } from "../../models/globetrotting/booking.interface";
-import { Role } from "../../models/globetrotting/user.interface";
+import { Role } from "../../utilities/utilities";
 
 @Injectable()
 export class BookingsFacade {

@@ -21,13 +21,18 @@ export const initialState: DestinationsState = {
 
 export const destinationsReducer = createReducer(
     initialState,
+    on(DestinationsActions.initDestinationsFailure, (state, { error }) => ({ ...state, error: error })),
+
     on(DestinationsActions.savePage, (state, { destinationsPage }) => ({ ...state, destinationsPage: destinationsPage, error: null })),
     on(DestinationsActions.saveDestinations, (state, { destinations }) => ({ ...state, destinations: destinations, error: null })),
     on(DestinationsActions.saveManagementTable, (state, { managementTable }) => ({ ...state, managementTable: managementTable, error: null })),
+
     on(DestinationsActions.addDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.addDestinationFailure, (state, { error }) => ({ ...state, error: error })),
+
     on(DestinationsActions.updateDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.updateDestinationFailure, (state, { error }) => ({ ...state, error: error })),
+
     on(DestinationsActions.deleteDestinationSuccess, (state) => ({ ...state, error: null })),
     on(DestinationsActions.deleteDestinationFailure, (state, { error }) => ({ ...state, error: error })),
 );

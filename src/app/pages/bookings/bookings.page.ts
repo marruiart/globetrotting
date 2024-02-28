@@ -50,7 +50,8 @@ export class BookingsPage implements OnInit, OnDestroy {
       this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
       this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
       this.destinationsFacade.destinations$.subscribe((destinations) => this.destinations = destinations),
-      this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false }))
+      this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false })
+    );
   }
 
   async ngOnInit() {

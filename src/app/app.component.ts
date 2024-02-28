@@ -40,32 +40,12 @@ export class AppComponent implements OnDestroy {
   }
 
   private startSubscriptions() {
-    this.subsSvc.addSubscriptions([
-      {
-        component: 'AppComponent',
-        sub: this.authFacade.error$.pipe(tap(error => {
-          if (error) console.error(error);
-        })).subscribe()
-      },
-      {
-        component: 'AppComponent',
-        sub: this.favsFacade.error$.pipe(tap(error => {
-          if (error) console.error(error);
-        })).subscribe()
-      },
-      {
-        component: 'AppComponent',
-        sub: this.destinationsFacade.error$.pipe(tap(error => {
-          if (error) console.error(error);
-        })).subscribe()
-      },
-      {
-        component: 'AppComponent',
-        sub: this.bookingsFacade.error$.pipe(tap(error => {
-          if (error) console.error(error);
-        })).subscribe()
-      }
-    ]);
+    this.subsSvc.addSubscriptions('AppComponent',
+      this.authFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
+      this.favsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
+      this.destinationsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
+      this.bookingsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe()
+    );
   }
 
   private fetchExternalData() {

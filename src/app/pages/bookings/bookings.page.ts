@@ -20,7 +20,6 @@ import { Roles } from 'src/app/core/utilities/utilities';
   styleUrls: ['./bookings.page.scss'],
 })
 export class BookingsPage implements OnInit, OnDestroy {
-  private _component = 'BookingsPage';
   public destinations: Destination[] = [];
   public currentUser: AdminAgentOrClientUser | null = null;
   public clients: User[] | null = null;
@@ -35,47 +34,23 @@ export class BookingsPage implements OnInit, OnDestroy {
   }
 
   constructor(
-    public bookingsFacade: BookingsFacade,
+    // Services
     public usersSvc: UsersService,
     private bookingsSvc: BookingsService,
-    private destinationsFacade: DestinationsFacade,
-    private clientsFacade: ClientsFacade,
-    private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
-    private translate: CustomTranslateService
+    private translate: CustomTranslateService,
+    // Facades
+    public bookingsFacade: BookingsFacade,
+    private authFacade: AuthFacade,
+    private clientsFacade: ClientsFacade,
+    private destinationsFacade: DestinationsFacade
   ) {
     this.isResponsive = window.innerWidth < 960;
-    this.subsSvc.addSubscriptions([
-      {
-        component: this._component,
-        sub: this.authFacade.currentUser$.subscribe(currentUser => {
-          this.currentUser = currentUser;
-        })
-      },
-      {
-        component: this._component,
-        sub: this.translate.language$.pipe(
-          switchMap((_: string) => this.getCols()),
-          catchError(err => of(err)))
-          .subscribe()
-      },
-      {
-        component: this._component,
-        sub: this.destinationsFacade.destinations$
-          .subscribe((destinations) => {
-            this.destinations = destinations;
-          })
-      },
-      {
-        component: this._component,
-        sub: this.bookingsFacade.bookingTable$
-          .subscribe((table) => {
-            if (table) {
-              this.loading = false;
-            }
-          })
-      }
-    ])
+    this.subsSvc.addSubscriptions('BookingsPage',
+      this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
+      this.destinationsFacade.destinations$.subscribe((destinations) => this.destinations = destinations),
+      this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false }))
   }
 
   async ngOnInit() {

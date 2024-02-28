@@ -9,8 +9,6 @@ interface Sub {
   providedIn: 'root'
 })
 export class SubscriptionsService {
-  // TODO create a function to add subscriptions with ...subscription and generate the Subscription object {component: string, sub: Subscription}
-
   private _subs: { [component: string]: (Subscription | null)[] } = {}
 
   constructor() { }
@@ -19,7 +17,7 @@ export class SubscriptionsService {
     if (component in this._subs) {
       this._subs[component].forEach(s => {
         if (s) {
-          console.info("unsubscribe: ", s);
+          console.info("Unsubscribing... ", s);
           s.unsubscribe();
           s = null;
         }
@@ -28,17 +26,18 @@ export class SubscriptionsService {
     }
   }
 
-  public addSubscriptions(subs: Sub[]) {
-    subs.forEach(s => {
-      if (s.component in this._subs) {
-        this._subs[s.component].push(s.sub);
-      } else {
-        this._subs[s.component] = [s.sub];
-      }
-    })
+  private includeSubscription(sub: Sub) {
+    if (sub.component in this._subs) {
+      this._subs[sub.component].push(sub.sub);
+    } else {
+      this._subs[sub.component] = [sub.sub];
+    }
   }
 
-  public addSubscription(sub: Sub) {
-    this.addSubscriptions([sub]);
+  public addSubscriptions(component: string, ...subscriptions: Subscription[]) {
+    subscriptions.forEach(subscription => {
+      const sub: Sub = { component: component, sub: subscription };
+      this.includeSubscription(sub);
+    })
   }
 }

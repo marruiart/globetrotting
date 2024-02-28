@@ -16,7 +16,6 @@ import { Roles } from "src/app/core/utilities/utilities";
   styleUrls: ['./destinations-management.page.scss'],
 })
 export class DestinationsManagementPage implements OnDestroy {
-  private _component = 'DestinationsManagementPage';
   public loading: boolean = false;
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
@@ -34,24 +33,11 @@ export class DestinationsManagementPage implements OnDestroy {
     private messageSvc: MessageService
   ) {
     this.destinationsFacade.initDestinations();
-    this.subsSvc.addSubscriptions([
-      {
-        component: this._component,
-        sub: this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser)
-      },
-      {
-        component: this._component,
-        sub: this.translate.language$.pipe(
-          switchMap((_: string) => this.getCols()),
-          catchError(err => of(err))).subscribe()
-      },
-      {
-        component: this._component,
-        sub: this.displayTable().subscribe((table: DestinationsTableRow[]) => {
-          this.destinationsFacade.saveDestinationsManagementTable(table);
-        })
-      }
-    ])
+    this.subsSvc.addSubscriptions('DestinationsManagementPage',
+      this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
+      this.displayTable().subscribe((table: DestinationsTableRow[]) => this.destinationsFacade.saveDestinationsManagementTable(table))
+    )
   }
 
   /**

@@ -39,21 +39,10 @@ export class AgentsManagementPage {
     public agentsFacade: AgentsFacade
   ) {
     this.init();
-    this.subsSvc.addSubscriptions([
-      {
-        component: 'AgentsManagementPage',
-        sub: this.authFacade.currentUser$.subscribe(currentUser => {
-          this.currentUser = currentUser;
-        })
-      },
-      {
-        component: 'AgentsManagementPage',
-        sub: this.translate.language$.pipe(
-          switchMap((_: string) => this.getCols()),
-          catchError(err => of(err))
-        ).subscribe()
-      }
-    ])
+    this.subsSvc.addSubscriptions('AgentsManagementPage',
+      this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe()
+    )
   }
 
   private async init() {

@@ -47,9 +47,8 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   private startSubscriptions() {
-    this.subsSvc.addSubscription({
-      component: 'DestinationsPage',
-      sub: this.authFacade.currentUser$.pipe(switchMap(user => {
+    this.subsSvc.addSubscriptions('DestinationsPage',
+      this.authFacade.currentUser$.pipe(switchMap(user => {
         if (user) {
           this.currentUser = user ?? null
           if (user.role == 'AUTHENTICATED') {
@@ -58,7 +57,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
         }
         return of()
       })).subscribe()
-    })
+    )
   }
 
   public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {

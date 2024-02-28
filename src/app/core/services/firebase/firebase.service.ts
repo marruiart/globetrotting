@@ -257,18 +257,19 @@ export class FirebaseService {
   /**
    * 
    * @param collectionName 
-   * @param field 
+   * @param fieldPath
+   * @param opStr
    * @param value 
    * @returns 
    */
-  public getDocumentsBy(collectionName: string, field: string, value: any): Promise<FirebaseDocument[]> {
+  public getDocumentsBy(collectionName: string, fieldPath: string | FieldPath, value: unknown, opStr: WhereFilterOp = '=='): Promise<FirebaseDocument[]> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Error: Database is not connected."
         });
 
-      const docQuery = query(collection(this._db!, collectionName), where(field, "==", value));
+      const docQuery = query(collection(this._db!, collectionName), where(fieldPath, opStr, value));
       const querySnapshot = await getDocs(docQuery);
       resolve(querySnapshot.docs.map<FirebaseDocument>(doc => {
         return { id: doc.id, data: doc.data() }

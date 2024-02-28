@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { MappingService } from './mapping.service';
 import { DataService } from './data.service';
-import { DocumentData, DocumentSnapshot, Unsubscribe } from 'firebase/firestore';
+import { DocumentData, DocumentSnapshot, Unsubscribe, orderBy, where } from 'firebase/firestore';
 import { DestinationsService } from './destinations.service';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
@@ -24,7 +24,8 @@ export class SubscribableDestinationsService extends DestinationsService {
 
   private subscribeToDestinations() {
     const _destinations = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollection('destinations', _destinations);
+    const orderByName = orderBy('name');
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('destinations', _destinations, orderByName);
     _destinations.subscribe(res => {
       if (res) {
         this.destinationsFacade.saveDestinations(res.docs.map(doc => this.mappingSvc.mapDestination(doc)));

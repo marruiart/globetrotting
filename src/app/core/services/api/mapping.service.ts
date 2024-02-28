@@ -16,7 +16,7 @@ export abstract class MappingService {
 
   // Map to app
 
-  public abstract mapAdminAgentOrClientUser(user: any, specificUser?: any, extUser?: any): AdminAgentOrClientUser
+  public abstract mapAdminAgentOrClientUser(user: any): AdminAgentOrClientUser
 
   public abstract mapDestination(res: any): Destination
   public abstract mapPaginatedDestinations(res: any): PaginatedDestination
@@ -50,7 +50,8 @@ export abstract class MappingService {
 
   public abstract mapDestinationPayload(destination: NewDestination): any;
   public abstract mapFavPayload(fav: NewFav): any;
-  public abstract mapExtendedUserPayload(user: NewExtUser): any;
+  public abstract mapExtUserPayload(user: User): any;
+  public abstract mapUserCredentialsPayload(user: User): any;
   public abstract mapClientPayload(client: NewClient): any
   public abstract mapAgentPayload(client: NewTravelAgent): any
   public abstract mapBookingPayload(booking: NewBooking): any;

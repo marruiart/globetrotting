@@ -16,14 +16,17 @@ export function getUserName(user: ExtUser | User): string {
 export type Strapi = 'Strapi';
 export type Firebase = 'Firebase';
 export type BackendTypes = Firebase | Strapi;
-export type Role = 'ADMIN' | 'AGENT' | 'AUTHENTICATED';
+type Admin = 'ADMIN';
+type Agent = 'AGENT';
+type Authenticated = 'AUTHENTICATED';
+export type Role = Admin | Agent | Authenticated;
 export type Collection = 'destinations' | 'users' | 'bookings';
 
 // CONSTANTS
 export class Roles {
-  static AUTHENTICATED: Role = 'AUTHENTICATED'
-  static ADMIN: Role = 'ADMIN'
-  static AGENT: Role = 'AGENT'
+  static AUTHENTICATED: Authenticated = 'AUTHENTICATED'
+  static ADMIN: Admin = 'ADMIN'
+  static AGENT: Agent = 'AGENT'
 }
 
 export class Collections {
@@ -33,6 +36,15 @@ export class Collections {
 }
 
 export class Backends {
-  static STRAPI: BackendTypes = 'Strapi'
+  static STRAPI: Strapi = 'Strapi'
   static FIREBASE: BackendTypes = 'Firebase'
+}
+
+export class StrapiEndpoints {
+  static USER_PERMISSIONS = "/api/users"
+  static EXTENDED_USERS = "/api/extended-users"
+  static ME = "/api/users/me"
+  static REGISTER = "/api/auth/local/register"
+  static LOGIN = "/api/auth/local"
+  static ROLES = "/api/users-permissions/roles"
 }

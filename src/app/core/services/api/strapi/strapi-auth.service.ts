@@ -2,9 +2,9 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
 import { catchError, lastValueFrom, map, switchMap, throwError } from 'rxjs';
-import { AgentRegisterInfo, NewExtUser, ExtUser, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
+import { AgentRegisterInfo, NewExtUser, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRole, StrapiRolesResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRolesResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
@@ -16,6 +16,7 @@ import { ApiService } from '../api.service';
 import { DataService } from '../data.service';
 import { environment } from 'src/environments/environment';
 import { StrapiMeResponse } from 'src/app/core/models/strapi-interfaces/strapi-auth.interface';
+import { Roles, StrapiEndpoints } from 'src/app/core/utilities/utilities';
 
 export class StrapiAuthService extends AuthService {
   private userSvc = inject(UsersService);
@@ -44,7 +45,7 @@ export class StrapiAuthService extends AuthService {
   }
 
   public getRoles(): Observable<StrapiRolesResponse> {
-    return this.dataSvc.obtainAll<StrapiRolesResponse>("/api/users-permissions/roles")
+    return this.dataSvc.obtainAll<StrapiRolesResponse>(StrapiEndpoints.ROLES)
   }
 
 
@@ -57,7 +58,7 @@ export class StrapiAuthService extends AuthService {
         identifier: credentials.username || credentials.email!,
         password: credentials.password!
       }
-      const url = this.getUrl("/api/auth/local");
+      const url = this.getUrl(StrapiEndpoints.LOGIN);
       this.api.post<StrapiLoginResponse>(url, _credentials)
         .subscribe({
           next: async (auth: StrapiLoginResponse | null) => {
@@ -86,7 +87,7 @@ export class StrapiAuthService extends AuthService {
       password: registerInfo.password ?? ""
     }
     return new Observable<void>(observer => {
-      const url = this.getUrl("/api/auth/local/register");
+      const url = this.getUrl(StrapiEndpoints.REGISTER);
       this.api.post<StrapiRegisterResponse>(url, _registerInfo)
         .subscribe({
           next: async (response: StrapiRegisterResponse | null) => {
@@ -101,13 +102,15 @@ export class StrapiAuthService extends AuthService {
                   });
               } else {
                 const response = await lastValueFrom(this.getRoles());
-                const roleId: number = response.roles.filter(role => role.type.toUpperCase() === 'AGENT')[0].id;
-                const url = this.getUrl("/api/users", userId);
+                const roleId: number = response.roles.filter(role => role.type.toUpperCase() === Roles.AGENT)[0].id;
+                const url = this.getUrl(StrapiEndpoints.USER_PERMISSIONS, userId);
                 await lastValueFrom(this.api.put<StrapiRegisterResponse>(url, { "role": roleId }));
               }
 
               // Create related extended user
-              let _user: NewExtUser = {
+              let _user: User = {
+                ..._registerInfo,
+                role: isAgent ? Roles.AGENT : Roles.AUTHENTICATED,
                 user_id: userId,
                 nickname: nickname
               }
@@ -168,11 +171,11 @@ export class StrapiAuthService extends AuthService {
   }
 
   public me(): Observable<AdminAgentOrClientUser> {
-    return this.dataSvc.obtainMe<StrapiMeResponse>("/api/users/me").pipe(
+    return this.dataSvc.obtainMe<StrapiMeResponse>(StrapiEndpoints.ME).pipe(
       switchMap((me: StrapiMeResponse) => {
         if (me) {
           return this.userSvc.extendedMe(me.id).pipe(
-            switchMap((extUser: ExtUser | null) => {
+            switchMap((extUser: User | null) => {
               if (extUser) {
                 const role = me.role.type.toUpperCase();
                 switch (role) {
@@ -184,7 +187,7 @@ export class StrapiAuthService extends AuthService {
                           let user: AgentUser | AdminUser = {
                             role: role,
                             user_id: me.id,
-                            ext_id: extUser?.id,
+                            ext_id: extUser?.ext_id,
                             specific_id: agent.id,
                             username: me.username,
                             email: me.email,
@@ -198,15 +201,15 @@ export class StrapiAuthService extends AuthService {
                         } else {
                           throw new Error('Error: Specific user not found.');
                         }
-                      }), catchError(error => throwError(() => error)));
-                  case 'AUTHENTICATED':
+                      }), catchError(error => { throw new Error(error) }));
+                  case Roles.AUTHENTICATED:
                     return this.clientSvc.clientMe(me.id).pipe(
                       map((client: Client | null) => {
                         if (client) {
                           let user: ClientUser = {
                             role: client.type,
                             user_id: me.id,
-                            ext_id: extUser?.id,
+                            ext_id: extUser?.ext_id,
                             specific_id: client.id,
                             username: me.username,
                             email: me.email,
@@ -221,35 +224,35 @@ export class StrapiAuthService extends AuthService {
                         } else {
                           throw new Error('Error: Specific user not found.');
                         }
-                      }), catchError(error => throwError(() => error)));
+                      }), catchError(error => { throw new Error(error) }));
                   default:
                     throw new Error('Error: User role is unknown.');
                 }
               } else {
                 throw new Error('Error: Extended user not found.');
               }
-            }), catchError(error => throwError(() => error)))
-        }
-        else {
+            }), catchError(error => { throw new Error(error) }))
+        } else {
           throw new Error('Error: There is no authenticated user.');
         }
       }),
-      catchError(error => throwError(() => error)));
+      catchError(error => { throw new Error(error) }));
   }
 
-  public updateIdentifiers(user: StrapiUserCredentials): Observable<UserCredentialsOptions> {
-    if (user.id) {
-      return this.dataSvc.update("/api/users", user.id, user, this.mappingSvc.mapUserCredentials);
+  public updateIdentifiers(user: any): Observable<UserCredentialsOptions> {
+    if (user.user_id) {
+      const body = this.mappingSvc.mapUserCredentialsPayload(user);
+      return this.dataSvc.update(StrapiEndpoints.USER_PERMISSIONS, user.user_id, body, this.mappingSvc.mapUserCredentials);
     }
     return throwError(() => "Usuario no actualizado: se desconoce el id del usuario");
   }
 
   public getUserIdentifiers(id: number): Observable<UserCredentialsOptions> {
-    return this.dataSvc.obtain<UserCredentialsOptions>("/api/users", id, this.mappingSvc.mapUserCredentials, { "populate": "role" });
+    return this.dataSvc.obtain<UserCredentialsOptions>(StrapiEndpoints.USER_PERMISSIONS, id, this.mappingSvc.mapUserCredentials, { "populate": "role" });
   }
 
   public deleteUser(id: number): Observable<UserCredentialsOptions> {
-    return this.dataSvc.delete<UserCredentialsOptions>("/api/users", this.mappingSvc.mapUserCredentials, id, {});
+    return this.dataSvc.delete<UserCredentialsOptions>(StrapiEndpoints.USER_PERMISSIONS, this.mappingSvc.mapUserCredentials, id, {});
   }
 
 }

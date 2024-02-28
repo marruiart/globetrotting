@@ -17,7 +17,7 @@ export class StrapiDataService extends DataService {
 
   private getUserQuery(path: string): string {
     if (path.includes('extended-users') || path.includes('clients') || path.includes('agents')) {
-      return "?populate=user";
+      return "?populate=user.role";
     }
     return "";
   }
@@ -35,7 +35,7 @@ export class StrapiDataService extends DataService {
       .pipe(map(callback), catchError(error => {
         console.log("ERROR obtainAll");
         console.error(error);
-        return throwError(() => error);
+        throw new Error(error);
       }));
   }
 
@@ -51,7 +51,7 @@ export class StrapiDataService extends DataService {
       .pipe(map(callback), catchError(error => {
         console.log("ERROR get");
         console.error(error);
-        return throwError(() => error);
+        throw new Error(error);
       }));
   }
 
@@ -65,7 +65,7 @@ export class StrapiDataService extends DataService {
       .pipe(catchError(error => {
         console.log("ERROR getMe");
         console.error(error);
-        return throwError(() => error);
+        throw new Error(error);
       }));
   }
 
@@ -80,9 +80,8 @@ export class StrapiDataService extends DataService {
     const url = `${this.getUrl(path)}${user_query}`;
     return this.api.post<T>(url, body)
       .pipe(map(callback), catchError(error => {
-        console.log("ERROR post");
-        console.error(error);
-        return throwError(() => error);
+        console.error("ERROR post", error);
+        throw new Error(error);
       }));
   }
 
@@ -95,11 +94,11 @@ export class StrapiDataService extends DataService {
 
     let user_query = this.getUserQuery(path);
     const url = `${this.getUrl(path, id)}${user_query}`;
-    return this.api.put<T>(url, body)
-      .pipe(map(callback), catchError(error => {
-        console.log("ERROR update");
-        console.error(error);
-        return throwError(() => error);
+    return this.api.put<T>(url, body).pipe(
+      map(callback),
+      catchError(error => {
+        console.error("ERROR update", error);
+        throw new Error(error);
       }));
   }
 
@@ -116,7 +115,7 @@ export class StrapiDataService extends DataService {
       .pipe(map(callback), catchError(error => {
         console.log("ERROR delete");
         console.error(error);
-        return throwError(() => error);
+        throw new Error(error);
       }));
   }
 

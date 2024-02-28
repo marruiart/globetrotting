@@ -5,7 +5,7 @@ import { PaginatedData } from "./pagination-data.interface"
 import { FirebaseUserCredentials, FirebaseUserRegisterInfo } from "../firebase-interfaces/firebase-user.interface"
 import { StrapiUserCredentials, StrapiUserRegisterInfo } from "../strapi-interfaces/strapi-user.interface"
 import { ClientFavDestination } from "./fav.interface"
-import { Role } from "../../utilities/utilities"
+import { Role, Roles } from "../../utilities/utilities"
 
 // Options depending on the implemented backend possibilities.
 export type UserCredentialsOptions = FirebaseUserCredentials | StrapiUserCredentials;

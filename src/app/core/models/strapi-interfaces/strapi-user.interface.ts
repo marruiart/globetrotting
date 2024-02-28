@@ -82,6 +82,7 @@ export type StrapiRegisterResponse = StrapiLoginResponse;
  * @property {StrapiResponse<StrapiDataUser> | number | string} user - Strapi user data as a response or user id (number) as payload.
  */
 export interface StrapiExtendedUser {
+    id: number | null,
     nickname: string,
     name?: string,
     surname?: string,

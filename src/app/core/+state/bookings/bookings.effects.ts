@@ -5,7 +5,7 @@ import { Observable, catchError, forkJoin, map, of, switchMap, zip } from "rxjs"
 import { UsersService } from "../../services/api/users.service";
 import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
-import { ExtUser } from "../../models/globetrotting/user.interface";
+import { User } from "../../models/globetrotting/user.interface";
 import { Roles, getUserName } from "../../utilities/utilities";
 import { BookingsService } from "../../services/api/bookings.service";
 
@@ -32,13 +32,13 @@ export class BookingsEffects {
         this.actions$.pipe(
             ofType(BookingsActions.retrieveBookingsInfo),
             switchMap(({ bookings, role }) => {
-                let clientsObs: Observable<ExtUser>[] = [];
-                let agentsObs: Observable<ExtUser | null>[] = [];
+                let clientsObs: Observable<User>[] = [];
+                let agentsObs: Observable<User | null>[] = [];
                 let bookingsTable: BookingsTableRow[] = [];
                 switch (role) {
                     case Roles.ADMIN:
                         for (let booking of bookings) {
-                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<ExtUser>);
+                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<User>);
                             agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
                         }
                         return zip(forkJoin(clientsObs), forkJoin(agentsObs)).pipe(map(([clients, agents]) => {
@@ -54,7 +54,7 @@ export class BookingsEffects {
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                     case Roles.AGENT:
                         for (let booking of bookings) {
-                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<ExtUser>);
+                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<User>);
                         }
                         return forkJoin(clientsObs).pipe(map((clients) => {
                             for (let [i, booking] of bookings.entries()) {

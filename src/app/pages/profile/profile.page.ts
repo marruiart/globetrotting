@@ -63,7 +63,8 @@ export class ProfilePage {
   }
 
   public updateProfile(fullUser: FullUser | null) {
-    if (fullUser && fullUser.user && fullUser.extendedUser) {
+    throw new Error('Method not implemented.')
+    /* if (fullUser && fullUser.user && fullUser.extendedUser) {
       const extUser = {
         id: fullUser.extendedUser.id,
         name: fullUser.extendedUser.name,
@@ -89,7 +90,7 @@ export class ProfilePage {
         .catch(err => console.error(err));
     } else {
       console.error("No se ha podido actualizar el perfil");
-    }
+    } */
   }
 
 }

@@ -5,11 +5,9 @@ import { StrapiUserRoleResponse } from "./strapi-user.interface";
 
 /**
  * Strapi client response interface
+ * @property {StrapiResponse<StrapiUserRoleResponse> | number | string} user - Strapi user data as a response or user id (number) as payload 
  */
 export interface StrapiClient {
-    /**
-    * Strapi user data as a response or user id (number) as payload 
-    */
     user: StrapiResponse<StrapiUserRoleResponse> | number | string
     bookings?: StrapiArrayResponse<StrapiBooking>,
     favorites?: StrapiArrayResponse<StrapiFav>,

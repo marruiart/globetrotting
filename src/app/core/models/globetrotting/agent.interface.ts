@@ -19,7 +19,10 @@ export interface NewTravelAgent {
 export type PaginatedAgent = PaginatedData<TravelAgent>
 
 export interface AgentsTableRow {
-    agent_id: number | string,
+    ext_id?: number | string,
+    user_id: number | string,
+    username: string,
+    nickname: string,
     name: string,
     surname: string,
     email: string

@@ -15,7 +15,7 @@ import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-clien
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
-import { Role, isType } from 'src/app/core/utilities/utilities';
+import { Role, Roles, isType } from 'src/app/core/utilities/utilities';
 import { DatePipe } from '@angular/common';
 import { inject } from '@angular/core';
 
@@ -63,38 +63,41 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
+  private removeEmptyValues(data: { [key: string]: any }): { [key: string]: any } {
+    let dataPayload: any = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) {
+        dataPayload[key] = value;
+      }
+    })
+    return dataPayload;
+  }
+
   // AUTH & USER
-  public mapAdminAgentOrClientUser(user: StrapiUserCredentials, specificUser: TravelAgent | Client, extUser: ExtUser): AdminAgentOrClientUser {
-    if (isType<TravelAgent>(specificUser)) {
+  public mapAdminAgentOrClientUser(user: User & (StrapiAgent | StrapiClient)): AdminAgentOrClientUser {
+    let _user = {
+      role: user.role,
+      user_id: user.user_id,
+      ext_id: user.ext_id,
+      specific_id: user.specific_id,
+      username: user.username ?? '',
+      email: user.email ?? '',
+      nickname: user.nickname,
+      avatar: user.avatar ?? null,
+      name: user.name ?? '',
+      surname: user.surname ?? '',
+      age: user.age ?? ''
+    }
+    if (user.role === Roles.AGENT || user.role === Roles.ADMIN) {
       return {
-        role: user.role ?? 'AGENT',
-        user_id: specificUser.user_id,
-        ext_id: extUser.id,
-        specific_id: specificUser.id,
-        username: user.username ?? '',
-        email: user.email ?? '',
-        nickname: extUser.nickname,
-        avatar: extUser.avatar ?? null,
-        name: extUser.name ?? '',
-        surname: extUser.surname ?? '',
-        age: extUser.age ?? '',
-        bookings: specificUser.bookings ?? []
+        ..._user,
+        bookings: user.bookings ?? []
       } as AgentUser
     } else {
       return {
-        role: user.role ?? 'AUTHENTICATED',
-        user_id: specificUser.user_id,
-        ext_id: extUser.id,
-        specific_id: specificUser.id,
-        username: user.username ?? '',
-        email: user.email ?? '',
-        nickname: extUser.nickname,
-        avatar: extUser.avatar ?? null,
-        name: extUser.name ?? '',
-        surname: extUser.surname ?? '',
-        age: extUser.age ?? '',
-        bookings: specificUser.bookings ?? [],
-        favorites: specificUser.favorites ?? []
+        ..._user,
+        bookings: user.bookings ?? [],
+        favorites: (user as StrapiClient).favorites ?? []
       } as ClientUser
     }
   }
@@ -169,7 +172,7 @@ export class StrapiMappingService extends MappingService {
       username: res.username,
       email: res.email,
       password: null,
-      role: res.role?.type.toUpperCase() as Role ?? undefined
+      role: res.role?.type ? res.role?.type.toUpperCase() as Role : undefined
     }
     return credentials;
   }
@@ -237,7 +240,10 @@ export class StrapiMappingService extends MappingService {
     this.extractPaginatedData<TravelAgent, StrapiAgent>(res, this.mapAgentData);
 
   public override mapAgentTableRow = (agent: AgentUser): AgentsTableRow => ({
-    agent_id: agent.specific_id ?? agent.user_id,
+    ext_id: agent.ext_id,
+    user_id: agent.user_id,
+    username: agent.username,
+    nickname: agent.nickname,
     name: agent.name,
     surname: agent.surname,
     email: agent.email
@@ -350,17 +356,26 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
-  public mapExtendedUserPayload(user: NewExtUser): StrapiPayload<StrapiExtendedUser> {
-    return {
-      data: {
-        nickname: user.nickname,
-        name: user.name,
-        surname: user.surname,
-        age: user.age,
-        user: user.user_id,
-        avatar: null,
-      }
-    }
+  public mapExtUserPayload(user: User): StrapiPayload<any> {
+    const extUser: NewExtUser = {
+      nickname: user.nickname,
+      avatar: user.avatar,
+      name: user.name,
+      surname: user.surname,
+      age: user.age,
+      user_id: user.user_id
+    };
+    return { data: this.removeEmptyValues(extUser) };
+  }
+
+  public mapUserCredentialsPayload(user: User): any {
+    const credentials: StrapiUserCredentials = {
+      id: user.user_id as number,
+      username: user.username,
+      password: null,
+      email: user.email
+    };
+    return this.removeEmptyValues(credentials);
   }
 
   public mapClientPayload(client: NewClient): StrapiPayload<StrapiClient> {

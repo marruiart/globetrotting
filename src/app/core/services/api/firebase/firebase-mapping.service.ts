@@ -10,7 +10,7 @@ import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-inte
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
-import { Role } from "src/app/core/utilities/utilities";
+import { Role, Roles } from "src/app/core/utilities/utilities";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -69,7 +69,7 @@ export class FirebaseMappingService extends MappingService {
             surname: user.data['surname'] ?? '',
             age: user.data['age'] ?? ''
         }
-        if (role === 'ADMIN' || role === 'AGENT') {
+        if (role === Roles.ADMIN || role === Roles.AGENT) {
             return {
                 ..._user,
                 bookings: user.data['bookings'] ?? []
@@ -179,7 +179,10 @@ export class FirebaseMappingService extends MappingService {
     })
 
     public override mapAgentTableRow = (agent: AgentUser): AgentsTableRow => ({
-        agent_id: agent.user_id,
+        ext_id: agent.ext_id,
+        user_id: agent.user_id,
+        username: agent.username,
+        nickname: agent.nickname,
         name: agent.name,
         surname: agent.surname,
         email: agent.email
@@ -258,7 +261,10 @@ export class FirebaseMappingService extends MappingService {
     public override mapFavPayload(fav: NewFav): NewFav {
         return fav;
     }
-    public override mapExtendedUserPayload(user: NewExtUser) {
+    public override mapExtUserPayload(user: any) {
+        throw new Error("Method not implemented.");
+    }
+    public override mapUserCredentialsPayload(user: any) {
         throw new Error("Method not implemented.");
     }
     public override mapClientPayload(client: NewClient) {

@@ -105,7 +105,7 @@
         contentStyleClass="agent-form-content"
       >
         <app-user-form
-          *ngIf="showForm"
+          *ngIf="selectedAgent"
           [formType]="formType"
           [agent]="selectedAgent"
           [actionUpdate]="isUpdating"

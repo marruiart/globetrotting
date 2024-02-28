@@ -3,6 +3,10 @@ import { TravelAgent, NewTravelAgent } from '../../models/globetrotting/agent.in
 import { AgentsTableRow } from '../../models/globetrotting/agent.interface';
 import { AgentUser } from '../../models/globetrotting/user.interface';
 
+export const initAgents = createAction('[Agents API] Init Agents');
+export const initAgentsSuccess = createAction('[Agents API] Init Agents Success');
+export const initAgentsFailure = createAction('[Agents API] Init Agents Failure', props<{ error: any }>());
+
 export const saveAgents = createAction('[Agents API] Save Agents', props<{ agents: AgentUser[] }>());
 export const saveAgentsFailure = createAction('[Agents API] Save Agents Failure', props<{ error: any }>());
 

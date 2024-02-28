@@ -4,8 +4,9 @@ import * as AgentsActions from './agents.actions'
 import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from "rxjs";
 import { UsersService } from "../../services/api/users.service";
 import { AuthService } from "../../services/auth/auth.service";
-import { AgentUser, ExtUser, UserCredentials } from "../../models/globetrotting/user.interface";
+import { AgentUser, User, UserCredentials } from "../../models/globetrotting/user.interface";
 import { MappingService } from "../../services/api/mapping.service";
+import { AgentService } from "../../services/api/agent.service";
 
 @Injectable()
 export class AgentsEffects {
@@ -13,9 +14,19 @@ export class AgentsEffects {
     constructor(
         private actions$: Actions,
         private usersSvc: UsersService,
+        private agentsSvc: AgentService,
         private authSvc: AuthService,
         private mappingSvc: MappingService
     ) { }
+
+    initAgents$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AgentsActions.initAgents),
+            switchMap(() => this.agentsSvc.getAllAgents().pipe(
+                map(_ => AgentsActions.initAgentsSuccess()),
+                catchError(error => of(AgentsActions.initAgentsFailure({ error })))
+            ))
+        ))
 
     /**
     * Receives an array of travel agents and turns it into an array of rows ready to display on a table.
@@ -30,15 +41,9 @@ export class AgentsEffects {
                     const extUser$ = this.usersSvc.getAgentUser(agent.user_id);
                     // For each booking, add a TableRow observable
                     tableRowObs.push(extUser$.pipe(
-                        switchMap((extUser: ExtUser | null): Observable<AgentUser> => {
-                            if (extUser && extUser.user_id) {
-                                return this.authSvc.getUserIdentifiers(extUser.user_id).pipe(
-                                    switchMap((user: UserCredentials): Observable<AgentUser> => {
-                                        if (user) {
-                                            return of(this.mappingSvc.mapAdminAgentOrClientUser(user, agent, extUser) as AgentUser);
-                                        }
-                                        return throwError(() => "Error: Unable to retrieve user credentials.");
-                                    }), catchError(err => of(err)))
+                        switchMap((extUser: User | null): Observable<AgentUser> => {
+                            if (extUser) {
+                                return of(extUser as AgentUser);
                             }
                             return throwError(() => "Error: Unable to retrieve the extended user data.");
                         }), catchError(err => of(err))))

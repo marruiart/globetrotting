@@ -9,9 +9,8 @@ import { Destination } from 'src/app/core/models/globetrotting/destination.inter
 })
 export class DestinationFormComponent {
     public form: FormGroup;
-    private _destination: Destination | null = null;
+
     @Input() set destination(destination: Destination | null) {
-        this._destination = destination;
         if (destination) {
             this.form.controls['id'].setValue(destination.id);
             this.form.controls['name'].setValue(destination.name);

@@ -93,6 +93,7 @@ export class DestinationsManagementPage implements OnDestroy {
   }
 
   private hideDestinationForm() {
+    this.selectedDestination = null;
     this.showEditForm = false;
   }
 

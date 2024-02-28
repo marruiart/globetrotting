@@ -1,13 +1,13 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
+import { Observable, catchError, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
 import { Destination, PaginatedDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { AdminAgentOrClientUser } from "src/app/core/models/globetrotting/user.interface";
-import { DestinationsService } from "src/app/core/services/api/destinations.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
+import { Roles } from "src/app/core/utilities/utilities";
 
 
 @Component({
@@ -15,7 +15,8 @@ import { SubscriptionsService } from "src/app/core/services/subscriptions.servic
   templateUrl: './destinations-management.page.html',
   styleUrls: ['./destinations-management.page.scss'],
 })
-export class DestinationsManagementPage {
+export class DestinationsManagementPage implements OnDestroy {
+  private _component = 'DestinationsManagementPage';
   public loading: boolean = false;
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
@@ -24,37 +25,28 @@ export class DestinationsManagementPage {
   public selectedDestination: Destination | null = null;
 
   constructor(
-    private destinationsSvc: DestinationsService,
-    private authFacade: AuthFacade,
     public destinationsFacade: DestinationsFacade,
+    private authFacade: AuthFacade,
     private subsSvc: SubscriptionsService,
+    private translate: CustomTranslateService,
+    // PrimeNG
     private confirmationSvc: ConfirmationService,
-    private messageService: MessageService,
-    private translate: CustomTranslateService
+    private messageSvc: MessageService
   ) {
-
-
+    this.destinationsFacade.initDestinations();
     this.subsSvc.addSubscriptions([
       {
-        component: 'DestinationsPage',
-        sub: this.authFacade.currentUser$
-          .subscribe(currentUser => {
-            this.currentUser = currentUser;
-          })
+        component: this._component,
+        sub: this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser)
       },
       {
-        component: 'DestinationsPage',
+        component: this._component,
         sub: this.translate.language$.pipe(
           switchMap((_: string) => this.getCols()),
-          catchError(err => of(err)))
-          .subscribe()
+          catchError(err => of(err))).subscribe()
       },
       {
-        component: 'DestinationsPage',
-        sub: this.destinationsSvc.getAllDestinations().subscribe()
-      },
-      {
-        component: 'DestinationsPage',
+        component: this._component,
         sub: this.displayTable().subscribe((table: DestinationsTableRow[]) => {
           this.destinationsFacade.saveDestinationsManagementTable(table);
         })
@@ -67,7 +59,7 @@ export class DestinationsManagementPage {
 * @returns an observable of an array of TableRow.
 */
   private displayTable(): Observable<DestinationsTableRow[]> {
-    if (this.currentUser?.role == 'AGENT' || this.currentUser?.role == 'ADMIN') {
+    if (this.currentUser?.role == Roles.AGENT || this.currentUser?.role == Roles.ADMIN) {
       return this.destinationsFacade.destinationsPage$.pipe(
         switchMap((page: PaginatedDestination): Observable<DestinationsTableRow[]> => this.mapDestinationsRows(page.data)),
         catchError(err => of(err))
@@ -156,7 +148,7 @@ export class DestinationsManagementPage {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.deleteDestination(id);
-        this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Destino eliminado' });
+        this.messageSvc.add({ severity: 'success', summary: 'Confirmación', detail: 'Destino eliminado' });
       }
     });
   }

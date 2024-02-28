@@ -13,6 +13,10 @@ export class DestinationsFacade {
     destinationTable$ = this.store.pipe(select(DestinationsSelector.selectManagementTable));
     error$ = this.store.pipe(select(DestinationsSelector.selectError));
 
+    initDestinations() {
+        this.store.dispatch(DestinationsActions.initDestinations());
+    }
+
     saveDestinations(destinations: Destination[]) {
         if (destinations) {
             this.store.dispatch(DestinationsActions.saveDestinations({ destinations }));

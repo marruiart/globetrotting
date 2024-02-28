@@ -9,6 +9,8 @@ interface Sub {
   providedIn: 'root'
 })
 export class SubscriptionsService {
+  // TODO create a function to add subscriptions with ...subscription and generate the Subscription object {component: string, sub: Subscription}
+
   private _subs: { [component: string]: (Subscription | null)[] } = {}
 
   constructor() { }

@@ -1,6 +1,10 @@
 import { createAction, props } from '@ngrx/store';
 import { Destination, NewDestination, PaginatedDestination, DestinationsTableRow } from '../../models/globetrotting/destination.interface';
 
+export const initDestinations = createAction('[Destinations API] Init Destinations');
+export const initDestinationsSuccess = createAction('[Destinations API] Init Destinations Success');
+export const initDestinationsFailure = createAction('[Destinations API] Init Destinations Failure', props<{ error: any }>());
+
 export const savePage = createAction('[Destinations API] Save Page', props<{ destinationsPage: PaginatedDestination }>());
 export const saveDestinations = createAction('[Destinations API] Save Destinations', props<{ destinations: Destination[] }>());
 export const saveManagementTable = createAction('[Destinations API] Save Management Table', props<{ managementTable: DestinationsTableRow[] }>());

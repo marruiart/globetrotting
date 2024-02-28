@@ -16,7 +16,7 @@ export class DestinationsService {
   private body = (destination: NewDestination) => this.mappingSvc.mapDestinationPayload(destination);
   private queries: { [query: string]: string } = { 'sort': 'name' }
 
-  private endOfData = false;
+  private _endOfData = false;
   public itemsCount: number = 0;
 
   private _next: DocumentSnapshot<DocumentData> | number | null = null;
@@ -43,7 +43,7 @@ export class DestinationsService {
     _queries["pagination[page]"] = typeof page === 'number' ? `${page}` : page as DocumentSnapshot;
     return this.dataSvc.obtainAll<PaginatedDestination>(this.path, _queries, this.mappingSvc.mapPaginatedDestinations).pipe(tap(page => {
       if (page.data.length > 0) {
-        this.endOfData = false;
+        this._endOfData = false;
         let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations));
         page.data.forEach(destData => {
           let foundDest: Destination | undefined = this._destinations.find(dest => dest.name == destData.name);
@@ -59,7 +59,7 @@ export class DestinationsService {
         this.destinationsFacade.saveDestinations(_newDestinations);
         this.destinationsFacade.savePaginatedDestinations(_pagination);
       } else {
-        this.endOfData = true;
+        this._endOfData = true;
       }
     }));
   }

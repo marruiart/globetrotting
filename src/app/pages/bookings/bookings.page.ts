@@ -1,11 +1,10 @@
-import { DatePipe } from '@angular/common';
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { catchError, lastValueFrom, of, switchMap, tap, zip } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
 import { ClientsFacade } from 'src/app/core/+state/clients/clients.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
-import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { AdminAgentOrClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
@@ -13,6 +12,7 @@ import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+import { Roles } from 'src/app/core/utilities/utilities';
 
 @Component({
   selector: 'app-bookings',
@@ -20,6 +20,7 @@ import { SubscriptionsService } from 'src/app/core/services/subscriptions.servic
   styleUrls: ['./bookings.page.scss'],
 })
 export class BookingsPage implements OnInit, OnDestroy {
+  private _component = 'BookingsPage';
   public destinations: Destination[] = [];
   public currentUser: AdminAgentOrClientUser | null = null;
   public clients: User[] | null = null;
@@ -46,27 +47,27 @@ export class BookingsPage implements OnInit, OnDestroy {
     this.isResponsive = window.innerWidth < 960;
     this.subsSvc.addSubscriptions([
       {
-        component: 'BookingsPage',
+        component: this._component,
         sub: this.authFacade.currentUser$.subscribe(currentUser => {
           this.currentUser = currentUser;
         })
       },
       {
-        component: 'BookingsPage',
+        component: this._component,
         sub: this.translate.language$.pipe(
           switchMap((_: string) => this.getCols()),
           catchError(err => of(err)))
           .subscribe()
       },
       {
-        component: 'BookingsPage',
+        component: this._component,
         sub: this.destinationsFacade.destinations$
           .subscribe((destinations) => {
             this.destinations = destinations;
           })
       },
       {
-        component: 'BookingsPage',
+        component: this._component,
         sub: this.bookingsFacade.bookingTable$
           .subscribe((table) => {
             if (table) {
@@ -106,7 +107,7 @@ export class BookingsPage implements OnInit, OnDestroy {
 
   private translateMenuItems(bookingId: string, dates: string, travelers: string, confirmationState: string, agent: string, client: string) {
     switch (this.currentUser?.role) {
-      case 'ADMIN':
+      case Roles.ADMIN:
         return [
           { field: 'booking_id', header: bookingId },
           { field: 'clientName', header: client },
@@ -115,7 +116,7 @@ export class BookingsPage implements OnInit, OnDestroy {
           { field: 'travelers', header: travelers },
           { field: 'isConfirmed', header: confirmationState }
         ]
-      case 'AGENT':
+      case Roles.AGENT:
         return [
           { field: 'booking_id', header: bookingId },
           { field: 'clientName', header: client },
@@ -123,7 +124,7 @@ export class BookingsPage implements OnInit, OnDestroy {
           { field: 'travelers', header: travelers },
           { field: 'isConfirmed', header: confirmationState }
         ]
-      case 'AUTHENTICATED':
+      case Roles.AUTHENTICATED:
         return [
           { field: 'dates', header: dates },
           { field: 'travelers', header: travelers },

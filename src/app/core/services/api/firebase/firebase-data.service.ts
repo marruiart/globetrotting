@@ -4,7 +4,7 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { DocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { FirebaseCollectionResponse, FirebaseDocument } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { inject } from '@angular/core';
-import { Collection } from 'src/app/core/utilities/utilities';
+import { Collection, Collections } from 'src/app/core/utilities/utilities';
 
 export class FirebaseDataService extends DataService {
     private firebaseSvc = inject(FirebaseService);
@@ -36,7 +36,7 @@ export class FirebaseDataService extends DataService {
         body = { ...body, id: id, updatedAt: new Date() }
         return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(map(_ => {
             let doc: FirebaseDocument;
-            if (collection == 'bookings') {
+            if (collection == Collections.bookings) {
                 const start = this.isoDateToTimestamp(body.start);
                 const end = this.isoDateToTimestamp(body.end);
                 doc = {

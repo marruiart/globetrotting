@@ -3,7 +3,6 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import * as DestinationsActions from './destinations.actions'
 import { catchError, exhaustMap, map, of, switchMap } from "rxjs";
 import { DestinationsService } from "../../services/api/destinations.service";
-import { Destination } from "../../models/globetrotting/destination.interface";
 
 @Injectable()
 export class DestinationsEffects {
@@ -13,6 +12,14 @@ export class DestinationsEffects {
         private destinationsSvc: DestinationsService
     ) { }
 
+    initDestinations$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DestinationsActions.initDestinations),
+            switchMap(() => this.destinationsSvc.getAllDestinations().pipe(
+                map(_ => DestinationsActions.initDestinationsSuccess()),
+                catchError(error => of(DestinationsActions.initDestinationsFailure({ error })))
+            ))
+        ))
 
     addDestination$ = createEffect(() =>
         this.actions$.pipe(

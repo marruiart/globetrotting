@@ -1,9 +1,9 @@
-import { OnDestroy, inject } from '@angular/core';
+import { inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { MappingService } from './mapping.service';
 import { DataService } from './data.service';
-import { DocumentData, DocumentSnapshot, Unsubscribe, orderBy, where } from 'firebase/firestore';
+import { DocumentData, DocumentSnapshot, Unsubscribe, orderBy } from 'firebase/firestore';
 import { DestinationsService } from './destinations.service';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';

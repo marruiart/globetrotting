@@ -254,20 +254,5 @@ export class FirebaseMappingService extends MappingService {
     public override mapAgentPayload(client: NewTravelAgent) {
         throw new Error("Method not implemented.");
     }
-    public override mapBookingPayload(booking: NewBooking) {
-        return {
-            //agentName: booking.agentName,
-            //agent_id: booking.agent_id,
-            clientName: booking.clientName,
-            client_id: booking.client_id,
-            destination_id: booking.destination_id,
-            destinationName: booking.destinationName,
-            end: booking.start,
-            isActive: booking.isActive,
-            isConfirmed: booking.isConfirmed,
-            start: booking.start,
-            travelers: booking.travelers
-        }
-
-    }
+    public override mapBookingPayload = (booking: NewBooking) => booking;
 }

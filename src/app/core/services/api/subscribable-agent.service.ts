@@ -4,7 +4,7 @@ import { MappingService } from './mapping.service';
 import { PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { DataService } from './data.service';
 import { AgentService } from './agent.service';
-import { QueryConstraint, Unsubscribe, where } from 'firebase/firestore';
+import { QueryConstraint, Unsubscribe, orderBy, where } from 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 import { AgentUser } from '../../models/globetrotting/user.interface';
@@ -36,8 +36,9 @@ export class SubscribableAgentService extends AgentService {
 
   private subscribeToAgents() {
     const _agents = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
-    const byRole: QueryConstraint = where('role', '!=', Roles.AUTHENTICATED);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _agents, byRole);
+    const filterAgents: QueryConstraint = where('role', '!=', Roles.AUTHENTICATED);
+    const orderByRole = orderBy('role');
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _agents, orderByRole, filterAgents);
     _agents.subscribe(res => {
       if (res) {
         const agents = res.docs.map(doc => this.mappingSvc.mapAdminAgentOrClientUser(doc) as AgentUser);

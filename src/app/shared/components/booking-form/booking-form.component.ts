@@ -77,7 +77,7 @@ export class BookingFormComponent {
                     end: values.dates[1],
                     travelers: values.travelers,
                     isActive: true,
-                    isConfirmed: false,
+                    isConfirmed: true,
                     agent_id: this._currentUser.specific_id,
                     agentName: getUserName(this._currentUser),
                     client_id: values.client.specific_id,

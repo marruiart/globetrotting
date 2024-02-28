@@ -2,6 +2,10 @@ import { createAction, props } from '@ngrx/store';
 import { Booking, BookingsTableRow, NewBooking } from '../../models/globetrotting/booking.interface';
 import { Role } from '../../utilities/utilities';
 
+export const initBookings = createAction('[Bookings API] Init Bookings');
+export const initBookingsSuccess = createAction('[Bookings API] Init Bookings Success');
+export const initBookingsFailure = createAction('[Bookings API] Init Bookings Failure', props<{ error: any }>());
+
 export const retrieveBookingsInfo = createAction('[Bookings API] Retrieve Bookings Info', props<{ bookings: Booking[], role: Role }>());
 export const saveBookingsTable = createAction('[Bookings API] Save Bookings', props<{ bookings: Booking[], role: Role }>());
 export const saveBookingsTableSuccess = createAction('[Bookings API] Save Bookings Table Success', props<{ bookingsTable: BookingsTableRow[] }>());

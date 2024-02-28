@@ -7,6 +7,7 @@ import { MappingService } from "../../services/api/mapping.service";
 import { AgentRowInfo, BookingsTableRow, ClientRowInfo } from "../../models/globetrotting/booking.interface";
 import { ExtUser } from "../../models/globetrotting/user.interface";
 import { Roles, getUserName } from "../../utilities/utilities";
+import { BookingsService } from "../../services/api/bookings.service";
 
 @Injectable()
 export class BookingsEffects {
@@ -14,8 +15,18 @@ export class BookingsEffects {
     constructor(
         private actions$: Actions,
         private usersSvc: UsersService,
-        private mappingSvc: MappingService
+        private mappingSvc: MappingService,
+        private bookingsSvc: BookingsService
     ) { }
+
+    initBookings$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(BookingsActions.initBookings),
+            switchMap(() => this.bookingsSvc.getAllBookings().pipe(
+                map(_ => BookingsActions.initBookingsSuccess()),
+                catchError(error => of(BookingsActions.initBookingsFailure({ error })))
+            ))
+        ))
 
     retrieveBookingsInfo$ = createEffect(() =>
         this.actions$.pipe(

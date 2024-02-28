@@ -12,6 +12,10 @@ export class BookingsFacade {
     bookingTable$ = this.store.pipe(select(BookingsSelector.selectBookingsTable));
     error$ = this.store.pipe(select(BookingsSelector.selectError));
 
+    initBookings() {
+        this.store.dispatch(BookingsActions.initBookings());
+    }
+
     retrieveBookingsInfo(bookings: Booking[], role: Role) {
         this.store.dispatch(BookingsActions.retrieveBookingsInfo({ bookings, role }));
     }

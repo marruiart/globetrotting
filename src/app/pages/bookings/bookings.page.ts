@@ -19,7 +19,7 @@ import { Roles } from 'src/app/core/utilities/utilities';
   templateUrl: './bookings.page.html',
   styleUrls: ['./bookings.page.scss'],
 })
-export class BookingsPage implements OnInit, OnDestroy {
+export class BookingsPage implements OnDestroy {
   public destinations: Destination[] = [];
   public currentUser: AdminAgentOrClientUser | null = null;
   public clients: User[] | null = null;
@@ -46,16 +46,13 @@ export class BookingsPage implements OnInit, OnDestroy {
     private destinationsFacade: DestinationsFacade
   ) {
     this.isResponsive = window.innerWidth < 960;
+    this.bookingsFacade.initBookings();
     this.subsSvc.addSubscriptions('BookingsPage',
       this.authFacade.currentUser$.subscribe(currentUser => this.currentUser = currentUser),
       this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe(),
       this.destinationsFacade.destinations$.subscribe((destinations) => this.destinations = destinations),
       this.bookingsFacade.bookingTable$.subscribe((table) => { if (table) this.loading = false })
     );
-  }
-
-  async ngOnInit() {
-    await lastValueFrom(this.bookingsSvc.getAllBookings()).catch(err => console.error(err));
   }
 
   private getCols() {

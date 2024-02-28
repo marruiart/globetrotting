@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { catchError, of, switchMap, tap, zip } from "rxjs";
+import { catchError, map, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
 import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
@@ -22,7 +22,6 @@ export class DestinationsManagementPage implements OnDestroy {
   public loading: boolean = false;
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
-  public currentUser: AdminAgentOrClientUser | null = null;
   public showEditForm: boolean = false;
   public selectedDestination: Destination | null = null;
 
@@ -41,20 +40,20 @@ export class DestinationsManagementPage implements OnDestroy {
     this.destinationsFacade.initDestinations();
     this.subsSvc.addSubscriptions(this.COMPONENT,
       // Fetch data
-      this.authFacade.currentUser$.pipe(tap(user => {
-        this.currentUser = user;
-        const role = this.currentUser?.role;
+      this.authFacade.currentUser$.pipe(switchMap(user => {
+        const role = user?.role;
         if (role === Roles.AGENT || role === Roles.ADMIN) {
-          this.subsSvc.addSubscriptions(this.COMPONENT,
-            this.destinationsFacade.destinationsPage$.subscribe(page => {
-              const destinations: Destination[] = page.data;
-              const table: DestinationsTableRow[] = destinations.map(destination => this.mappingSvc.mapDestinationTableRow(destination));
-              this.destinationsFacade.saveDestinationsManagementTable(table);
-            }))
+          return this.destinationsFacade.destinationsPage$.pipe(map(page => {
+            const destinations: Destination[] = page.data;
+            const table: DestinationsTableRow[] = destinations.map(destination => this.mappingSvc.mapDestinationTableRow(destination));
+            this.destinationsFacade.saveDestinationsManagementTable(table);
+          }), catchError(err => { console.error(err); throw new Error(err) }));
+        } else {
+          return of();
         }
       })).subscribe(),
       // Translation
-      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => of(err))).subscribe()
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => { console.error(err); throw new Error(err) })).subscribe()
     )
   }
 
@@ -69,7 +68,7 @@ export class DestinationsManagementPage implements OnDestroy {
     const tableHeaders$ = zip(name$, type$, dimension$, price$, description$, options$).pipe(
       tap(([name, type, dimension, price, description, options]) => {
         this.cols = this.translateMenuItems(name, type, dimension, price, description, options);
-      }), catchError(err => of(err)));
+      }), catchError(err => { throw new Error(err) }));
 
     return tableHeaders$;
   }
@@ -86,9 +85,7 @@ export class DestinationsManagementPage implements OnDestroy {
   }
 
   public showDestinationForm(destination?: Destination) {
-    if (destination) {
-      this.selectedDestination = destination;
-    }
+    this.selectedDestination = destination ?? null;
     this.showEditForm = true;
   }
 

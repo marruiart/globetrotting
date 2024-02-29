@@ -51,7 +51,9 @@ export class UserFormComponent implements OnDestroy {
       this.userForm.controls['id'].setValue(tableRow.ext_id);
       this.userForm.controls['user_id'].setValue(tableRow.user_id);
       this.userForm.controls['username'].setValue(tableRow.username);
+      this.userForm.controls['_username'].setValue(tableRow.username);
       this.userForm.controls['email'].setValue(tableRow.email);
+      this.userForm.controls['_email'].setValue(tableRow.email);
       this.userForm.controls['name'].setValue(tableRow.name);
       this.userForm.controls['surname'].setValue(tableRow.surname);
       this.userForm.controls['nickname'].setValue(tableRow.nickname);
@@ -61,8 +63,10 @@ export class UserFormComponent implements OnDestroy {
     if (fullUser) {
       this.userForm.controls['id'].setValue(fullUser.extendedUser?.id);
       this.userForm.controls['username'].setValue(fullUser.user?.username);
+      //this.userForm.controls['_username'].setValue(tableRow.username); // TODO
       this.userForm.controls['user_id'].setValue(fullUser.user?.id);
       this.userForm.controls['email'].setValue(fullUser.user?.email);
+      //this.userForm.controls['_email'].setValue(tableRow.email); // TODO
       this.userForm.controls['name'].setValue(fullUser.extendedUser?.name);
       this.userForm.controls['surname'].setValue(fullUser.extendedUser?.surname);
       this.userForm.controls['nickname'].setValue(fullUser.extendedUser?.nickname);
@@ -113,8 +117,10 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: [{ value: '', readonly: true }],
-          email: ['', [Validators.required]],
+          username: [{ value: '', disabled: true }],
+          _username: ['', [Validators.required]],
+          email: [{ value: '', disabled: true }],
+          _email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
           password: ['', [PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
@@ -126,8 +132,10 @@ export class UserFormComponent implements OnDestroy {
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: [{ value: '', readonly: true }],
-          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
+          username: [{ value: '', disabled: true }],
+          _username: ['', [Validators.required]],
+          email: [{ value: '', disabled: true }],
+          _email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
           name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
           surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
           nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
@@ -149,7 +157,7 @@ export class UserFormComponent implements OnDestroy {
         break;
       case 'REGISTER_AGENT':
       case 'UPDATE_AGENT':
-        this.onRegisterAgent(event);
+        this.onRegisterOrUpdateAgent(event);
         break;
       case 'PROFILE':
         this.onUpdateProfile(event);
@@ -164,8 +172,8 @@ export class UserFormComponent implements OnDestroy {
     const fullUser: FullUser = {
       user: {
         id: this.userForm.value.user_id,
-        email: this.userForm.value.email,
-        username: this.userForm.value.username,
+        email: this.userForm.value.email ?? this.userForm.value._email,
+        username: this.userForm.value.username ?? this.userForm.value._username,
         password: this.userForm.value.password
       },
       extendedUser: {
@@ -179,14 +187,14 @@ export class UserFormComponent implements OnDestroy {
     this.onUpdateProfileClicked.emit(fullUser);
   }
 
-  private onRegisterAgent(event: Event) {
+  private onRegisterOrUpdateAgent(event: Event) {
     event.stopPropagation();
     const agent: User & UserCredentials = {
       role: Roles.AGENT,
       user_id: this.userForm.value.user_id,
       ext_id: this.userForm.value.id,
-      username: this.userForm.value.username,
-      email: this.userForm.value.email,
+      username: this.userForm.value.username ?? this.userForm.value._username,
+      email: this.userForm.value.email ?? this.userForm.value._email,
       password: this.userForm.value.password,
       nickname: this.userForm.value.nickname,
       name: this.userForm.value.name,

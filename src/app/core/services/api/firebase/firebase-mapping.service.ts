@@ -1,12 +1,12 @@
-import { TravelAgent, NewTravelAgent, AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
-import { Booking, PaginatedBooking, NewBooking, BookingsTableRow, ClientRowInfo, AgentRowInfo, AdminBookingsTableRow, AgentBookingsTableRow, ClientBookingsTableRow } from "src/app/core/models/globetrotting/booking.interface";
-import { Client, PaginatedClient, NewClient } from "src/app/core/models/globetrotting/client.interface";
-import { Destination, PaginatedDestination, NewDestination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
+import { AgentsTableRow, NewTravelAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
+import { NewFirebaseUserPayload } from "src/app/core/models/firebase-interfaces/firebase-user.interface";
+import { AdminBookingsTableRow, AgentBookingsTableRow, AgentRowInfo, Booking, BookingsTableRow, ClientBookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from "src/app/core/models/globetrotting/booking.interface";
+import { Client, NewClient, PaginatedClient } from "src/app/core/models/globetrotting/client.interface";
+import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { PaginatedUser, UserCredentialsOptions, NewExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from "src/app/core/models/globetrotting/user.interface";
+import { AdminAgentOrClientUser, AgentUser, ClientUser, PaginatedUser, User, UserCredentialsOptions } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
-import { StrapiArrayResponse, StrapiData } from "src/app/core/models/strapi-interfaces/strapi-data.interface";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
@@ -18,19 +18,6 @@ export class FirebaseMappingService extends MappingService {
         return {
             data: res.docs.map(doc => doc.data as T),
             pagination: this.mapPagination(res)
-        }
-    }
-
-    private extractArrayData<T, S>(res: StrapiArrayResponse<S> | undefined, callback: (data: StrapiData<S>) => T): T[] {
-        if (res?.data) {
-            return Array.from(res?.data)
-                .reduce((prev: T[], data: StrapiData<S>): T[] => {
-                    let _mappedData: T = callback(data);
-                    prev.push(_mappedData);
-                    return prev;
-                }, []);
-        } else {
-            return [];
         }
     }
 
@@ -179,7 +166,7 @@ export class FirebaseMappingService extends MappingService {
     })
 
     public override mapAgentTableRow = (agent: AgentUser): AgentsTableRow => ({
-        ext_id: agent.ext_id,
+        ext_id: agent.user_id,
         user_id: agent.user_id,
         username: agent.username,
         nickname: agent.nickname,
@@ -261,11 +248,26 @@ export class FirebaseMappingService extends MappingService {
     public override mapFavPayload(fav: NewFav): NewFav {
         return fav;
     }
-    public override mapExtUserPayload(user: any) {
-        throw new Error("Method not implemented.");
+
+    // TODO don't user to update profile
+    public override mapNewExtUserPayload(user: User) {
+        let payload: NewFirebaseUserPayload = {
+            username: user.username,
+            email: user.email,
+            nickname: user.nickname,
+            name: user.name,
+            surname: user.surname,
+        }
+        if (user.role === Roles.AUTHENTICATED) {
+            payload = {
+                ...payload,
+                favorites: []
+            }
+        }
+        return this.removeEmptyValues(payload);
     }
-    public override mapUserCredentialsPayload(user: any) {
-        throw new Error("Method not implemented.");
+    public override mapUserCredentialsPayload(credentials: any) {
+        return this.removeEmptyValues(credentials);
     }
     public override mapClientPayload(client: NewClient) {
         throw new Error("Method not implemented.");

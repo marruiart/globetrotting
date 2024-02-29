@@ -111,6 +111,13 @@
           [actionUpdate]="isUpdating"
           (onRegisterAgentClicked)="addOrEditAgent($event)"
         />
+
+        <app-user-form
+          *ngIf="formType == 'REGISTER_AGENT'"
+          [formType]="formType"
+          [actionUpdate]="isUpdating"
+          (onRegisterAgentClicked)="addOrEditAgent($event)"
+        />
       </p-dialog>
     </div>
   </main>

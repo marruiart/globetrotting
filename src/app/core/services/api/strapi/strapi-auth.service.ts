@@ -2,9 +2,9 @@ import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
 import { catchError, lastValueFrom, map, switchMap, throwError } from 'rxjs';
-import { AgentRegisterInfo, NewExtUser, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
+import { AgentRegisterInfo, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
-import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRolesResponse, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRolesResponse } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { ClientService } from '../client.service';
 import { AgentService } from '../agent.service';
@@ -48,6 +48,51 @@ export class StrapiAuthService extends AuthService {
     return this.dataSvc.obtainAll<StrapiRolesResponse>(StrapiEndpoints.ROLES)
   }
 
+  private saveToken(response: StrapiLoginResponse) {
+    return lastValueFrom(this.jwtSvc.saveToken(response.jwt)).catch(err => { throw Error(err) });
+  }
+
+  private rollback(user_id: number, ext_id?: number) {
+    console.info('Rollback: ', user_id, ext_id);
+    // TODO
+  }
+
+  private createExtUser(_agentInfo: AgentRegisterInfo, _registerInfo: StrapiRegisterPayload, isAgent: boolean, userId: number, nickname: string) {
+    let _user: User = {
+      ..._registerInfo,
+      role: isAgent ? Roles.AGENT : Roles.AUTHENTICATED,
+      user_id: userId,
+      nickname: nickname
+    }
+    if (isAgent) {
+      _user = this.includeAgentName(_user, _agentInfo);
+    } return lastValueFrom(this.userSvc.addUser(_user));
+  }
+
+  private async createAgent(user: User): Promise<TravelAgent> {
+    const agent: NewTravelAgent = {
+      user_id: user.user_id,
+      bookings: []
+    }
+    return lastValueFrom(this.agentSvc.addAgent(agent));
+  }
+
+  private async createClient(user: User): Promise<Client> {
+    const client: NewClient = {
+      type: 'AUTHENTICATED',
+      user_id: user.user_id,
+      bookings: [],
+      favorites: []
+    }
+    return lastValueFrom(this.clientSvc.addClient(client)).catch(err => { throw new Error(err) });
+  }
+
+  private async updateAgentRole(userId: number) {
+    const response = await lastValueFrom(this.getRoles());
+    const roleId: number = response.roles.filter(role => role.type.toUpperCase() === Roles.AGENT)[0].id;
+    const url = this.getUrl(StrapiEndpoints.USER_PERMISSIONS, userId);
+    await lastValueFrom(this.api.put<StrapiRegisterResponse>(url, { 'role': roleId }));
+  }
 
   public login(credentials: UserCredentials): Observable<void> {
     return new Observable<void>(observer => {
@@ -63,8 +108,7 @@ export class StrapiAuthService extends AuthService {
         .subscribe({
           next: async (auth: StrapiLoginResponse | null) => {
             if (auth) {
-              await lastValueFrom(this.jwtSvc.saveToken(auth.jwt))
-                .catch(err => console.error(err));
+              await lastValueFrom(this.jwtSvc.saveToken(auth.jwt)).catch(err => console.error(err));
               observer.next();
               observer.complete();
             } else {
@@ -84,86 +128,51 @@ export class StrapiAuthService extends AuthService {
     const _registerInfo: StrapiRegisterPayload = {
       username: registerInfo.username,
       email: registerInfo.email,
-      password: registerInfo.password ?? ""
+      password: registerInfo.password ?? ''
     }
     return new Observable<void>(observer => {
       const url = this.getUrl(StrapiEndpoints.REGISTER);
-      this.api.post<StrapiRegisterResponse>(url, _registerInfo)
-        .subscribe({
-          next: async (response: StrapiRegisterResponse | null) => {
-            if (response) {
-              const userId = response.user.id;
-              console.info(`Usuario creado con id ${userId}`);
-              if (!isAgent) {
-                // Save token in local storage
-                await lastValueFrom(this.jwtSvc.saveToken(response.jwt))
-                  .catch(err => {
-                    observer.error(err)
-                  });
-              } else {
-                const response = await lastValueFrom(this.getRoles());
-                const roleId: number = response.roles.filter(role => role.type.toUpperCase() === Roles.AGENT)[0].id;
-                const url = this.getUrl(StrapiEndpoints.USER_PERMISSIONS, userId);
-                await lastValueFrom(this.api.put<StrapiRegisterResponse>(url, { "role": roleId }));
+      this.api.post<StrapiRegisterResponse>(url, _registerInfo).subscribe({
+        next: async (response: StrapiRegisterResponse | null) => {
+          if (response) {
+            const userId = response.user.id;
+            console.info(`User created with id ${userId}`);
+            (isAgent) ? this.updateAgentRole(userId) : await this.saveToken(response).catch(err => observer.error(err));
+            const extUser = await this.createExtUser(_agentInfo, _registerInfo, isAgent, userId, nickname).catch(err => observer.error(err));
+            if (extUser) {
+              console.info(`Created extended user with id ${extUser?.ext_id} related to user ${extUser?.user_id}`);
+              let specificUser;
+              try {
+                specificUser = (isAgent) ? await this.createAgent(extUser) : await this.createClient(extUser);
+                console.info(`Created specific user with id ${specificUser?.id} related to user ${specificUser?.user_id}`);
+              } catch (error) {
+                this.rollback(userId, extUser.ext_id as number);
+                observer.error(error);
               }
-
-              // Create related extended user
-              let _user: User = {
-                ..._registerInfo,
-                role: isAgent ? Roles.AGENT : Roles.AUTHENTICATED,
-                user_id: userId,
-                nickname: nickname
-              }
-              if (isAgent) {
-                _user = {
-                  ..._user, ...{
-                    name: _agentInfo?.name,
-                    surname: _agentInfo?.surname,
-                  }
-                }
-              }
-
-              const newUser = await lastValueFrom(this.userSvc.addUser(_user));
-              (newUser) ?
-                console.info(`Extended user creado con id ${newUser?.ext_id} asociado a ${newUser.user_id}`)
-                : "Extended user no creado";
-
-              if (isAgent) {
-                // Create related agent
-                const agent: NewTravelAgent = {
-                  user_id: response.user.id,
-                  bookings: []
-                }
-                const newAgent = await lastValueFrom(this.agentSvc.addAgent(agent))
-                  .catch(err => observer.error(err));
-                (newAgent) ?
-                  console.info(`Agente creado con id ${newAgent?.id} asociado a ${newAgent.user_id}`)
-                  : "Agente no creado";
-              } else {
-                // Create related client
-                const client: NewClient = {
-                  type: 'AUTHENTICATED',
-                  user_id: response.user.id,
-                  bookings: [],
-                  favorites: []
-                }
-                const newClient = await lastValueFrom(this.clientSvc.addClient(client))
-                  .catch(err => observer.error(err));
-                (newClient) ?
-                  console.info(`Cliente creado con id ${newClient?.id} asociado a ${newClient?.user_id}`)
-                  : "Cliente no creado";
-              }
-              observer.next();
-              observer.complete();
             } else {
-              observer.error('Error al registrar al usuario');
+              this.rollback(userId);
+              observer.error('ERROR: Unknown error at creating extended user. Extended user not created.');
             }
-          },
-          error: err => {
-            observer.error(err);
+            observer.next();
+            observer.complete();
+          } else {
+            observer.error('ERROR: Unknown error at registering the user.');
           }
-        });
+        },
+        error: err => {
+          observer.error(err);
+        }
+      });
     });
+  }
+
+  private includeAgentName(_user: User, _agentInfo: AgentRegisterInfo) {
+    return {
+      ..._user, ...{
+        name: _agentInfo?.name,
+        surname: _agentInfo?.surname,
+      }
+    }
   }
 
   public logout(): Observable<any> {

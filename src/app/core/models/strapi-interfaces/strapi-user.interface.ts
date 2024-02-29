@@ -90,3 +90,17 @@ export interface StrapiExtendedUser {
     user?: StrapiResponse<StrapiUserRoleResponse> | number | string,
     avatar: StrapiResponse<StrapiMedia> | null
 }
+
+// PAYLOADS
+
+export type NewStrapiExtUserPayload = {
+    user: number,
+    nickname: string,
+    name?: string,
+    surname?: string,
+}
+
+export type StrapiExtUserPayload = {
+    avatar?: any,
+    age?: string,
+} & NewStrapiExtUserPayload

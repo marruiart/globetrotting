@@ -50,7 +50,7 @@ export abstract class MappingService {
 
   public abstract mapDestinationPayload(destination: NewDestination): any;
   public abstract mapFavPayload(fav: NewFav): any;
-  public abstract mapExtUserPayload(user: User): any;
+  public abstract mapNewExtUserPayload(user: any): any;
   public abstract mapUserCredentialsPayload(user: User): any;
   public abstract mapClientPayload(client: NewClient): any
   public abstract mapAgentPayload(client: NewTravelAgent): any

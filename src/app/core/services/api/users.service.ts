@@ -69,7 +69,7 @@ export class UsersService {
   }
 
   public addUser(user: User, updateObs: boolean = true): Observable<User> {
-    const body = this.mappingSvc.mapExtUserPayload(user);
+    const body = this.mappingSvc.mapNewExtUserPayload(user);
     return this.dataSvc.save<User>(StrapiEndpoints.EXTENDED_USERS, body, this.mappingSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
@@ -84,7 +84,7 @@ export class UsersService {
    * @returns 
    */
   public updateUser(user: any, updateObs: boolean = true): Observable<User> {
-    const body = this.mappingSvc.mapExtUserPayload(user);
+    const body = this.mappingSvc.mapNewExtUserPayload(user);
     return this.dataSvc.update<User>(StrapiEndpoints.EXTENDED_USERS, user.ext_id, body, this.mappingSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();

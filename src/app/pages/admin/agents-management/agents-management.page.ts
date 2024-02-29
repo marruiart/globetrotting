@@ -67,10 +67,12 @@ export class AgentsManagementPage {
   }
 
   public async showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
-    if (tableRow?.ext_id) {
+    this.formType = formType;
+    this.isUpdating = actionUpdate;
+    if (formType === 'UPDATE_AGENT' && tableRow?.ext_id) {
       this.selectedAgent = tableRow;
-      this.formType = formType;
-      this.isUpdating = actionUpdate;
+      this.showForm = true;
+    } else if ( formType === 'REGISTER_AGENT') {
       this.showForm = true;
     } else {
       console.error("ERROR: The agent could not be selected.")
@@ -83,22 +85,27 @@ export class AgentsManagementPage {
     this.showForm = false;
   }
 
-  public addOrEditAgent(agent: User & UserCredentials) {
+  public async addOrEditAgent(agent: User & UserCredentials) {
     if (agent.ext_id) {
-      lastValueFrom(this.userSvc.updateUser(agent)).catch(err => console.error(err));
-      lastValueFrom(this.authSvc.updateIdentifiers(agent)).catch(err => console.error(err));
+      await lastValueFrom(this.userSvc.updateUser(agent)).catch(err => console.error(err));
+      //await lastValueFrom(this.authSvc.updateIdentifiers(agent)).catch(err => console.error(err)); // TODO check firebase with admin.auth().updateUser(uid, {email: "modifiedUser@example.com"});
       this.agentsFacade.initAgents();
     } else {
-      lastValueFrom(this.authSvc.register(agent, true))
-        .catch(err => console.error(err));
+      await lastValueFrom(this.authSvc.register(agent, true)).catch(err => console.error(err));
     }
     this.hideAgentForm();
   }
 
-  private deleteAgent(agent_id: number | string, extuser_id: number | string, user_id: number | string) {
-    lastValueFrom(this.agentsSvc.deleteAgent(agent_id)).catch(err => console.error(err));
-    lastValueFrom(this.authSvc.deleteUser(user_id)).catch(err => console.error(err));
-    lastValueFrom(this.userSvc.deleteUser(extuser_id)).catch(err => console.error(err));
+  private async deleteAgent(extuser_id: number | string, user_id: number | string) {
+    await lastValueFrom(this.agentsSvc.agentMe(user_id as number).pipe(switchMap(agent => {
+      if (agent) {
+        return this.agentsSvc.deleteAgent(agent.id);
+      } else {
+        throw new Error("ERROR: Agent not found");
+      }
+    })))
+    await lastValueFrom(this.authSvc.deleteUser(user_id)).catch(err => console.error(err));
+    await lastValueFrom(this.userSvc.deleteUser(extuser_id)).catch(err => console.error(err)); // TODO move this to userSvc, removing at once extended, permissions and agent (different for strapi)
   }
 
   showConfirmDialog(tableRow: AgentsTableRow) {
@@ -108,7 +115,7 @@ export class AgentsManagementPage {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         if (tableRow.ext_id) {
-          //this.deleteAgent(tableRow.agent_id, tableRow.id, tableRow.user_id); // TODO obtener los datos de este agent
+          this.deleteAgent(tableRow.ext_id, tableRow.user_id); // TODO obtener los datos de este agent
           this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Usuario eliminado' });
         } else {
           console.error("El usuario no pudo ser eliminado, se desconoce el id asociado");

@@ -2,9 +2,9 @@ import { MappingService } from '../mapping.service';
 import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
-import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials, NewStrapiExtUserPayload } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedUser, ExtUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { PaginatedUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -138,10 +138,10 @@ export class StrapiMappingService extends MappingService {
 
   private mapUserData = (data: StrapiData<StrapiExtendedUser>): User => {
     const user = data.attributes.user as StrapiResponse<StrapiUserRoleResponse>;
-    const role = user.data.attributes.role?.data.attributes.type;
+    const role = user?.data.attributes.role?.data.attributes.type ?? null;
     const user_id = user?.data?.id ?? null;
     if (!user_id) {
-      console.info(`Usuario con id ${data.id} no asociado a un user_id`);
+      console.info(`User with ext_id ${data.id} not related to any user_id`);
     }
     return {
       role: role?.toUpperCase() as Role ?? undefined,
@@ -356,14 +356,12 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
-  public mapExtUserPayload(user: User): StrapiPayload<any> {
-    const extUser: NewExtUser = {
+  public mapNewExtUserPayload(user: User): StrapiPayload<any> {
+    const extUser: NewStrapiExtUserPayload = {
       nickname: user.nickname,
-      avatar: user.avatar,
       name: user.name,
       surname: user.surname,
-      age: user.age,
-      user_id: user.user_id
+      user: user.user_id as number
     };
     return { data: this.removeEmptyValues(extUser) };
   }

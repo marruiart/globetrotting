@@ -47,4 +47,5 @@ export class StrapiEndpoints {
   static REGISTER = "/api/auth/local/register"
   static LOGIN = "/api/auth/local"
   static ROLES = "/api/users-permissions/roles"
+  static AGENTS = "/api/agents"
 }

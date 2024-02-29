@@ -44,6 +44,7 @@ export class AuthEffects {
             )))
     );
 
+    // FIXME register of agent don't have to login
     registerSuccess$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.registerSuccess),

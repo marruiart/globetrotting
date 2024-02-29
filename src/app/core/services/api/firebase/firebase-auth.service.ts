@@ -6,11 +6,13 @@ import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/fi
 import { inject } from '@angular/core';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
-import { Role } from 'src/app/core/utilities/utilities';
+import { Role, Roles } from 'src/app/core/utilities/utilities';
+import { MappingService } from '../mapping.service';
 
 export class FirebaseAuthService extends AuthService {
   private authFacade = inject(AuthFacade);
   private firebaseSvc = inject(FirebaseService);
+  private mappingSvc = inject(MappingService);
 
   public getRoles(): Observable<any> {
     throw new Error('Method not implemented.');
@@ -33,10 +35,33 @@ export class FirebaseAuthService extends AuthService {
     });
   }
 
-  public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<any | null> {
+  private mapUserPayload(credentials: FirebaseUserCredential, registerInfo: UserRegisterInfo, isAgent: boolean) {
     const _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
     const nickname = (registerInfo as AgentRegisterInfo).nickname ?? registerInfo.username;
-    const role = isAgent ? 'AGENT' : 'AUTHENTICATED';
+
+    const commonInfo = {
+      user_id: credentials.user.user.uid,
+      username: registerInfo.username,
+      email: registerInfo.email,
+      nickname: nickname
+    };
+    if (isAgent) {
+      return {
+        ...commonInfo,
+        role: Roles.AGENT,
+        name: _agentInfo.name,
+        surname: _agentInfo.surname,
+      } as AgentUser;
+    } else {
+      return {
+        ...commonInfo,
+        role: Roles.AUTHENTICATED,
+        favorites: []
+      } as ClientUser;
+    }
+  }
+
+  public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<any | null> {
 
     return new Observable<any>(observer => {
       if (!registerInfo.email || !registerInfo.password) {
@@ -47,39 +72,17 @@ export class FirebaseAuthService extends AuthService {
           if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
             observer.error('Error: Registration failed.');
           }
-          if (credentials) {
-            if (credentials.user.user.uid) {
-              let userInfo: AdminAgentOrClientUser;
-              if (isAgent) {
-                userInfo = {
-                  role: 'AGENT',
-                  user_id: credentials.user.user.uid,
-                  username: registerInfo.username,
-                  email: registerInfo.email,
-                  nickname: nickname,
-                  name: _agentInfo.name,
-                  surname: _agentInfo.surname,
-                } as AgentUser
-              } else {
-                userInfo = {
-                  role: 'AUTHENTICATED',
-                  user_id: credentials.user.user.uid,
-                  username: registerInfo.username,
-                  email: registerInfo.email,
-                  nickname: nickname,
-                  favorites: []
-                } as ClientUser;
-              }
-              this.postRegister(userInfo).subscribe({
-                next: _ => {
-                  observer.next(userInfo);
-                  observer.complete();
-                },
-                error: error => observer.error(error.message)
-              });
-            } else {
-              observer.error('Error: Registration failed. No UID was provided.');
-            }
+          if (credentials?.user.user.uid) {
+            const userInfo = this.mapUserPayload(credentials, registerInfo, isAgent);
+            this.postRegister(userInfo).subscribe({
+              next: _ => {
+                observer.next(userInfo);
+                observer.complete();
+              },
+              error: error => observer.error(error.message)
+            });
+          } else {
+            observer.error('Error: Registration failed. Invalid credentials.');
           }
         })
     });
@@ -87,14 +90,7 @@ export class FirebaseAuthService extends AuthService {
 
   private postRegister(userInfo: AdminAgentOrClientUser): Observable<any> {
     // TODO FirebaseRegisterPayload
-    if (userInfo.role == 'AUTHENTICATED') {
-      return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`)).pipe(
-        switchMap(_ => from(this.firebaseSvc.createDocumentWithId('client_bookings', { destinations: [] }, `${userInfo.user_id}`))),
-        catchError(error => of(error))
-      );
-    } else {
-      return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`));
-    }
+    return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`));
   }
 
   public me(): Observable<AdminAgentOrClientUser> {

@@ -25,3 +25,19 @@ export interface FirebaseAuthUser {
     bookings?: ClientBooking[] | Booking[],
     favorites?: ClientFavDestination[]
 }
+
+// PAYLOAD
+
+export type NewFirebaseUserPayload = {
+    email: string,
+    nickname: string,
+    username: string,
+    name?: string,
+    surname?: string,
+    favorites?: []
+}
+
+export type FirebaseUserPayload = {
+    avatar?: any,
+    age?: string,
+} & NewFirebaseUserPayload

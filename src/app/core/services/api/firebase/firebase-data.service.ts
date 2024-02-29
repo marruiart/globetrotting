@@ -4,10 +4,19 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { DocumentSnapshot, Timestamp } from 'firebase/firestore';
 import { FirebaseCollectionResponse, FirebaseDocument } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { inject } from '@angular/core';
-import { Collection, Collections } from 'src/app/core/utilities/utilities';
+import { Collection, Collections, StrapiEndpoints } from 'src/app/core/utilities/utilities';
 
 export class FirebaseDataService extends DataService {
     private firebaseSvc = inject(FirebaseService);
+
+    private getCollectionName(endpoint: StrapiEndpoints) {
+        switch (endpoint) {
+            case StrapiEndpoints.EXTENDED_USERS:
+                return Collections.users;
+            default:
+                return Collections.users;
+        }
+    }
 
     public override obtainAll<T>(path: string, queries: { [query: string]: string | DocumentSnapshot; } = {}, callback: (res: FirebaseCollectionResponse) => T = res => res as T): Observable<T> {
         const collection = path.split('/')[2];
@@ -61,7 +70,7 @@ export class FirebaseDataService extends DataService {
     }
 
     public override update<T>(path: string, id: string, body: any, callback: (res: any) => T = res => res): Observable<T> {
-        const collection = path.split('/')[2];
+        const collection = this.getCollectionName(path);
         return from(this.firebaseSvc.updateDocument(collection, `${id}`, body)).pipe(map(_ => {
             const doc: FirebaseDocument = {
                 id: body.id,
@@ -72,7 +81,7 @@ export class FirebaseDataService extends DataService {
     }
 
     public override updateObject<T>(path: string, id: string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
-        const collection = path.split('/')[2];
+        const collection = this.getCollectionName(path);
         return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(_ => {
             return callback(value);
         }));

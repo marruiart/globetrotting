@@ -3,6 +3,7 @@ import { Store, select } from "@ngrx/store";
 import { AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from "../../models/globetrotting/user.interface";
 import * as AuthActions from './auth.actions'
 import * as AuthSelector from './auth.selectors'
+import { Role } from "../../utilities/utilities";
 
 @Injectable()
 export class AuthFacade {
@@ -18,6 +19,7 @@ export class AuthFacade {
     error$ = this.store.pipe(select(AuthSelector.selectError));
 
     init() {
+        // Just for Strapi
         this.store.dispatch(AuthActions.init());
     }
 
@@ -25,13 +27,15 @@ export class AuthFacade {
         this.store.dispatch(AuthActions.login({ credentials }));
     }
 
-    saveUserUid(uid: string) {
-        this.store.dispatch(AuthActions.assignUid({ user_id: uid }));
-        this.init();
+    navigate(role: Role) {
+        this.store.dispatch(AuthActions.navigate({ role }));
     }
 
-    updateUser(user: AdminAgentOrClientUser) {
+    updateUser(user: AdminAgentOrClientUser, isFirstTime: boolean) {
         this.store.dispatch(AuthActions.updateUser({ user }));
+        if (isFirstTime) {
+            this.store.dispatch(AuthActions.navigate({ role: user.role }));
+        }
     }
 
     setLoginStateTrue() {

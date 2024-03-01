@@ -3,20 +3,20 @@ import { BehaviorSubject } from 'rxjs';
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
-import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
-import { ClientUser } from '../../models/globetrotting/user.interface';
-import { Roles } from '../../utilities/utilities';
+import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
+import { Collections, Roles } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
-  private firebaseConfig: any = null;
+  private unsubscribe!: Unsubscribe | null;
   private adminConfig: any = null;
   private _app!: FirebaseApp;
   private _db!: Firestore;
@@ -32,25 +32,10 @@ export class FirebaseService {
     private favsFacade: FavoritesFacade,
     private destinationsFacade: DestinationsFacade
   ) {
-    this.firebaseConfig = config;
     this.adminConfig = adminConfig;
-    this.init();
-  }
-
-  private init() {
-    // Initialize Firebase
-    this._app = this.initFirebaseApp(this.firebaseConfig)
+    this._app = this.initFirebaseApp(config);
     this._auth = this.initAuthInstance(this._app);
     this.initSubscriptions();
-    this.authFacade.currentUser$.subscribe(user => {
-      if (user?.role === Roles.AUTHENTICATED) {
-        this.favsFacade.assignClientFavs(user.favorites);
-      } if (user?.role === Roles.ADMIN) {
-        this._admin = this.initAuthInstance(this.initFirebaseApp(this.adminConfig, Roles.ADMIN));
-      } else {
-        this.favsFacade.logout();
-      }
-    })
   }
 
   private initFirebaseApp(config: any, name?: string) {
@@ -69,23 +54,40 @@ export class FirebaseService {
     this.subscribeToSizes();
   }
 
-  private async subscribeToSizes() {
-    this.destinationsFacade.destinations$.subscribe(dests => {
-      this._sizes['destinations'] = dests.length;
-    })
-  }
-
   private subscribeToUser() {
+    let isFirstTime = true;
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
-        this.authFacade.saveUserUid(user.uid);
-        const _client = new BehaviorSubject<ClientUser | null>(null);
-        this.subscribeToDocument('users', `${user.uid}`, _client);
-        _client.subscribe(user => { if (user) this.authFacade.updateUser(user) });
+        const _user = new BehaviorSubject<AdminAgentOrClientUser | null>(null);
+        this.unsubscribe = this.subscribeToDocument(Collections.users, `${user.uid}`, _user);
+        _user.subscribe(user => {
+          if (user) {
+            this.authFacade.updateUser(user, isFirstTime);
+            isFirstTime = false;
+            switch (user.role) {
+              case Roles.AUTHENTICATED:
+                this.favsFacade.assignClientFavs(user.favorites);
+                break;
+              case Roles.ADMIN:
+                this._admin = this.initAuthInstance(this.initFirebaseApp(this.adminConfig, Roles.ADMIN));
+                break;
+            }
+          }
+        });
       } else {
-        this.authFacade.logout()
+        if (this.unsubscribe) {
+          isFirstTime = true;
+          this.unsubscribe();
+        }
+        this.authFacade.logout();
       };
     });
+  }
+
+  private async subscribeToSizes() {
+    this.destinationsFacade.destinations$.subscribe(dests => {
+      this._sizes[Collections.destinations] = dests.length;
+    })
   }
 
   public generateId(): string {

@@ -6,6 +6,7 @@ import { catchError, map, of, switchMap } from "rxjs";
 import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
 import { AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
+import { Roles } from "../../utilities/utilities";
 
 @Injectable()
 export class AuthEffects {
@@ -21,7 +22,16 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.init),
             switchMap(() => this.authFacade.isLogged$.pipe(
-                map(isLogged => (isLogged) ? AuthActions.assignUser() : AuthActions.loginFailure({ error: null })),
+                map(isLogged => (isLogged) ? AuthActions.me() : AuthActions.loginFailure({ error: null })),
+                catchError(error => of(AuthActions.assignUserFailure({ error: error })))
+            )))
+    );
+
+    me$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.me),
+            switchMap(() => this.authSvc.me().pipe(
+                map((user: AdminAgentOrClientUser) => AuthActions.assignUserSuccess({ user: user })),
                 catchError(error => of(AuthActions.assignUserFailure({ error: error })))
             )))
     );
@@ -35,10 +45,30 @@ export class AuthEffects {
             )))
     );
 
+    assignUserSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.assignUserSuccess),
+            map(({ user }) => AuthActions.navigate({ role: user.role })))
+    );
+
+    navigate$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.navigate),
+            map(({ role }) => {
+                console.log(role);
+                if (role == Roles.ADMIN || role == Roles.AGENT) {
+                    this.router.navigate(['/admin']);
+                } else if (role == Roles.AUTHENTICATED) {
+                    this.router.navigate(['/home']);
+                }
+                return AuthActions.navigateSuccess();
+            }))
+    );
+
     register$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.register),
-            switchMap(({registerInfo, isAgent}) => this.authSvc.register(registerInfo, isAgent).pipe(
+            switchMap(({ registerInfo, isAgent }) => this.authSvc.register(registerInfo, isAgent).pipe(
                 map(() => AuthActions.registerSuccess()),
                 catchError(error => of(AuthActions.registerFailure({ error: error })))
             )))
@@ -49,25 +79,6 @@ export class AuthEffects {
         this.actions$.pipe(
             ofType(AuthActions.registerSuccess),
             switchMap(() => of(AuthActions.loginSuccess())))
-    );
-
-    assignUser$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(AuthActions.assignUser),
-            switchMap(() => this.authSvc.me().pipe(
-                map((user: AdminAgentOrClientUser) => {
-                    console.log(user.user_id, user.role);
-                    if (user.role == 'ADMIN' || user.role == 'AGENT') {
-                        this.router.navigate(['/admin']);
-                    } else if (user.role == 'AUTHENTICATED') {
-                        this.router.navigate(['/home']);
-                    } else {
-                        return AuthActions.assignUserFailure({ error: 'Error: Unknown user role.' })
-                    }
-                    return AuthActions.assignUserSuccess({ user: user });
-                }),
-                catchError(error => of(AuthActions.assignUserFailure({ error: error })))
-            )))
     );
 
     logout$ = createEffect(() =>

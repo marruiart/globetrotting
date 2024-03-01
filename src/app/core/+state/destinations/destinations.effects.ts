@@ -42,7 +42,7 @@ export class DestinationsEffects {
     deleteDestination$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DestinationsActions.deleteDestination),
-            exhaustMap(({ id }) => this.destinationsSvc.deleteDestination(id).pipe(
+            switchMap(({ id }) => this.destinationsSvc.deleteDestination(id).pipe(
                 map(_ => DestinationsActions.deleteDestinationSuccess()),
                 catchError(error => of(DestinationsActions.deleteDestinationFailure({ error })))
             )))

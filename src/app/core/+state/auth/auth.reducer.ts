@@ -18,6 +18,7 @@ export type AuthState = {
     avatar?: any,
     name?: string,
     surname?: string,
+    username?: string,
     age?: string,
     favorites?: ClientFavDestination[]
     error: any | null
@@ -31,6 +32,12 @@ export const initialState: AuthState = {
     nickname: '',
     email: '',
     role: null,
+    avatar: undefined,
+    name: undefined,
+    surname: undefined,
+    username: undefined,
+    age: undefined,
+    favorites: undefined,
     error: null
 };
 
@@ -38,19 +45,22 @@ export const authReducer = createReducer(
     initialState,
     on(AuthActions.loginSuccess, (state) => ({ ...state, isLogged: true, error: null })),
     on(AuthActions.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
-    on(AuthActions.assignUid, (state, { user_id }) => ({ ...state, isLogged: true, user_id: user_id, error: null })),
-    on(AuthActions.assignUserSuccess, (state, { user }) => assignUserMapping(state, user)), // TODO map all the user input
+
+    on(AuthActions.updateUser, (state, { user }) => userMapping(state, user)),
+    on(AuthActions.assignUserSuccess, (state, { user }) => userMapping(state, user)), // TODO map all the user input
     on(AuthActions.assignUserFailure, (state, { error }) => ({ ...state, error: error })),
-    on(AuthActions.updateUser, (state, { user }) => updateUserMapping(state, user)),
+
+
     on(AuthActions.logout, (state) => ({ ...state })),
-    on(AuthActions.logoutSuccess, (state) => ({ ...state, isLogged: false, role: null, user_id: null, error: null })),
+    on(AuthActions.logoutSuccess, (_) => ({ ...initialState })),
     on(AuthActions.logoutFailure, (state, { error }) => ({ ...state, error: error })),
+
     on(AuthActions.register, (state) => ({ ...state })),
     on(AuthActions.registerSuccess, (state) => ({ ...state, isLogged: true, error: null })),
     on(AuthActions.registerFailure, (_, { error }) => resetState(error))
 );
 
-function assignUserMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
+function userMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
     return {
         ...state,
         isLogged: true,
@@ -63,6 +73,7 @@ function assignUserMapping(state: AuthState, user: AdminAgentOrClientUser): Auth
         avatar: user.avatar,
         name: user.name,
         surname: user.surname,
+        username: user.username,
         age: user.age,
         favorites: isType<ClientUser>(user) ? user.favorites : undefined,
         error: null
@@ -72,12 +83,16 @@ function assignUserMapping(state: AuthState, user: AdminAgentOrClientUser): Auth
 function updateUserMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
     return {
         ...state,
-        email: user?.email ?? '',
-        favorites: isType<ClientUser>(user) ? user.favorites : undefined,
-        name: user.name,
         nickname: user.nickname,
+        email: user.email,
         role: user.role,
+        avatar: user.avatar,
+        name: user.name,
         surname: user.surname,
+        username: user.username,
+        age: user.age,
+        favorites: isType<ClientUser>(user) ? user.favorites : undefined,
+        error: null
     }
 }
 

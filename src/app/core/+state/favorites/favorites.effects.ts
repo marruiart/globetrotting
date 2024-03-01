@@ -22,7 +22,7 @@ export class FavoritesEffects {
     addFav$ = createEffect(() =>
         this.actions$.pipe(
             ofType(FavoritesActions.addFav),
-            switchMap(({ newFav }) => this.favsSvc.addFav(newFav).pipe(
+            exhaustMap(({ newFav }) => this.favsSvc.addFav(newFav).pipe(
                 map((fav: Fav) => {
                     return (fav) ? FavoritesActions.addFavSuccess()
                         : FavoritesActions.addFavFailure({ error: 'Error: Unknown favorite.' })
@@ -35,8 +35,7 @@ export class FavoritesEffects {
         this.actions$.pipe(
             ofType(FavoritesActions.deleteFav),
             exhaustMap(({ id }) => this.favsSvc.deleteFav(id).pipe(
-                map(() => { 
-                    return FavoritesActions.deleteFavSuccess()}),
+                map(() => FavoritesActions.deleteFavSuccess()),
                 catchError(error => of(FavoritesActions.deleteFavFailure({ error })))
             )))
     );

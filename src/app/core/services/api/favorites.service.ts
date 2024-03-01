@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ClientFavDestination, Fav } from '../../models/globetrotting/fav.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export abstract class FavoritesService {
-  public abstract clientFavs$: Observable<ClientFavDestination[]>;
 
   public abstract getAllFavs(): Observable<Fav[]>
 

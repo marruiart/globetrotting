@@ -11,8 +11,8 @@ export class FavoritesFacade {
     clientFavs$ = this.store.pipe(select(FavoritesSelector.selectClientFavs));
     error$ = this.store.pipe(select(FavoritesSelector.selectError));
 
-    assignClientFavs(favs: ClientFavDestination[]) {
-        this.store.dispatch(FavoritesActions.assignClientFavs({ clientFavs: favs }));
+    assignClientFavs(clientFavs: ClientFavDestination[]) {
+        this.store.dispatch(FavoritesActions.assignClientFavs({ clientFavs }));
     }
 
     addFav(newFav: NewFav) {

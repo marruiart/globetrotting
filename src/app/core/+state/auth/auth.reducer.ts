@@ -80,22 +80,6 @@ function userMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState 
     };
 }
 
-function updateUserMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState {
-    return {
-        ...state,
-        nickname: user.nickname,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-        name: user.name,
-        surname: user.surname,
-        username: user.username,
-        age: user.age,
-        favorites: isType<ClientUser>(user) ? user.favorites : undefined,
-        error: null
-    }
-}
-
 function resetState(error?: any): AuthState {
     return {
         ...initialState,

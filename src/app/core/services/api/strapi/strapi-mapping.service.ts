@@ -15,7 +15,7 @@ import { StrapiClient } from 'src/app/core/models/strapi-interfaces/strapi-clien
 import { PaginatedData } from 'src/app/core/models/globetrotting/pagination-data.interface';
 import { StrapiAgent } from 'src/app/core/models/strapi-interfaces/strapi-agent.interface';
 import { TravelAgent, PaginatedAgent, NewTravelAgent, AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
-import { Role, Roles, isType } from 'src/app/core/utilities/utilities';
+import { Role, Roles } from 'src/app/core/utilities/utilities';
 import { DatePipe } from '@angular/common';
 import { inject } from '@angular/core';
 
@@ -208,7 +208,7 @@ export class StrapiMappingService extends MappingService {
     return {
       id: data.id,
       user_id: (data.attributes.user as StrapiResponse<StrapiUserRoleResponse>)?.data?.id,
-      type: 'AUTHENTICATED',
+      type: Roles.AUTHENTICATED,
       bookings: this.mapClientBookings(this.mapBookings(data.attributes.bookings)),
       favorites: this.mapClientFavs(this.mapFavs(data.attributes.favorites))
     }
@@ -260,11 +260,11 @@ export class StrapiMappingService extends MappingService {
       travelers: booking.travelers,
       isConfirmed: booking.isConfirmed ?? false
     }
-    if (role === 'ADMIN' && client !== undefined && agent !== undefined) {
+    if (role === Roles.ADMIN && client !== undefined && agent !== undefined) {
       return { ...tableRow, ...agent, ...client } as AdminBookingsTableRow;
-    } else if (role === 'AGENT' && client !== undefined) {
+    } else if (role === Roles.AGENT && client !== undefined) {
       return { ...tableRow, ...client } as AgentBookingsTableRow;
-    } else if (role === 'AUTHENTICATED' && agent !== undefined) {
+    } else if (role === Roles.AUTHENTICATED && agent !== undefined) {
       return { ...tableRow, ...agent } as ClientBookingsTableRow;
     } else {
       throw Error('Error: Required bookings table information was not provided.')

@@ -12,7 +12,7 @@ import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { getUserName } from 'src/app/core/utilities/utilities';
+import { Roles, getUserName } from 'src/app/core/utilities/utilities';
 
 export interface FavClickedEvent {
   fav: boolean;
@@ -24,6 +24,7 @@ export interface FavClickedEvent {
   styleUrls: ['./destinations.page.scss'],
 })
 export class DestinationsPage implements OnInit, OnDestroy {
+  private readonly COMPONENT = 'DestinationsPage';
   public selectedDestination: Destination | null = null;
   public currentUser: AdminAgentOrClientUser | null = null;
   private _clientFavs: ClientFavDestination[] = [];
@@ -44,16 +45,15 @@ export class DestinationsPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => console.error(err));
+    //await lastValueFrom(this.favsSvc.getAllClientFavs()).catch(err => console.error(err));
   }
 
   private startSubscriptions() {
-    this.subsSvc.addSubscriptions('DestinationsPage',
+    this.subsSvc.addSubscriptions(this.COMPONENT,
       this.authFacade.currentUser$.pipe(switchMap(user => {
-        if (user) {
-          this.currentUser = user ?? null
-          if (user.role == 'AUTHENTICATED') {
-            return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs = favs));
-          }
+        this.currentUser = user;
+        if (user?.role == Roles.AUTHENTICATED) {
+          return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs = favs ?? []));
         }
         return of()
       })).subscribe()
@@ -84,7 +84,6 @@ export class DestinationsPage implements OnInit, OnDestroy {
           destination_id: destination.id
         }
         this.favsFacade.addFav(fav);
-        //lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
       } else {
         // Delete fav
         let fav = this._clientFavs.find(f => f.destination_id == destination.id);

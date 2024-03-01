@@ -9,12 +9,12 @@ export type Sizes = {
 }
 
 export type FavoritesState = {
-    clientFavs: ClientFavDestination[]
+    clientFavs: ClientFavDestination[] | null
     error: any | null
 }
 
 export const initialState: FavoritesState = {
-    clientFavs: [],
+    clientFavs: null,
     error: null
 };
 

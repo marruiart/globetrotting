@@ -68,4 +68,5 @@ export class StrapiEndpoints {
   static AGENTS = "/api/agents"
   static CLIENTS = "/api/clients"
   static DESTINATIONS = "/api/destinations"
+  static FAVORITES = "/api/favorites"
 }

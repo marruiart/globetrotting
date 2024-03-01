@@ -15,9 +15,13 @@ export class StrapiDataService extends DataService {
     return `${environment.strapiUrl}${path}${id ? `/${id}` : ''}`;
   }
 
-  private getUserQuery(path: string): string {
+  private getQueries(path: string): string {
     if (path.includes('extended-users') || path.includes('clients') || path.includes('agents')) {
       return "?populate=user.role";
+    } else if (path.includes('favorites')) {
+      return "?populate=destination,client";
+    } else if (path.includes('me')) {
+      return "?populate=role"
     }
     return "";
   }
@@ -43,7 +47,7 @@ export class StrapiDataService extends DataService {
     path: string,
     id: number,
     callback: ((res: T) => T),
-    queries: { [query: string]: string } = {},
+    queries: { [query: string]: string } = {}
   ): Observable<T> {
 
     const url = this.getUrl(path, id);
@@ -59,9 +63,9 @@ export class StrapiDataService extends DataService {
     path: string
   ): Observable<T> {
 
-    const queries: { [query: string]: string } = { 'populate': 'role' };
-    const url = this.getUrl(path);
-    return this.api.get<T>(url, queries)
+    const queries = this.getQueries(path);
+    const url = `${this.getUrl(path)}${queries}`;
+    return this.api.get<T>(url)
       .pipe(catchError(error => {
         console.log("ERROR getMe");
         console.error(error);
@@ -76,8 +80,8 @@ export class StrapiDataService extends DataService {
     callback: ((res: T) => T) = (res => res)
   ): Observable<T> {
 
-    let user_query = this.getUserQuery(path);
-    const url = `${this.getUrl(path)}${user_query}`;
+    const queries = this.getQueries(path);
+    const url = `${this.getUrl(path)}${queries}`;
     return this.api.post<T>(url, body)
       .pipe(map(callback), catchError(error => {
         console.error("ERROR post", error);
@@ -92,8 +96,9 @@ export class StrapiDataService extends DataService {
     callback: ((res: T) => T)
   ): Observable<T> {
 
-    let user_query = this.getUserQuery(path);
-    const url = `${this.getUrl(path, id)}${user_query}`;
+    //FIXME Add queries to parameters
+    const queries = this.getQueries(path);
+    const url = `${this.getUrl(path, id)}${queries}`;
     return this.api.put<T>(url, body).pipe(
       map(callback),
       catchError(error => {
@@ -109,7 +114,7 @@ export class StrapiDataService extends DataService {
     queries: { [query: string]: string },
   ): Observable<T> {
 
-    let user_query = this.getUserQuery(path);
+    let user_query = this.getQueries(path);
     const url = `${this.getUrl(path, id)}${user_query}`;
     return this.api.delete<T>(url, queries)
       .pipe(map(callback), catchError(error => {

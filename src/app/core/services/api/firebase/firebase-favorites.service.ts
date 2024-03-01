@@ -6,15 +6,13 @@ import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { DataService } from '../data.service';
 import { AdminAgentOrClientUser } from 'src/app/core/models/globetrotting/user.interface';
 import { FirebaseService } from '../../firebase/firebase.service';
+import { Roles, StrapiEndpoints } from 'src/app/core/utilities/utilities';
 
 
 export class FirebaseFavoritesService {
-  private path: string = "/api/favorites";
   private body = (fav: NewFav) => this.mapSvc.mapFavPayload(fav);
 
   private firebaseSvc = inject(FirebaseService);
-  private _clientFavs: BehaviorSubject<ClientFavDestination[]> = new BehaviorSubject<ClientFavDestination[]>([]);
-  public clientFavs$: Observable<ClientFavDestination[]> = this._clientFavs.asObservable();
   private user: AdminAgentOrClientUser | null = null;
   private authFacade: AuthFacade = inject(AuthFacade);
   private _favs: BehaviorSubject<Fav[]> = new BehaviorSubject<Fav[]>([]);
@@ -31,39 +29,29 @@ export class FirebaseFavoritesService {
   }
 
   public getAllFavs(): Observable<Fav[]> {
-    return this.dataSvc.obtainAll<Fav[]>(this.path, this.queries, this.mapSvc.mapFavs).pipe(tap(res => {
+    return this.dataSvc.obtainAll<Fav[]>(StrapiEndpoints.FAVORITES, this.queries, this.mapSvc.mapFavs).pipe(tap(res => {
       this._favs.next(res);
     }));
   }
 
   public getAllClientFavs(): Observable<ClientFavDestination[]> {
-    if (this.user?.role == 'AUTHENTICATED') {
-      const id = this.user.user_id;
-      let _queries = JSON.parse(JSON.stringify(this.queries));
-      _queries["filters[client]"] = `${id}`;
-      return this.dataSvc.obtainAll<ClientFavDestination[]>(this.path, _queries, this.mapSvc.mapClientFavs).pipe(map(res => {
-        this._clientFavs.next(res);
-        return this._clientFavs.value;
-      }));
-    } else {
-      return of([] as ClientFavDestination[]);
-    }
+    throw new Error('Method not implemented');
   }
 
   public getFav(id: number): Observable<Fav> {
-    return this.dataSvc.obtain<Fav>(this.path, id, this.body, this.queries);
+    return this.dataSvc.obtain<Fav>(StrapiEndpoints.FAVORITES, id, this.body, this.queries);
   }
 
   public addFav(newFav: NewFav): Observable<Fav> {
     if (newFav.client_id && newFav.destination_id) {
       const fav: ClientFavDestination = { fav_id: this.firebaseSvc.generateId(), destination_id: newFav.destination_id };
-      return this.dataSvc.updateObject<Fav>('//users', newFav.client_id, 'favorites', fav, this.mapSvc.mapFav);
+      return this.dataSvc.updateObject<Fav>(StrapiEndpoints.EXTENDED_USERS, newFav.client_id, 'favorites', fav, this.mapSvc.mapFav);
     }
     throw new Error('Error: User id or destination id was not provided');
   }
 
   public updateFav(fav: Fav): Observable<Fav> {
-    return this.dataSvc.update<Fav>(this.path, fav.id, this.body(fav), this.body);
+    return this.dataSvc.update<Fav>(StrapiEndpoints.FAVORITES, fav.id, this.body(fav), this.body);
   }
 
   public deleteFav(id: number): Observable<Fav> {
@@ -78,7 +66,7 @@ export class FirebaseFavoritesService {
         return prev;
       }, [])
       if (deletedFav) {
-        return this.dataSvc.update<Fav>('//users', this.user.user_id, { 'favorites': favs }, this.mapSvc.mapFav);
+        return this.dataSvc.update<Fav>(StrapiEndpoints.EXTENDED_USERS, this.user.user_id, { 'favorites': favs }, this.mapSvc.mapFav);
       }
       throw Error('Error: Favorite id was not found among current user favorites. Deletion was not possible.');
     }

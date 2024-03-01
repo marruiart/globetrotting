@@ -66,5 +66,6 @@ export class StrapiEndpoints {
   static LOGIN = "/api/auth/local"
   static ROLES = "/api/users-permissions/roles"
   static AGENTS = "/api/agents"
+  static CLIENTS = "/api/clients"
   static DESTINATIONS = "/api/destinations"
 }

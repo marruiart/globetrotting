@@ -38,7 +38,7 @@ export class AgentsEffects {
             switchMap(({ agents }) => {
                 let tableRowObs: Observable<AgentUser>[] = [];
                 for (let agent of agents) {
-                    const extUser$ = this.usersSvc.getAgentUser(agent.user_id);
+                    const extUser$ = this.usersSvc.getAgentExtUser(agent.user_id);
                     // For each booking, add a TableRow observable
                     tableRowObs.push(extUser$.pipe(
                         switchMap((extUser: User | null): Observable<AgentUser> => {

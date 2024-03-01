@@ -38,8 +38,8 @@ export class BookingsEffects {
                 switch (role) {
                     case Roles.ADMIN:
                         for (let booking of bookings) {
-                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<User>);
-                            agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
+                            clientsObs.push(this.usersSvc.getClientExtUser(booking.client_id) as Observable<User>);
+                            agentsObs.push(this.usersSvc.getAgentExtUser(booking.agent_id ?? null));
                         }
                         return zip(forkJoin(clientsObs), forkJoin(agentsObs)).pipe(map(([clients, agents]) => {
                             for (let [i, booking] of bookings.entries()) {
@@ -54,7 +54,7 @@ export class BookingsEffects {
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                     case Roles.AGENT:
                         for (let booking of bookings) {
-                            clientsObs.push(this.usersSvc.getClientUser(booking.client_id) as Observable<User>);
+                            clientsObs.push(this.usersSvc.getClientExtUser(booking.client_id) as Observable<User>);
                         }
                         return forkJoin(clientsObs).pipe(map((clients) => {
                             for (let [i, booking] of bookings.entries()) {
@@ -66,7 +66,7 @@ export class BookingsEffects {
                         }), catchError(error => of(BookingsActions.saveBookingsTableFailure({ error }))))
                     case Roles.AUTHENTICATED:
                         for (let booking of bookings) {
-                            agentsObs.push(this.usersSvc.getAgentUser(booking.agent_id ?? null));
+                            agentsObs.push(this.usersSvc.getAgentExtUser(booking.agent_id ?? null));
                         }
                         return forkJoin(agentsObs).pipe(map((agents) => {
                             for (let [i, booking] of bookings.entries()) {

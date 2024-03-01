@@ -134,6 +134,10 @@ import { UsersServiceFactory } from './core/factories/users-service.factory';
     {
       provide: 'firebase-config',
       useValue: environment.firebaseConfig
+    },
+    {
+      provide: 'admin-config',
+      useValue: environment.adminConfig
     }
   ],
   bootstrap: [AppComponent],

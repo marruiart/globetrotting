@@ -1,49 +1,67 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { initializeApp, getApp, FirebaseApp } from "firebase/app";
+import { initializeApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
-import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth, getAuth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { ClientUser } from '../../models/globetrotting/user.interface';
+import { Roles } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
+  private firebaseConfig: any = null;
+  private adminConfig: any = null;
   private _app!: FirebaseApp;
   private _db!: Firestore;
   private _auth!: Auth;
+  private _admin!: Auth;
   private _webStorage!: FirebaseStorage;
   private _sizes: Sizes = {};
 
   constructor(
     @Inject('firebase-config') config: any,
+    @Inject('admin-config') adminConfig: any,
     private authFacade: AuthFacade,
     private favsFacade: FavoritesFacade,
     private destinationsFacade: DestinationsFacade
   ) {
-    this.init(config);
+    this.firebaseConfig = config;
+    this.adminConfig = adminConfig;
+    this.init();
   }
 
-  private async init(firebaseConfig: any) {
+  private init() {
     // Initialize Firebase
-    this._app = initializeApp(firebaseConfig);
-    this._db = getFirestore(this._app);
-    this._webStorage = getStorage(this._app);
-    this._auth = initializeAuth(getApp(), { persistence: indexedDBLocalPersistence });
+    this._app = this.initFirebaseApp(this.firebaseConfig)
+    this._auth = this.initAuthInstance(this._app);
     this.initSubscriptions();
     this.authFacade.currentUser$.subscribe(user => {
-      if (user?.role == 'AUTHENTICATED') {
+      if (user?.role === Roles.AUTHENTICATED) {
         this.favsFacade.assignClientFavs(user.favorites);
+      } if (user?.role === Roles.ADMIN) {
+        this._admin = this.initAuthInstance(this.initFirebaseApp(this.adminConfig, Roles.ADMIN));
       } else {
         this.favsFacade.logout();
       }
     })
+  }
+
+  private initFirebaseApp(config: any, name?: string) {
+    const app = initializeApp(config, name);
+    this._db = getFirestore(this._app);
+    this._webStorage = getStorage(this._app);
+    return app;
+  }
+
+  private initAuthInstance(app: FirebaseApp) {
+    return initializeAuth(app, { persistence: indexedDBLocalPersistence });
   }
 
   private initSubscriptions() {
@@ -396,12 +414,13 @@ export class FirebaseService {
     return response;
   }
 
-  public async createUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
+  public async createUser(email: string, password: string, admin?: Auth): Promise<FirebaseUserCredential | null> {
     return new Promise(async (resolve, reject) => {
-      if (!this._auth)
+      if (!this._auth && !admin) {
         resolve(null);
+      }
       try {
-        resolve({ user: await createUserWithEmailAndPassword(this._auth!, email, password) });
+        resolve({ user: await createUserWithEmailAndPassword((admin ?? this._auth), email, password) });
       } catch (error: any) {
         switch (error.code) {
           case 'auth/email-already-in-use':
@@ -423,8 +442,10 @@ export class FirebaseService {
         reject(error);
       }
     });
-
   }
+
+  public createAgent = (email: string, password: string) => this.createUser(email, password, this._admin);
+
 
   public async connectUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
     return new Promise<FirebaseUserCredential | null>(async (resolve, _) => {

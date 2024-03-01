@@ -72,7 +72,7 @@ export class AgentsManagementPage {
     if (formType === 'UPDATE_AGENT' && tableRow?.ext_id) {
       this.selectedAgent = tableRow;
       this.showForm = true;
-    } else if ( formType === 'REGISTER_AGENT') {
+    } else if (formType === 'REGISTER_AGENT') {
       this.showForm = true;
     } else {
       console.error("ERROR: The agent could not be selected.")
@@ -96,16 +96,9 @@ export class AgentsManagementPage {
     this.hideAgentForm();
   }
 
-  private async deleteAgent(extuser_id: number | string, user_id: number | string) {
-    await lastValueFrom(this.agentsSvc.agentMe(user_id as number).pipe(switchMap(agent => {
-      if (agent) {
-        return this.agentsSvc.deleteAgent(agent.id);
-      } else {
-        throw new Error("ERROR: Agent not found");
-      }
-    })))
-    await lastValueFrom(this.authSvc.deleteUser(user_id)).catch(err => console.error(err));
-    await lastValueFrom(this.userSvc.deleteUser(extuser_id)).catch(err => console.error(err)); // TODO move this to userSvc, removing at once extended, permissions and agent (different for strapi)
+  private async deleteAgent(ext_id: number | string, user_id: number | string) {
+    await lastValueFrom(this.authSvc.deleteUser(user_id, ext_id, true)).catch(err => console.error(err));
+    this.agentsFacade.initAgents();
   }
 
   showConfirmDialog(tableRow: AgentsTableRow) {

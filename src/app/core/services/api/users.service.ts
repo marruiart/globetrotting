@@ -52,11 +52,11 @@ export class UsersService {
    * @param id The user id of the agent.
    * @returns The information of the extended user and user credentials of the agent.
    */
-  public getAgentUser(id: number | string | null): Observable<User | null> {
+  public getAgentExtUser(id: number | string | null): Observable<User | null> {
     return id ? this.extendedMe(id) : of(null);
   }
 
-  public getClientUser(id: number | string | string | null): Observable<User | null> {
+  public getClientExtUser(id: number | string | string | null): Observable<User | null> {
     return id ? this.extendedMe(id) : of(null);
   }
 

@@ -6,7 +6,7 @@ import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/fi
 import { inject } from '@angular/core';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
-import { Role, Roles } from 'src/app/core/utilities/utilities';
+import { Collections, Role, Roles } from 'src/app/core/utilities/utilities';
 import { MappingService } from '../mapping.service';
 
 export class FirebaseAuthService extends AuthService {
@@ -67,24 +67,27 @@ export class FirebaseAuthService extends AuthService {
       if (!registerInfo.email || !registerInfo.password) {
         observer.error('Error: The provided information is incorrect or incomplete.');
       }
-      this.firebaseSvc.createUserWithEmailAndPassword(registerInfo.email, registerInfo.password!)
-        .then((credentials: FirebaseUserCredential | null) => {
-          if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
-            observer.error('Error: Registration failed.');
-          }
-          if (credentials?.user.user.uid) {
-            const userInfo = this.mapUserPayload(credentials, registerInfo, isAgent);
-            this.postRegister(userInfo).subscribe({
-              next: _ => {
-                observer.next(userInfo);
-                observer.complete();
-              },
-              error: error => observer.error(error.message)
-            });
-          } else {
-            observer.error('Error: Registration failed. Invalid credentials.');
-          }
-        })
+      const promise = isAgent ?
+        this.firebaseSvc.createAgent(registerInfo.email, registerInfo.password!) :
+        this.firebaseSvc.createUser(registerInfo.email, registerInfo.password!);
+
+      promise.then((credentials: FirebaseUserCredential | null) => {
+        if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
+          observer.error('Error: Registration failed.');
+        }
+        if (credentials?.user.user.uid) {
+          const userInfo = this.mapUserPayload(credentials, registerInfo, isAgent);
+          this.postRegister(userInfo).subscribe({
+            next: _ => {
+              observer.next(userInfo);
+              observer.complete();
+            },
+            error: error => observer.error(error.message)
+          });
+        } else {
+          observer.error('Error: Registration failed. Invalid credentials.');
+        }
+      }).catch(err => observer.error(err));
     });
   }
 
@@ -145,7 +148,8 @@ export class FirebaseAuthService extends AuthService {
   public override getUserIdentifiers(id: number): Observable<FirebaseUserCredentials> {
     throw new Error('Method not implemented.');
   }
-  public override deleteUser(id: number): Observable<FirebaseUserCredentials> {
-    throw new Error('Method not implemented.');
+  public override deleteUser(user_id: string): Observable<void> {
+    // TODO delete Authentication of the user
+    return from(this.firebaseSvc.deleteDocument(Collections.users, user_id));
   }
 }

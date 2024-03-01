@@ -22,6 +22,6 @@ export abstract class AuthService {
 
   public abstract getUserIdentifiers(id: number | string): Observable<UserCredentialsOptions>;
 
-  public abstract deleteUser(id: number | string): Observable<UserCredentialsOptions>;
+  public abstract deleteUser(user_id: number | string, ext_id?: number | string, isAgent?: boolean): Observable<void>;
 
 }

@@ -38,7 +38,7 @@ export class AuthEffects {
     register$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.register),
-            switchMap(props => this.authSvc.register(props.registerInfo).pipe(
+            switchMap(({registerInfo, isAgent}) => this.authSvc.register(registerInfo, isAgent).pipe(
                 map(() => AuthActions.registerSuccess()),
                 catchError(error => of(AuthActions.registerFailure({ error: error })))
             )))

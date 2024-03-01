@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { catchError, lastValueFrom, map, switchMap, throwError } from 'rxjs';
+import { catchError, lastValueFrom, map, of, switchMap, throwError } from 'rxjs';
 import { AgentRegisterInfo, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRolesResponse } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
@@ -259,8 +259,24 @@ export class StrapiAuthService extends AuthService {
     return this.dataSvc.obtain<UserCredentialsOptions>(StrapiEndpoints.USER_PERMISSIONS, id, this.mappingSvc.mapUserCredentials, { "populate": "role" });
   }
 
-  public deleteUser(id: number): Observable<UserCredentialsOptions> {
-    return this.dataSvc.delete<UserCredentialsOptions>(StrapiEndpoints.USER_PERMISSIONS, this.mappingSvc.mapUserCredentials, id, {});
+  public deleteUser(user_id: number, ext_id: number, isAgent: boolean = false): Observable<void> {
+    let specificUser$: Observable<TravelAgent | Client | null> = (isAgent) ? this.agentSvc.agentMe(user_id) : this.clientSvc.clientMe(user_id);
+    return specificUser$.pipe(
+      switchMap(user => {
+        let deleteSpecificUser$: Observable<any>;
+        if (user && isAgent) {
+          deleteSpecificUser$ = this.dataSvc.delete(StrapiEndpoints.AGENTS, res => res, user.id, {});
+        } else if (user) {
+          deleteSpecificUser$ = this.dataSvc.delete(StrapiEndpoints.CLIENTS, res => res, user.id, {});
+        } else {
+          throw new Error('ERROR: Unexpected error. User could not be deleted.');
+        }
+        return deleteSpecificUser$.pipe(
+          switchMap(_ => this.dataSvc.delete(StrapiEndpoints.EXTENDED_USERS, res => res, ext_id, {}).pipe(
+            switchMap(_ => this.dataSvc.delete(StrapiEndpoints.USER_PERMISSIONS, res => res, user_id, {})),
+            catchError(error => { throw new Error(error) }))),
+          catchError(error => { throw new Error(error) }))
+      }), catchError(error => { throw new Error(error) }));
   }
 
 }

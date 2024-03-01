@@ -48,15 +48,16 @@ export class SubscribableBookingsService extends BookingsService {
         this.subscribeToBookingsAsAgent();
         break;
       case Roles.AUTHENTICATED:
+        this.subscribeToBookingsAsClient();
         break;
     }
   }
 
   private subscribeToBookingsAsAdmin() {
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection('bookings', this._bookings));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection(Collections.bookings, this._bookings));
     this._bookings.subscribe(res => {
       if (res) {
-        const bookings = res.docs.map(doc => this.mappingSvc.mapBooking(doc));
+        const bookings = this.sortBookings(res.docs.map(doc => this.mappingSvc.mapBooking(doc)));
         if (this.currentUser) {
           this.bookingsFacade.saveBookingsTable(bookings, this.currentUser.role);
         }
@@ -72,17 +73,34 @@ export class SubscribableBookingsService extends BookingsService {
       if (userBookings && notConfirmed) {
         const _userBookings = userBookings.docs.map(doc => this.mappingSvc.mapBooking(doc));
         const _notConfirmed = notConfirmed.docs.map(doc => this.mappingSvc.mapBooking(doc));
-        const bookings = [..._userBookings, ..._notConfirmed];
-        bookings.sort((a, b) => {
-          if (a.destinationName && b.destinationName) {
-            return (a.destinationName > b.destinationName) ? 1 : ((b.destinationName > a.destinationName) ? -1 : 0)
-          } return 0;
-        })
+        const bookings = this.sortBookings([..._userBookings, ..._notConfirmed]);
         if (this.currentUser) {
           this.bookingsFacade.saveBookingsTable(bookings, this.currentUser.role);
         }
       }
     });
+  }
+
+  private subscribeToBookingsAsClient() {
+    this.subscribeToBookingsByUser();
+
+    this._bookings.subscribe(userBookings => {
+      if (userBookings) {
+        const bookings = this.sortBookings(userBookings.docs.map(doc => this.mappingSvc.mapBooking(doc)));
+        if (this.currentUser) {
+          this.bookingsFacade.saveBookingsTable(bookings, this.currentUser.role);
+        }
+      }
+    });
+  }
+
+  private sortBookings(bookings: Booking[]) {
+    bookings.sort((a, b) => {
+      if (a.destinationName && b.destinationName) {
+        return (a.destinationName > b.destinationName) ? 1 : ((b.destinationName > a.destinationName) ? -1 : 0)
+      } return 0;
+    })
+    return bookings;
   }
 
   private subscribeToNotConfirmedBookings() {
@@ -92,7 +110,7 @@ export class SubscribableBookingsService extends BookingsService {
   }
 
   private subscribeToBookingsByUser() {
-    const userTypeId = this.currentUser!.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
+    const userTypeId = this.currentUser!.role === Roles.AUTHENTICATED ? 'client_id' : 'agent_id';
     const orderByDestinationName = orderBy('destinationName');
     const byUser: QueryConstraint = where(userTypeId, '==', this.currentUser!.user_id);
     this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.bookings, this._bookings, byUser, orderByDestinationName));

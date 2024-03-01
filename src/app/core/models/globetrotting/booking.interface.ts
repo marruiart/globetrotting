@@ -6,8 +6,8 @@ export interface Booking extends NewBooking {
 }
 
 /**
- * @property {string | null} start - 
- * @property {string | null} end - 
+ * @property {string} start - 
+ * @property {string} end - 
  * @property {number} travelers - 
  * @property {number} [rating] - 
  * @property {boolean} [isActive] - 
@@ -18,8 +18,8 @@ export interface Booking extends NewBooking {
  * @property {string} destinationName - 
  */
 export interface NewBooking {
-    start: string | null,
-    end: string | null,
+    start: string,
+    end: string,
     travelers: number,
     rating?: number,
     isActive?: boolean,
@@ -29,7 +29,8 @@ export interface NewBooking {
     client_id: string | number,
     clientName?: string,
     destination_id: string | number,
-    destinationName?: string
+    destinationName?: string,
+    updatedAt?: string
 }
 
 export interface BookingForm {

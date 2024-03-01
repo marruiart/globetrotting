@@ -81,6 +81,7 @@ export class DestinationsService {
   }
 
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
+    // FIXME in firebase
     return this.dataSvc.update<Destination>(this.path, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();

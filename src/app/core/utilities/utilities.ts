@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { ExtUser, User } from "../models/globetrotting/user.interface";
 
 export const isType = <T>(item: any): item is T => true;
@@ -10,6 +11,22 @@ export function getUserName(user: ExtUser | User): string {
   } else {
     return '';
   }
+}
+
+export function timestampToYearMonthDay(timestamp: Timestamp): string {
+  const milliseconds = timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6);
+  const date = new Date(milliseconds);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export function isoDateToTimestamp(isoDate: string) {
+  const date = new Date(isoDate);
+  const seconds = Math.min(Math.max(date.getTime() / 1000, -62167219200), 2678416406);
+  const nanoseconds = (date.getTime() % 1000) * 1000000;
+  return new Timestamp(seconds, nanoseconds);
 }
 
 // TYPES

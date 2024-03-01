@@ -42,31 +42,15 @@ export class FirebaseDataService extends DataService {
     ): Observable<T> {
         const collection: Collection = path.split('/')[2] as Collection;
         const id = this.firebaseSvc.generateId();
-        body = { ...body, id: id, updatedAt: new Date() }
+        body = { ...body, id: id, updatedAt: new Date() };
+        console.log("body: ", body);
         return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(map(_ => {
-            let doc: FirebaseDocument;
-            if (collection == Collections.bookings) {
-                const start = this.isoDateToTimestamp(body.start);
-                const end = this.isoDateToTimestamp(body.end);
-                doc = {
-                    id: body.id,
-                    data: { ...body, start: start, end: end }
-                }
-            } else {
-                doc = {
-                    id: body.id,
-                    data: { ...body }
-                }
+            let doc: FirebaseDocument = {
+                id: body.id,
+                data: { ...body }
             }
             return callback(doc);
-        }))
-    }
-
-    private isoDateToTimestamp(isoDate: string) {
-        const date = new Date(isoDate);
-        const seconds = Math.min(Math.max(date.getTime() / 1000, -62167219200), 2678416406);
-        const nanoseconds = (date.getTime() % 1000) * 1000000;
-        return new Timestamp(seconds, nanoseconds);
+        }));
     }
 
     public override update<T>(path: string, id: string, body: any, callback: (res: any) => T = res => res): Observable<T> {

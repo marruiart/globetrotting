@@ -10,7 +10,7 @@ import { MappingService } from "../mapping.service";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
 import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
-import { Role, Roles } from "src/app/core/utilities/utilities";
+import { Role, Roles, isoDateToTimestamp, timestampToYearMonthDay } from "src/app/core/utilities/utilities";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -177,19 +177,9 @@ export class FirebaseMappingService extends MappingService {
 
     // BOOKING
 
-    public timestampToYearMonthDay(timestamp: Timestamp): string {
-        const milliseconds = timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6);
-        const date = new Date(milliseconds);
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-    }
-
     public override mapBooking(res: FirebaseDocument): Booking {
-        // TODO Cannot read properties of undefined (reading 'timestampToYearMonthDay')at mapBooking (firebase-mapping.service.ts:187:28)
-        const start = this.timestampToYearMonthDay(res.data['start']);
-        const end = this.timestampToYearMonthDay(res.data['end']);
+        const start = timestampToYearMonthDay(res.data['start']);
+        const end = timestampToYearMonthDay(res.data['end']);
         return {
             id: res.id,
             start: start,
@@ -275,5 +265,12 @@ export class FirebaseMappingService extends MappingService {
     public override mapAgentPayload(client: NewTravelAgent) {
         throw new Error("Method not implemented.");
     }
-    public override mapBookingPayload = (booking: NewBooking) => booking;
+    public override mapBookingPayload = (booking: NewBooking) => (
+        {
+            ...booking,
+            start: isoDateToTimestamp(booking.start),
+            end: isoDateToTimestamp(booking.end),
+            updatedAt: isoDateToTimestamp(booking.updatedAt ?? '0')
+        }
+    );
 }

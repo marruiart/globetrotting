@@ -392,9 +392,9 @@ export class StrapiMappingService extends MappingService {
     }
   }
 
-  public mapBookingPayload(booking: NewBooking): StrapiPayload<StrapiBooking> {
+  public mapNewBookingPayload(booking: NewBooking): StrapiPayload<StrapiBooking> {
     const start = this.datePipe.transform(booking.start, 'yyyy-MM-dd');
-    const end = this.datePipe.transform(booking.end, 'yyyy-MM-dd')
+    const end = this.datePipe.transform(booking.end, 'yyyy-MM-dd');
     if (start && end) {
       return {
         data: {
@@ -411,6 +411,13 @@ export class StrapiMappingService extends MappingService {
     } else {
       throw new Error(`ERROR: Incorrect format of start or end date. \nStart: ${start}\nEnd: ${end}`);
     }
+  }
+
+  public mapBookingPayload(booking: any): StrapiPayload<any> {
+     return {data: {
+      isConfirmed: booking.isConfirmed,
+      agent: booking.agent_id
+    }}
   }
 
 }

@@ -104,21 +104,20 @@ export class StrapiAuthService extends AuthService {
         password: credentials.password!
       }
       const url = this.getUrl(StrapiEndpoints.LOGIN);
-      this.api.post<StrapiLoginResponse>(url, _credentials)
-        .subscribe({
-          next: async (auth: StrapiLoginResponse | null) => {
-            if (auth) {
-              await lastValueFrom(this.jwtSvc.saveToken(auth.jwt)).catch(err => console.error(err));
-              observer.next();
-              observer.complete();
-            } else {
-              observer.error('Error: Login failed.');
-            }
-          },
-          error: err => {
-            observer.error(err);
+      this.api.post<StrapiLoginResponse>(url, _credentials).subscribe({
+        next: async (auth: StrapiLoginResponse | null) => {
+          if (auth) {
+            await lastValueFrom(this.jwtSvc.saveToken(auth.jwt)).catch(err => console.error(err));
+            observer.next();
+            observer.complete();
+          } else {
+            observer.error('Error: Login failed.');
           }
-        });
+        },
+        error: err => {
+          observer.error(err);
+        }
+      });
     });
   }
 

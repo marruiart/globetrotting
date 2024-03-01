@@ -231,16 +231,16 @@ export class FirebaseService {
   /**
    * 
    * @param collectionName 
-   * @param document 
+   * @param uuid 
    * @returns 
    */
-  public getDocument(collectionName: string, document: string): Promise<FirebaseDocument> {
+  public getDocument(collectionName: string, uuid: string): Promise<FirebaseDocument> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Error: Database is not connected."
         });
-      const docRef = doc(this._db!, collectionName, document);
+      const docRef = doc(this._db!, collectionName, uuid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

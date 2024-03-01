@@ -265,7 +265,8 @@ export class FirebaseMappingService extends MappingService {
     public override mapAgentPayload(client: NewTravelAgent) {
         throw new Error("Method not implemented.");
     }
-    public override mapBookingPayload = (booking: NewBooking) => (
+
+    public override mapNewBookingPayload = (booking: NewBooking) => (
         {
             ...booking,
             start: isoDateToTimestamp(booking.start),
@@ -273,4 +274,13 @@ export class FirebaseMappingService extends MappingService {
             updatedAt: isoDateToTimestamp(booking.updatedAt ?? '0')
         }
     );
+
+    public override mapBookingPayload = (booking: Booking) => (
+        {
+            ...booking,
+            start: isoDateToTimestamp(new Date(booking.start).toISOString()),
+            end: isoDateToTimestamp(new Date(booking.start).toISOString()),
+            updatedAt: isoDateToTimestamp(`${new Date()}`)
+        }
+    )
 }

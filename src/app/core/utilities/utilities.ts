@@ -58,6 +58,7 @@ export class Backends {
 }
 
 export class StrapiEndpoints {
+  static BOOKINGS = "/api/bookings"
   static USER_PERMISSIONS = "/api/users"
   static EXTENDED_USERS = "/api/extended-users"
   static ME = "/api/users/me"
@@ -65,4 +66,5 @@ export class StrapiEndpoints {
   static LOGIN = "/api/auth/local"
   static ROLES = "/api/users-permissions/roles"
   static AGENTS = "/api/agents"
+  static DESTINATIONS = "/api/destinations"
 }

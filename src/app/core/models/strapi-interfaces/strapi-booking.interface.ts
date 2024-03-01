@@ -24,5 +24,5 @@ export interface StrapiBooking {
     /**
     * Strapi destination data as a response or destination id (number) as payload 
     */
-    destination: StrapiResponse<StrapiDestination> | string | number,
+    destination: StrapiResponse<StrapiDestination> | string | number
 }

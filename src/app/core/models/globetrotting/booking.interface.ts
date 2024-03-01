@@ -1,4 +1,3 @@
-import { Destination } from "./destination.interface"
 import { PaginatedData } from "./pagination-data.interface"
 
 export interface Booking extends NewBooking {

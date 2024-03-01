@@ -4,15 +4,14 @@ import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
 import { ClientsFacade } from 'src/app/core/+state/clients/clients.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
-import { NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { Booking, BookingsTableRow, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { AdminAgentOrClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
-import { StrapiPayload } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { Roles } from 'src/app/core/utilities/utilities';
+import { Roles, getUserName } from 'src/app/core/utilities/utilities';
 
 @Component({
   selector: 'app-bookings',
@@ -50,6 +49,7 @@ export class BookingsPage implements OnDestroy {
   ) {
     this.isResponsive = this.checkResponsiveState();
     this.bookingsFacade.initBookings();
+    this.destinationsFacade.initDestinations();
     this.initSubscriptions();
   }
 
@@ -122,17 +122,19 @@ export class BookingsPage implements OnDestroy {
     }
   }
 
-  public confirmBook(id: number) {
-    let modifiedBooking: StrapiPayload<any> = {
-      data: {
-        id: id,
+  public async confirmBook(booking: BookingsTableRow) {
+    const agent_id = this.currentUser?.specific_id;
+    if (agent_id) {
+      let modifiedBooking: any = {
+        ...booking,
+        id: booking.booking_id,
         isConfirmed: true,
-        // TODO add agentName
-        agent_id: this.currentUser?.specific_id
+        agent_id: agent_id
       }
+      lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking)).catch(err => console.error(err));
+    } else {
+      console.error('ERROR: Unknown agent id. The booking could not be confirmed.');
     }
-    // TODO 
-    lastValueFrom(this.bookingsSvc.updateBooking(modifiedBooking)).catch(err => console.error(err));
   }
 
   public addBooking(booking: NewBooking) {
@@ -147,7 +149,7 @@ export class BookingsPage implements OnDestroy {
   public async showBookingForm() {
     await lastValueFrom(this.usersSvc.getAllClientsUsers()).catch(err => console.error(err));
     this.clientsFacade.clients$.subscribe(clients => {
-      if (clients) {
+      if (this.destinations.length > 0 && clients.length > 0) {
         this.clients = clients;
         this.showForm = true;
       }

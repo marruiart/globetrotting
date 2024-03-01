@@ -3,11 +3,11 @@ import { Observable, of, tap } from 'rxjs';
 import { Booking, NewBooking } from '../../models/globetrotting/booking.interface';
 import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { StrapiPayload } from '../../models/strapi-interfaces/strapi-data.interface';
 import { DataService } from './data.service';
 import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { BookingsFacade } from '../../+state/bookings/bookings.facade';
+import { StrapiEndpoints } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +15,6 @@ import { BookingsFacade } from '../../+state/bookings/bookings.facade';
 export class BookingsService extends ApiService {
   protected authFacade = inject(AuthFacade);
   protected bookingsFacade = inject(BookingsFacade);
-  private path: string = "/api/bookings";
-  private body = (booking: NewBooking) => this.mappingSvc.mapBookingPayload(booking);
   private queries: { [query: string]: string } = {
     "populate": "destination.name,client.user,agent.user",
     "sort": "destination.name"
@@ -25,7 +23,7 @@ export class BookingsService extends ApiService {
   protected currentUser: AdminAgentOrClientUser | null = null;
 
   constructor(
-    private dataSvc: DataService,
+    protected dataSvc: DataService,
     protected mappingSvc: MappingService
   ) {
     super();
@@ -50,7 +48,7 @@ export class BookingsService extends ApiService {
         case 'AUTHENTICATED':
           _queries["filters[client]"] = `${this.currentUser.specific_id}`;
       }
-      return this.dataSvc.obtainAll<Booking[]>(this.path, _queries, this.mappingSvc.mapBookings)
+      return this.dataSvc.obtainAll<Booking[]>(StrapiEndpoints.BOOKINGS, _queries, this.mappingSvc.mapBookings)
         .pipe(tap(bookings => {
           if (this.currentUser?.role) {
             this.bookingsFacade.retrieveBookingsInfo(bookings, this.currentUser.role);
@@ -61,23 +59,25 @@ export class BookingsService extends ApiService {
   }
 
   public getBooking(id: number): Observable<Booking> {
-    return this.dataSvc.obtain<Booking>(this.path, id, this.mappingSvc.mapBooking, this.queries);
+    return this.dataSvc.obtain<Booking>(StrapiEndpoints.BOOKINGS, id, this.mappingSvc.mapBooking, this.queries);
   }
 
   public addBooking(booking: NewBooking): Observable<Booking> {
-    return this.dataSvc.save<Booking>(this.path, this.body(booking), this.mappingSvc.mapBooking).pipe(tap(_ => {
+    const body = this.mappingSvc.mapNewBookingPayload(booking);
+    return this.dataSvc.save<Booking>(StrapiEndpoints.BOOKINGS, body, this.mappingSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
     }));
   }
 
-  public updateBooking(booking: StrapiPayload<any>): Observable<Booking> {
-    return this.dataSvc.update<Booking>(this.path, booking.data.id, this.body(booking.data), this.mappingSvc.mapBooking).pipe(tap(_ => {
+  public updateBooking(booking: Booking): Observable<Booking> {
+    const body = this.mappingSvc.mapBookingPayload(booking);
+    return this.dataSvc.update<Booking>(StrapiEndpoints.BOOKINGS, booking.id, body, this.mappingSvc.mapBooking).pipe(tap(_ => {
       this.getAllBookings().subscribe();
     }));
   }
 
   public deleteBooking(id: number): Observable<Booking> {
-    return this.dataSvc.delete<Booking>(this.path, this.mappingSvc.mapBooking, id, {}).pipe(tap(_ => {
+    return this.dataSvc.delete<Booking>(StrapiEndpoints.BOOKINGS, this.mappingSvc.mapBooking, id, {}).pipe(tap(_ => {
       this.getAllBookings().subscribe();
     }));
   }

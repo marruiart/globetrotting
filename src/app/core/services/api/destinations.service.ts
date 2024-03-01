@@ -6,13 +6,13 @@ import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.i
 import { DataService } from './data.service';
 import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
+import { StrapiEndpoints } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DestinationsService {
   protected destinationsFacade = inject(DestinationsFacade);
-  private path: string = "/api/destinations";
   private body = (destination: NewDestination) => this.mappingSvc.mapDestinationPayload(destination);
   private queries: { [query: string]: string } = { 'sort': 'name' }
 
@@ -41,7 +41,7 @@ export class DestinationsService {
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["pagination[page]"] = typeof page === 'number' ? `${page}` : page as DocumentSnapshot;
-    return this.dataSvc.obtainAll<PaginatedDestination>(this.path, _queries, this.mappingSvc.mapPaginatedDestinations).pipe(tap(page => {
+    return this.dataSvc.obtainAll<PaginatedDestination>(StrapiEndpoints.DESTINATIONS, _queries, this.mappingSvc.mapPaginatedDestinations).pipe(tap(page => {
       if (page.data.length > 0) {
         this._endOfData = false;
         let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations));
@@ -69,11 +69,11 @@ export class DestinationsService {
   }
 
   public getDestination(id: string | number): Observable<Destination> {
-    return this.dataSvc.obtain<Destination>(this.path, id, this.mappingSvc.mapDestination, this.queries);
+    return this.dataSvc.obtain<Destination>(StrapiEndpoints.DESTINATIONS, id, this.mappingSvc.mapDestination, this.queries);
   }
 
   public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
-    return this.dataSvc.save<Destination>(this.path, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
+    return this.dataSvc.save<Destination>(StrapiEndpoints.DESTINATIONS, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
@@ -82,7 +82,7 @@ export class DestinationsService {
 
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
     // FIXME in firebase
-    return this.dataSvc.update<Destination>(this.path, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
+    return this.dataSvc.update<Destination>(StrapiEndpoints.DESTINATIONS, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
@@ -90,7 +90,7 @@ export class DestinationsService {
   }
 
   public deleteDestination(id: number | string): Observable<Destination> {
-    return this.dataSvc.delete<Destination>(this.path, this.mappingSvc.mapDestination, id, {}).pipe(tap(_ => {
+    return this.dataSvc.delete<Destination>(StrapiEndpoints.DESTINATIONS, this.mappingSvc.mapDestination, id, {}).pipe(tap(_ => {
       this.getAllDestinations().subscribe();
     }));
   }

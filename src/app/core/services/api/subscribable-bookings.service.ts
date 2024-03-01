@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, zip } from 'rxjs';
+import { BehaviorSubject, Observable, from, of, switchMap, tap, zip } from 'rxjs';
 import { Booking } from '../../models/globetrotting/booking.interface';
 import { MappingService } from './mapping.service';
 import { DataService } from './data.service';
@@ -7,7 +7,8 @@ import { BookingsService } from './bookings.service';
 import { FirebaseCollectionResponse, } from '../../models/firebase-interfaces/firebase-data.interface';
 import { QueryConstraint, Unsubscribe, where, orderBy } from 'firebase/firestore';
 import { FirebaseService } from '../firebase/firebase.service';
-import { Roles } from '../../utilities/utilities';
+import { Collections, Roles, StrapiEndpoints, getUserName } from '../../utilities/utilities';
+import { User } from '../../models/globetrotting/user.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -87,18 +88,26 @@ export class SubscribableBookingsService extends BookingsService {
   private subscribeToNotConfirmedBookings() {
     const filterNotConfirmed: QueryConstraint = where('isConfirmed', '==', false);
     const orderByDestinationName = orderBy('destinationName');
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery('bookings', this._notConfirmedBookings, filterNotConfirmed, orderByDestinationName));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.bookings, this._notConfirmedBookings, filterNotConfirmed, orderByDestinationName));
   }
 
   private subscribeToBookingsByUser() {
     const userTypeId = this.currentUser!.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
     const orderByDestinationName = orderBy('destinationName');
     const byUser: QueryConstraint = where(userTypeId, '==', this.currentUser!.user_id);
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery('bookings', this._bookings, byUser, orderByDestinationName));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.bookings, this._bookings, byUser, orderByDestinationName));
   }
 
   public override getAllBookings(): Observable<Booking[]> {
     return of([]);
+  }
+
+  public override updateBooking(booking: Booking): Observable<Booking> {
+    return from(this.firebaseSvc.getDocument(Collections.users, booking.agent_id as string)).pipe(switchMap(doc => {
+      const agentName = getUserName(doc.data as User);
+      const body = this.mappingSvc.mapBookingPayload({ ...booking, agentName: agentName });
+      return this.dataSvc.update<Booking>(StrapiEndpoints.BOOKINGS, booking.id, body, this.mappingSvc.mapBooking);
+    }))
   }
 
 }

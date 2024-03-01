@@ -11,8 +11,10 @@ export class FirebaseDataService extends DataService {
 
     private getCollectionName(endpoint: StrapiEndpoints) {
         switch (endpoint) {
-            case StrapiEndpoints.EXTENDED_USERS:
-                return Collections.users;
+            case StrapiEndpoints.BOOKINGS:
+                return Collections.bookings
+            case StrapiEndpoints.DESTINATIONS:
+                return Collections.destinations
             default:
                 return Collections.users;
         }

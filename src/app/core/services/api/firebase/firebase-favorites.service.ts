@@ -45,7 +45,7 @@ export class FirebaseFavoritesService {
   public addFav(newFav: NewFav): Observable<Fav> {
     if (newFav.client_id && newFav.destination_id) {
       const fav: ClientFavDestination = { fav_id: this.firebaseSvc.generateId(), destination_id: newFav.destination_id };
-      return this.dataSvc.updateObject<Fav>(StrapiEndpoints.EXTENDED_USERS, newFav.client_id, 'favorites', fav, this.mapSvc.mapFav);
+      return this.dataSvc.updateArray<Fav>(StrapiEndpoints.EXTENDED_USERS, newFav.client_id, 'favorites', fav, this.mapSvc.mapFav);
     }
     throw new Error('Error: User id or destination id was not provided');
   }

@@ -54,7 +54,7 @@ export class SubscribableBookingsService extends BookingsService {
   }
 
   private subscribeToBookingsAsAdmin() {
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection(Collections.bookings, this._bookings));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection(Collections.BOOKINGS, this._bookings));
     this._bookings.subscribe(res => {
       if (res) {
         const bookings = this.sortBookings(res.docs.map(doc => this.mappingSvc.mapBooking(doc)));
@@ -106,14 +106,14 @@ export class SubscribableBookingsService extends BookingsService {
   private subscribeToNotConfirmedBookings() {
     const filterNotConfirmed: QueryConstraint = where('isConfirmed', '==', false);
     const orderByDestinationName = orderBy('destinationName');
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.bookings, this._notConfirmedBookings, filterNotConfirmed, orderByDestinationName));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.BOOKINGS, this._notConfirmedBookings, filterNotConfirmed, orderByDestinationName));
   }
 
   private subscribeToBookingsByUser() {
     const userTypeId = this.currentUser!.role === Roles.AUTHENTICATED ? 'client_id' : 'agent_id';
     const orderByDestinationName = orderBy('destinationName');
     const byUser: QueryConstraint = where(userTypeId, '==', this.currentUser!.user_id);
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.bookings, this._bookings, byUser, orderByDestinationName));
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.BOOKINGS, this._bookings, byUser, orderByDestinationName));
   }
 
   public override getAllBookings(): Observable<Booking[]> {
@@ -121,7 +121,7 @@ export class SubscribableBookingsService extends BookingsService {
   }
 
   public override updateBooking(booking: Booking): Observable<Booking> {
-    return from(this.firebaseSvc.getDocument(Collections.users, booking.agent_id as string)).pipe(switchMap(doc => {
+    return from(this.firebaseSvc.getDocument(Collections.USERS, booking.agent_id as string)).pipe(switchMap(doc => {
       const agentName = getUserName(doc.data as User);
       const body = this.mappingSvc.mapBookingPayload({ ...booking, agentName: agentName });
       return this.dataSvc.update<Booking>(StrapiEndpoints.BOOKINGS, booking.id, body, this.mappingSvc.mapBooking);

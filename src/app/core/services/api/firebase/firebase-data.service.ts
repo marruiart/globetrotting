@@ -12,11 +12,11 @@ export class FirebaseDataService extends DataService {
     private getCollectionName(endpoint: StrapiEndpoints) {
         switch (endpoint) {
             case StrapiEndpoints.BOOKINGS:
-                return Collections.bookings
+                return Collections.BOOKINGS
             case StrapiEndpoints.DESTINATIONS:
-                return Collections.destinations
+                return Collections.DESTINATIONS
             default:
-                return Collections.users;
+                return Collections.USERS;
         }
     }
 
@@ -66,9 +66,16 @@ export class FirebaseDataService extends DataService {
         }));
     }
 
-    public override updateObject<T>(path: string, id: string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
+    public override updateField<T>(path: string, id: string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
         const collection = this.getCollectionName(path);
-        return from(this.firebaseSvc.updateDocumentObject(collection, `${id}`, field, value)).pipe(map(_ => {
+        return from(this.firebaseSvc.updateDocumentField(collection, `${id}`, field, value)).pipe(map(_ => {
+            return callback(value);
+        }));
+    }
+
+    public override updateArray<T>(path: string, id: string, field: string, value: any, callback: (res: any) => T = res => res): Observable<T> {
+        const collection = this.getCollectionName(path);
+        return from(this.firebaseSvc.pushDocumentArray(collection, `${id}`, field, value)).pipe(map(_ => {
             return callback(value);
         }));
     }

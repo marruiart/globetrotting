@@ -34,7 +34,7 @@ export type NewFirebaseUserPayload = {
     username: string,
     name?: string,
     surname?: string,
-    favorites?: []
+    favorites?: ClientFavDestination[]
 }
 
 export type FirebaseUserPayload = {

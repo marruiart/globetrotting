@@ -1,23 +1,19 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import { FirebaseUserRegisterInfo } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
-import { FullUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
+import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
-import { Backends, Roles } from 'src/app/core/utilities/utilities';
+import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+import { Backends, FormType, FormTypes, Roles } from 'src/app/core/utilities/utilities';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 import { BACKEND, environment } from 'src/environments/environment';
 import { BackendTypes } from 'src/environments/environment.prod';
 
-export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
-const Pattern = {
-  EMAIL: "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$",
-  NAME: "^[A-Za-zÀ-ÖØ-öø-ÿ ]+$",
-  NICKNAME: "^[A-Za-z0-9._-]+$"
-}
+type FormChange = { [control: string]: boolean };
+export type FormChanges = { formChanges: FormChange | null };
 
 @Component({
   selector: 'app-user-form',
@@ -25,10 +21,17 @@ const Pattern = {
   styleUrls: ['./user-form.component.scss'],
 })
 export class UserFormComponent implements OnDestroy {
-  private _subs: Subscription[] = []
+  private readonly COMPONENT = 'UserFormComponent';
+  private readonly Pattern = {
+    EMAIL: '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$',
+    NAME: '^[A-Za-zÀ-ÖØ-öø-ÿ ]+$',
+    NICKNAME: '^[A-Za-z0-9._-]+$'
+  }
+  private formChanges: FormChange = {};
   public userForm: FormGroup = this.fb.group({});;
-  public errMsg: string = "";
+  public errMsg: string = '';
   public backend = environment.backend as BackendTypes;
+
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
     this._formType = formType;
@@ -39,6 +42,7 @@ export class UserFormComponent implements OnDestroy {
   public get formType() {
     return this._formType;
   }
+
   private _actionUpdate: boolean = false;
   @Input() set actionUpdate(actionUpdate: boolean) {
     this._actionUpdate = actionUpdate;
@@ -46,6 +50,7 @@ export class UserFormComponent implements OnDestroy {
   public get actionUpdate() {
     return this._actionUpdate;
   }
+
   @Input() set agent(tableRow: AgentsTableRow) {
     if (tableRow) {
       this.userForm.controls['id'].setValue(tableRow.ext_id);
@@ -58,133 +63,156 @@ export class UserFormComponent implements OnDestroy {
       this.userForm.controls['surname'].setValue(tableRow.surname);
       this.userForm.controls['nickname'].setValue(tableRow.nickname);
     }
-  }
-  @Input() set user(fullUser: FullUser | null) {
-    if (fullUser) {
-      this.userForm.controls['id'].setValue(fullUser.extendedUser?.id);
-      this.userForm.controls['username'].setValue(fullUser.user?.username);
-      //this.userForm.controls['_username'].setValue(tableRow.username); // TODO
-      this.userForm.controls['user_id'].setValue(fullUser.user?.id);
-      this.userForm.controls['email'].setValue(fullUser.user?.email);
-      //this.userForm.controls['_email'].setValue(tableRow.email); // TODO
-      this.userForm.controls['name'].setValue(fullUser.extendedUser?.name);
-      this.userForm.controls['surname'].setValue(fullUser.extendedUser?.surname);
-      this.userForm.controls['nickname'].setValue(fullUser.extendedUser?.nickname);
+    if (this._actionUpdate) {
+      this.onCreateGroupFormValueChange('name', 'surname', 'nickname');
     }
   }
+
+  private _user!: AdminAgentOrClientUser;
+  @Input() set user(user: AdminAgentOrClientUser | null) {
+    if (user) {
+      this._user = user;
+      this.userForm.controls['id'].setValue(user.ext_id);
+      this.userForm.controls['username'].setValue(user.username);
+      this.userForm.controls['_username'].setValue(user.username);
+      this.userForm.controls['user_id'].setValue(user.user_id);
+      this.userForm.controls['email'].setValue(user.email);
+      this.userForm.controls['_email'].setValue(user.email);
+      this.userForm.controls['name'].setValue(user.name);
+      this.userForm.controls['surname'].setValue(user.surname);
+      this.userForm.controls['nickname'].setValue(user.nickname);
+      if (user.role === Roles.AUTHENTICATED) {
+        this.userForm.controls['favorites'].setValue(user.favorites);
+      }
+    }
+    if (this._actionUpdate) {
+      this.onCreateGroupFormValueChange('name', 'surname', 'nickname', 'password');
+    }
+  }
+
   @Output() onLoginClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterAgentClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onNavigateToRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
-  @Output() onUpdateProfileClicked: EventEmitter<any> = new EventEmitter<any>();
+  @Output() onUpdateProfileClicked: EventEmitter<User & UserCredentials & FormChanges> = new EventEmitter<User & UserCredentials & FormChanges>();
 
   constructor(
     private fb: FormBuilder,
+    private subsSvc: SubscriptionsService,
     public translate: TranslateService
   ) { }
 
   initForm() {
     switch (this.formType) {
-      case 'LOGIN':
+      case FormTypes.LOGIN:
         this.userForm = this.fb.group({
-          email: ['', [Validators.pattern(Pattern.EMAIL)]],
-          username: ['', [Validators.pattern(Pattern.NICKNAME)]],
+          email: ['', [Validators.pattern(this.Pattern.EMAIL)]],
+          username: ['', [Validators.pattern(this.Pattern.NICKNAME)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]]
         }, { validator: [IdentifierValidator.identifierRequired('email', 'username')] } as AbstractControlOptions);
         break;
-      case 'REGISTER':
+      case FormTypes.REGISTER:
         this.userForm = this.fb.group({
-          username: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
-          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
+          username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]]
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'REGISTER_AGENT':
+      case FormTypes.REGISTER_AGENT:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
-          email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
+          username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'PROFILE':
+      case FormTypes.PROFILE:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
           username: [{ value: '', disabled: true }],
           _username: ['', [Validators.required]],
           email: [{ value: '', disabled: true }],
-          _email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
-          password: ['', [PasswordValidator.passwordProto('password')]],
-          passwordRepeat: ['', [PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
+          _email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          favorites: [[]]
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'UPDATE_AGENT':
+      case FormTypes.UPDATE_AGENT:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
           username: [{ value: '', disabled: true }],
-          _username: ['', [Validators.required]],
+          _username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
           email: [{ value: '', disabled: true }],
-          _email: ['', [Validators.required, Validators.pattern(Pattern.EMAIL)]],
-          name: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          surname: ['', [Validators.required, Validators.pattern(Pattern.NAME)]],
-          nickname: ['', [Validators.required, Validators.pattern(Pattern.NICKNAME)]],
+          _email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
         });
-        break;
-      default:
-        this.userForm = this.fb.group({});
-        console.error("Error al asignar el formulario");
     }
+  }
+
+  onCreateGroupFormValueChange(...formControlNames: string[]) {
+    const initialValue = this.userForm.value;
+    formControlNames.forEach(name => {
+      const formControl = this.userForm.controls[name];
+      this.formChanges[name] = false;
+      this.subsSvc.addSubscriptions(this.COMPONENT,
+        formControl.valueChanges.subscribe(value => {
+          this.formChanges[name] = initialValue[name] !== value;
+          console.log(initialValue[name], value);
+          console.log(this.formChanges);
+        }))
+    })
   }
 
   public onSubmit(event: Event) {
     switch (this.formType) {
-      case 'LOGIN':
+      case FormTypes.LOGIN:
         this.onLogin(event);
         break;
-      case 'REGISTER':
+      case FormTypes.REGISTER:
         this.onRegister(event);
         break;
-      case 'REGISTER_AGENT':
-      case 'UPDATE_AGENT':
+      case FormTypes.REGISTER_AGENT:
+      case FormTypes.UPDATE_AGENT:
         this.onRegisterOrUpdateAgent(event);
         break;
-      case 'PROFILE':
+      case FormTypes.PROFILE:
         this.onUpdateProfile(event);
         break;
       default:
-        console.error("Error al enviar el formulario");
+        console.error("ERROR: Unexpected error. Unable to send the form.");
     }
   }
 
   private onUpdateProfile(event: Event) {
     event.stopPropagation();
-    const fullUser: FullUser = {
-      user: {
-        id: this.userForm.value.user_id,
-        email: this.userForm.value.email ?? this.userForm.value._email,
-        username: this.userForm.value.username ?? this.userForm.value._username,
-        password: this.userForm.value.password
-      },
-      extendedUser: {
-        id: this.userForm.value.id,
-        nickname: this.userForm.value.nickname,
-        name: this.userForm.value.name,
-        surname: this.userForm.value.surname
-      },
-      specificUser: null // TODO change this
-    };
-    this.onUpdateProfileClicked.emit(fullUser);
+    const user: User & UserCredentials & FormChanges = {
+      role: this._user.role,
+      user_id: this.userForm.value.user_id,
+      ext_id: this.userForm.value.id,
+      username: this.userForm.value.username ?? this.userForm.value._username,
+      email: this.userForm.value.email ?? this.userForm.value._email,
+      password: this.userForm.value.password,
+      nickname: this.userForm.value.nickname,
+      name: this.userForm.value.name,
+      surname: this.userForm.value.surname,
+      formChanges: Object.values(this.formChanges).some(value => value) ? this.formChanges : null
+    }
+
+    this.onUpdateProfileClicked.emit(user);
   }
 
   private onRegisterOrUpdateAgent(event: Event) {
@@ -217,10 +245,6 @@ export class UserFormComponent implements OnDestroy {
 
   public onNavigateToRegister() {
     this.onNavigateToRegisterClicked.emit();
-  }
-
-  ngOnDestroy(): void {
-    this._subs.forEach(s => s.unsubscribe());
   }
 
   private getUserCredentials(backend: BackendTypes): UserCredentialsOptions {
@@ -261,6 +285,10 @@ export class UserFormComponent implements OnDestroy {
         return strapiRegister;
       default: throw new Error('Backend not implemented');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 
 }

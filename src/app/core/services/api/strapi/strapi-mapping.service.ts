@@ -2,9 +2,9 @@ import { MappingService } from '../mapping.service';
 import { StrapiArrayResponse, StrapiData, StrapiPayload, StrapiResponse } from 'src/app/core/models/strapi-interfaces/strapi-data.interface';
 import { StrapiDestination } from 'src/app/core/models/strapi-interfaces/strapi-destination.interface';
 import { StrapiMedia } from 'src/app/core/models/strapi-interfaces/strapi-media.interface';
-import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials, NewStrapiExtUserPayload } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { StrapiUserRoleResponse, StrapiExtendedUser, StrapiUser, StrapiUserCredentials, NewStrapiExtUserPayload, StrapiExtUserPayload } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from 'src/app/core/models/globetrotting/destination.interface';
-import { PaginatedUser, AdminAgentOrClientUser, AgentUser, ClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { PaginatedUser, AdminAgentOrClientUser, AgentUser, ClientUser, User, UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
 import { Media } from 'src/app/core/models/globetrotting/media.interface';
 import { StrapiFav } from 'src/app/core/models/strapi-interfaces/strapi-fav.interface';
 import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
@@ -366,11 +366,23 @@ export class StrapiMappingService extends MappingService {
     return { data: this.removeEmptyValues(extUser) };
   }
 
-  public mapUserCredentialsPayload(user: User): any {
+  public mapExtUserPayload(user: User): StrapiPayload<any> {
+    const extUser: StrapiExtUserPayload = {
+      nickname: user.nickname,
+      name: user.name,
+      surname: user.surname,
+      user: user.user_id as number,
+      avatar: user.avatar,
+      age: user.age
+    };
+    return { data: this.removeEmptyValues(extUser) };
+  }
+
+  public mapUserCredentialsPayload(user: User & UserCredentials): any {
     const credentials: StrapiUserCredentials = {
       id: user.user_id as number,
       username: user.username,
-      password: null,
+      password: user.password,
       email: user.email
     };
     return this.removeEmptyValues(credentials);

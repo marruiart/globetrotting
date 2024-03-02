@@ -1,5 +1,5 @@
 import { AgentsTableRow, NewTravelAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { NewFirebaseUserPayload } from "src/app/core/models/firebase-interfaces/firebase-user.interface";
+import { FirebaseUserPayload, NewFirebaseUserPayload } from "src/app/core/models/firebase-interfaces/firebase-user.interface";
 import { AdminBookingsTableRow, AgentBookingsTableRow, AgentRowInfo, Booking, BookingsTableRow, ClientBookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, NewClient, PaginatedClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
@@ -8,7 +8,7 @@ import { Media } from "src/app/core/models/globetrotting/media.interface";
 import { AdminAgentOrClientUser, AgentUser, ClientUser, PaginatedUser, User, UserCredentialsOptions } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "../mapping.service";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
-import { DocumentData, DocumentSnapshot, Timestamp } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
 import { Role, Roles, isoDateToTimestamp, timestampToYearMonthDay } from "src/app/core/utilities/utilities";
 
@@ -239,7 +239,6 @@ export class FirebaseMappingService extends MappingService {
         return fav;
     }
 
-    // TODO don't user to update profile
     public override mapNewExtUserPayload(user: User) {
         let payload: NewFirebaseUserPayload = {
             username: user.username,
@@ -256,6 +255,20 @@ export class FirebaseMappingService extends MappingService {
         }
         return this.removeEmptyValues(payload);
     }
+
+    public override mapExtUserPayload(user: AdminAgentOrClientUser) {
+        let payload: FirebaseUserPayload = {
+            username: user.username,
+            email: user.email,
+            nickname: user.nickname,
+            name: user.name,
+            surname: user.surname,
+            avatar: user.avatar,
+            age: user.age
+        }
+        return this.removeEmptyValues(payload);
+    }
+
     public override mapUserCredentialsPayload(credentials: any) {
         return this.removeEmptyValues(credentials);
     }

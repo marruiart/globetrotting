@@ -1,15 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { NewExtUser, ExtUser, User } from '../../models/globetrotting/user.interface';
+import { User } from '../../models/globetrotting/user.interface';
 import { MappingService } from './mapping.service';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
 import { DataService } from './data.service';
 import { ClientsFacade } from '../../+state/clients/clients.facade';
-import { StrapiEndpoints } from '../../utilities/utilities';
+import { Roles, StrapiEndpoints } from '../../utilities/utilities';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
-
 @Injectable({
   providedIn: 'root'
 })
@@ -22,7 +21,7 @@ export class UsersService {
   }
 
   constructor(
-    private dataSvc: DataService,
+    protected dataSvc: DataService,
     protected mappingSvc: MappingService,
   ) { }
 
@@ -31,12 +30,12 @@ export class UsersService {
     let _queries = { ...this.queries, ...queries };
     return this.dataSvc.obtainAll<User[]>(StrapiEndpoints.EXTENDED_USERS, _queries, this.mappingSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
-    }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
   public getAllClientsUsers(): Observable<User[]> {
     return this.getAllUsers().pipe(map(users => {
-      const clients = users.filter(user => user.role === 'AUTHENTICATED');
+      const clients = users.filter(user => user.role === Roles.AUTHENTICATED);
       this.clientsFacade.saveClients(clients);
       return clients;
     }))
@@ -44,7 +43,7 @@ export class UsersService {
 
   public getUser(id: number | string): Observable<User> {
     return this.dataSvc.obtain<User>(StrapiEndpoints.EXTENDED_USERS, id, this.mappingSvc.mapUser, this.queries)
-      .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
+      .pipe(catchError((err) => { throw new Error(err) }));
   }
 
   /**
@@ -67,7 +66,7 @@ export class UsersService {
       return this.dataSvc.obtainAll<PaginatedData<any>>(StrapiEndpoints.EXTENDED_USERS, _queries, this.mappingSvc.mapPaginatedUsers).pipe(map(res => {
         const users = res.data;
         return (users.length > 0) ? users[0] : null;
-      }), catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })))
+      }), catchError((err) => { throw new Error(err) }));
     } else {
       return of(null);
     }
@@ -79,7 +78,7 @@ export class UsersService {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError((err) => throwError(() => { 'No se ha podido añadir al usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
   /**
@@ -89,19 +88,18 @@ export class UsersService {
    * @returns 
    */
   public updateUser(user: any, updateObs: boolean = true): Observable<User> {
-    const body = this.mappingSvc.mapNewExtUserPayload(user);
+    const body = this.mappingSvc.mapExtUserPayload(user);
     return this.dataSvc.update<User>(StrapiEndpoints.EXTENDED_USERS, user.ext_id, body, this.mappingSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError((err) => throwError(() => { 'No se ha podido modificar el usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
   public deleteUser(id: number | string): Observable<User> {
-    const queries = {}
     return this.dataSvc.delete<User>(StrapiEndpoints.EXTENDED_USERS, this.mappingSvc.mapUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();
-    }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
 }

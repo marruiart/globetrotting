@@ -2,15 +2,13 @@ import { Component } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
 import { AgentsFacade } from "src/app/core/+state/agents/agents.facade";
-import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { AgentsTableRow } from "src/app/core/models/globetrotting/agent.interface";
-import { AdminAgentOrClientUser, User, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
-import { AgentService } from "src/app/core/services/api/agent.service";
+import { User, UserCredentials } from "src/app/core/models/globetrotting/user.interface";
 import { UsersService } from "src/app/core/services/api/users.service";
 import { AuthService } from "src/app/core/services/auth/auth.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
-import { FormType } from "src/app/shared/components/user-form/user-form.component";
+import { FormType, FormTypes } from "src/app/core/utilities/utilities";
 
 @Component({
   selector: 'app-agents-management',
@@ -28,7 +26,6 @@ export class AgentsManagementPage {
   public cols: any[] = [];
 
   constructor(
-    private agentsSvc: AgentService,
     private userSvc: UsersService,
     private authSvc: AuthService,
     private subsSvc: SubscriptionsService,
@@ -69,10 +66,10 @@ export class AgentsManagementPage {
   public async showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
     this.formType = formType;
     this.isUpdating = actionUpdate;
-    if (formType === 'UPDATE_AGENT' && tableRow?.ext_id) {
+    if (formType === FormTypes.UPDATE_AGENT && tableRow?.ext_id) {
       this.selectedAgent = tableRow;
       this.showForm = true;
-    } else if (formType === 'REGISTER_AGENT') {
+    } else if (formType === FormTypes.REGISTER_AGENT) {
       this.showForm = true;
     } else {
       console.error("ERROR: The agent could not be selected.")
@@ -111,13 +108,13 @@ export class AgentsManagementPage {
           this.deleteAgent(tableRow.ext_id, tableRow.user_id); // TODO obtener los datos de este agent
           this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Usuario eliminado' });
         } else {
-          console.error("El usuario no pudo ser eliminado, se desconoce el id asociado");
+          console.error("ERROR: Unknown user id. The user could not be deleted.");
         }
       }
     });
   }
 
   ngOnDestroy() {
-    this.subsSvc.unsubscribe('AgentsManagementPage');
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 }

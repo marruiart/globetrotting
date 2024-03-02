@@ -143,6 +143,7 @@ export class FirebaseAuthService extends AuthService {
   }
 
   public override updateIdentifiers(user: any): Observable<FirebaseUserCredentials> {
+    console.log("updateIdentifiers", user);
     throw new Error('Method not implemented.');
   }
   public override getUserIdentifiers(id: number): Observable<FirebaseUserCredentials> {
@@ -150,6 +151,6 @@ export class FirebaseAuthService extends AuthService {
   }
   public override deleteUser(user_id: string): Observable<void> {
     // TODO delete Authentication of the user
-    return from(this.firebaseSvc.deleteDocument(Collections.users, user_id));
+    return from(this.firebaseSvc.deleteDocument(Collections.USERS, user_id));
   }
 }

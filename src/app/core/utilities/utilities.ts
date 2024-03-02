@@ -47,9 +47,9 @@ export class Roles {
 }
 
 export class Collections {
-  static destinations: Collection = 'destinations'
-  static users: Collection = 'users'
-  static bookings: Collection = 'bookings'
+  static DESTINATIONS: Collection = 'destinations'
+  static USERS: Collection = 'users'
+  static BOOKINGS: Collection = 'bookings'
 }
 
 export class Backends {
@@ -69,4 +69,14 @@ export class StrapiEndpoints {
   static CLIENTS = "/api/clients"
   static DESTINATIONS = "/api/destinations"
   static FAVORITES = "/api/favorites"
+}
+
+export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
+
+export class FormTypes {
+  static LOGIN: FormType = "LOGIN"
+  static REGISTER: FormType = "REGISTER"
+  static REGISTER_AGENT: FormType = "REGISTER_AGENT"
+  static PROFILE: FormType = "PROFILE"
+  static UPDATE_AGENT: FormType = "UPDATE_AGENT"
 }

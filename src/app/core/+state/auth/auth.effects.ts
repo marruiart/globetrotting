@@ -39,7 +39,7 @@ export class AuthEffects {
     login$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.login),
-            switchMap(props => this.authSvc.login(props.credentials).pipe(
+            switchMap(({credentials}) => this.authSvc.login(credentials).pipe(
                 map(() => AuthActions.loginSuccess()),
                 catchError(error => of(AuthActions.loginFailure({ error: error })))
             )))

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthService } from '../../auth/auth.service';
-import { catchError, lastValueFrom, map, of, switchMap, throwError } from 'rxjs';
+import { catchError, lastValueFrom, map, switchMap, throwError } from 'rxjs';
 import { AgentRegisterInfo, UserRegisterInfo, UserCredentialsOptions, UserCredentials, AdminAgentOrClientUser, AgentUser, ClientUser, User, AdminUser } from '../../../models/globetrotting/user.interface';
 import { UsersService } from '../users.service';
 import { StrapiLoginPayload, StrapiLoginResponse, StrapiRegisterPayload, StrapiRegisterResponse, StrapiRolesResponse } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
@@ -53,8 +53,8 @@ export class StrapiAuthService extends AuthService {
   }
 
   private rollback(user_id: number, ext_id?: number) {
-    console.info('Rollback: ', user_id, ext_id);
     // TODO
+    console.info('Rollback: ', user_id, ext_id);
   }
 
   private createExtUser(_agentInfo: AgentRegisterInfo, _registerInfo: StrapiRegisterPayload, isAgent: boolean, userId: number, nickname: string) {
@@ -79,7 +79,7 @@ export class StrapiAuthService extends AuthService {
 
   private async createClient(user: User): Promise<Client> {
     const client: NewClient = {
-      type: 'AUTHENTICATED',
+      type: Roles.AUTHENTICATED,
       user_id: user.user_id,
       bookings: [],
       favorites: []
@@ -97,7 +97,7 @@ export class StrapiAuthService extends AuthService {
   public login(credentials: UserCredentials): Observable<void> {
     return new Observable<void>(observer => {
       if (!(credentials.email || credentials.username) || !credentials.password) {
-        observer.error('Error: The provided credentials are incorrect or incomplete.');
+        observer.error('ERROR: The provided credentials are incorrect or incomplete.');
       }
       let _credentials: StrapiLoginPayload = {
         identifier: credentials.username || credentials.email!,
@@ -111,7 +111,7 @@ export class StrapiAuthService extends AuthService {
             observer.next();
             observer.complete();
           } else {
-            observer.error('Error: Login failed.');
+            observer.error('ERROR: Login failed.');
           }
         },
         error: err => {
@@ -187,8 +187,8 @@ export class StrapiAuthService extends AuthService {
               if (extUser) {
                 const role = me.role.type.toUpperCase();
                 switch (role) {
-                  case 'AGENT':
-                  case 'ADMIN':
+                  case Roles.AGENT:
+                  case Roles.ADMIN:
                     return this.agentSvc.agentMe(me.id).pipe(
                       map((agent: TravelAgent | null) => {
                         if (agent) {
@@ -207,7 +207,7 @@ export class StrapiAuthService extends AuthService {
                           }
                           return user;
                         } else {
-                          throw new Error('Error: Specific user not found.');
+                          throw new Error('ERROR: Specific user not found.');
                         }
                       }), catchError(error => { throw new Error(error) }));
                   case Roles.AUTHENTICATED:
@@ -230,18 +230,18 @@ export class StrapiAuthService extends AuthService {
                           }
                           return user;
                         } else {
-                          throw new Error('Error: Specific user not found.');
+                          throw new Error('ERROR: Specific user not found.');
                         }
                       }), catchError(error => { throw new Error(error) }));
                   default:
-                    throw new Error('Error: User role is unknown.');
+                    throw new Error('ERROR: User role is unknown.');
                 }
               } else {
-                throw new Error('Error: Extended user not found.');
+                throw new Error('ERROR: Extended user not found.');
               }
             }), catchError(error => { throw new Error(error) }))
         } else {
-          throw new Error('Error: There is no authenticated user.');
+          throw new Error('ERROR: There is no authenticated user.');
         }
       }),
       catchError(error => { throw new Error(error) }));
@@ -252,7 +252,7 @@ export class StrapiAuthService extends AuthService {
       const body = this.mappingSvc.mapUserCredentialsPayload(user);
       return this.dataSvc.update(StrapiEndpoints.USER_PERMISSIONS, user.user_id, body, this.mappingSvc.mapUserCredentials);
     }
-    return throwError(() => "Usuario no actualizado: se desconoce el id del usuario");
+    return throwError(() => "ERROR: Unknown user id. The user could not be updated.");
   }
 
   public getUserIdentifiers(id: number): Observable<UserCredentialsOptions> {

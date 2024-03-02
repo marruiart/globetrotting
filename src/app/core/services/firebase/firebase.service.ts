@@ -59,7 +59,7 @@ export class FirebaseService {
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
         const _user = new BehaviorSubject<AdminAgentOrClientUser | null>(null);
-        this.unsubscribe = this.subscribeToDocument(Collections.users, `${user.uid}`, _user);
+        this.unsubscribe = this.subscribeToDocument(Collections.USERS, `${user.uid}`, _user);
         _user.subscribe(user => {
           if (user) {
             this.authFacade.updateUser(user, isFirstTime);
@@ -86,7 +86,7 @@ export class FirebaseService {
 
   private async subscribeToSizes() {
     this.destinationsFacade.destinations$.subscribe(dests => {
-      this._sizes[Collections.destinations] = dests.length;
+      this._sizes[Collections.DESTINATIONS] = dests.length;
     })
   }
 
@@ -205,7 +205,7 @@ export class FirebaseService {
    * @param value 
    * @returns 
    */
-  public updateDocumentObject(collectionName: string, document: string, field: string, value: any): Promise<void> {
+  public pushDocumentArray(collectionName: string, document: string, field: string, value: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { BatchUpdate, FormChanges } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { FirebaseUserRegisterInfo } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
 import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
@@ -11,18 +12,6 @@ import { IdentifierValidator } from 'src/app/core/validators/identifier.validato
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 import { BACKEND, environment } from 'src/environments/environment';
 import { BackendTypes } from 'src/environments/environment.prod';
-
-export type FormChanges = { updates: BatchUpdate | null };
-export type BatchUpdate = {
-  [controlName: string]: {
-    [collection: string]: {
-      fieldPath: string,
-      value: string | number,
-      fieldName: string,
-      fieldValue?: any
-    }
-  }
-}
 
 @Component({
   selector: 'app-user-form',
@@ -74,7 +63,7 @@ export class UserFormComponent implements OnDestroy {
       this.userForm.controls['nickname'].setValue(tableRow.nickname);
     }
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
-      this.onCreateGroupFormValueChange({
+      this.checkValueChanges({
         'name': {
           'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'AgentName' }
         },
@@ -106,7 +95,7 @@ export class UserFormComponent implements OnDestroy {
       // TODO add password change
       const fieldPath = this._user.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
       const fieldName = this._user.role === 'AUTHENTICATED' ? 'clientName' : 'AgentName';
-      this.onCreateGroupFormValueChange({
+      this.checkValueChanges({
         'name': {
           'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
         },
@@ -190,8 +179,8 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  onCreateGroupFormValueChange(batchUpdate: BatchUpdate) {
-    this.batchUpdate = {...batchUpdate};
+  private checkValueChanges(batchUpdate: BatchUpdate) {
+    this.batchUpdate = { ...batchUpdate };
     const initialValue = this.userForm.value;
     Object.entries(batchUpdate).forEach(([controlName, collections]) => {
       const formControl = this.userForm.controls[controlName];
@@ -199,9 +188,6 @@ export class UserFormComponent implements OnDestroy {
         formControl.valueChanges.subscribe(fieldValue => {
           const hasChanged = initialValue[controlName] !== fieldValue;
           if (hasChanged) {
-            if (!this.batchUpdate){
-              this.batchUpdate = {};
-            }
             this.hasChanged = hasChanged;
             if (controlName === 'name' || controlName === 'surname') {
               controlName = 'name';

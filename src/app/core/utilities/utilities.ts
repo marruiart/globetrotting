@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { ExtUser, User } from "../models/globetrotting/user.interface";
+import { BatchUpdate, CollectionUpdates } from "../models/firebase-interfaces/firebase-data.interface";
 
 export const isType = <T>(item: any): item is T => true;
 
@@ -33,6 +34,21 @@ export function isoDateToTimestamp(isoDate: string) {
   const seconds = Math.min(Math.max(date.getTime() / 1000, -62167219200), 2678416406);
   const nanoseconds = (date.getTime() % 1000) * 1000000;
   return new Timestamp(seconds, nanoseconds);
+}
+
+export function getCollectionsChanges(updates: BatchUpdate): CollectionUpdates {
+  let collectionUpdates: CollectionUpdates = {};
+  Object.entries(updates).forEach(([_, collections]) => {
+    Object.entries(collections).forEach(([collection, { fieldPath, value, fieldValue, fieldName }]) => {
+      const update = fieldValue ? { fieldPath, value, fieldValue, fieldName } : null;
+      if (collection in collectionUpdates && update) {
+        collectionUpdates[collection].push({ ...update });
+      } else if (update) {
+        collectionUpdates[collection] = [{ ...update }];
+      }
+    })
+  })
+  return collectionUpdates;
 }
 
 // TYPES

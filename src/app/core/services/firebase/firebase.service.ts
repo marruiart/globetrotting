@@ -4,7 +4,7 @@ import { initializeApp, FirebaseApp } from "firebase/app";
 import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint, writeBatch, DocumentReference } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
-import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { CollectionUpdates, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
@@ -341,6 +341,18 @@ export class FirebaseService {
         reject(error);
       }
     });
+  }
+
+  public batchUpdateCollections(updates: CollectionUpdates) {
+    Object.entries(updates).map(([collection, updates]) => {
+      updates.forEach(async ({ fieldPath, value, fieldValue, fieldName }) => {
+        const docs = await this.getDocumentsBy(collection, fieldPath, value).catch(err => { throw new Error(err) });
+        const docsId = docs.map(({ id }) => id);
+        if (docs.length) {
+          await this.batchUpdateDocuments(collection, fieldName, fieldValue, ...docsId).catch(err => { throw new Error(err) });
+        }
+      })
+    })
   }
 
   public batchUpdateDocuments(collectionName: string, fieldName: string, fieldValue: any, ...docsId: string[]) {

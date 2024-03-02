@@ -22,3 +22,26 @@ export interface FirebaseUserCredential {
     user: UserCredential
 }
 export type FirebaseArrayResponse<T> = [T];
+
+export type FormChanges = { updates: BatchUpdate | null };
+export type BatchUpdate = {
+    [controlName: string]: {
+        [collection: string]: {
+            fieldPath: string,
+            value: string | number,
+            fieldName: string,
+            fieldValue?: any
+        }
+    }
+}
+
+export type CollectionUpdates = {
+    [collection: string]: [
+        {
+            fieldPath: string,
+            value: string | number,
+            fieldName: string,
+            fieldValue: any
+        }
+    ]
+};

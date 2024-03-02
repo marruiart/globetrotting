@@ -330,6 +330,11 @@ export class StrapiMappingService extends MappingService {
 
   // Map to API
 
+  public mapNewDestinationPayload(destination: NewDestination): StrapiPayload<StrapiDestination> {
+    return this.mapDestinationPayload(destination);
+  }
+
+
   public mapDestinationPayload(destination: NewDestination): StrapiPayload<StrapiDestination> {
     return {
       data: {
@@ -426,10 +431,12 @@ export class StrapiMappingService extends MappingService {
   }
 
   public mapBookingPayload(booking: any): StrapiPayload<any> {
-     return {data: {
-      isConfirmed: booking.isConfirmed,
-      agent: booking.agent_id
-    }}
+    return {
+      data: {
+        isConfirmed: booking.isConfirmed,
+        agent: booking.agent_id
+      }
+    }
   }
 
 }

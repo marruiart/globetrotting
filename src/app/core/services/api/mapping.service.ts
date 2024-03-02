@@ -48,7 +48,8 @@ export abstract class MappingService {
 
   // Map to API
 
-  public abstract mapDestinationPayload(destination: NewDestination): any;
+  public abstract mapNewDestinationPayload(destination: NewDestination): any;
+  public abstract mapDestinationPayload(destination: Destination): any;
   public abstract mapFavPayload(fav: NewFav): any;
   public abstract mapNewExtUserPayload(user: any): any;
   public abstract mapExtUserPayload(user: any): any;

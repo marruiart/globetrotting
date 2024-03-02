@@ -11,6 +11,7 @@ import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
 import { Role, Roles, isoDateToTimestamp, timestampToYearMonthDay } from "src/app/core/utilities/utilities";
+import { FirebaseDestinationPayload, NewFirebaseDestinationPayload } from "src/app/core/models/firebase-interfaces/firebase-destination.interface";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -232,9 +233,31 @@ export class FirebaseMappingService extends MappingService {
 
     // Map to API
 
-    public override mapDestinationPayload(destination: NewDestination): NewDestination {
-        return this.removeEmptyValues(destination) as NewDestination;
+    public override mapNewDestinationPayload(destination: NewDestination) {
+        let _destination = {
+            name: destination.name,
+            type: destination.type,
+            dimension: destination.dimension,
+            image: destination.image,
+            price: destination.price,
+            description: destination.description
+        }
+        return this.removeEmptyValues(_destination);
     }
+
+    public override mapDestinationPayload(destination: Destination) {
+        let _destination = {
+            id: destination.id,
+            name: destination.name,
+            type: destination.type,
+            dimension: destination.dimension,
+            image: destination.image,
+            price: destination.price,
+            description: destination.description
+        }
+        return this.removeEmptyValues(_destination);
+    }
+
     public override mapFavPayload(fav: NewFav): NewFav {
         return fav;
     }

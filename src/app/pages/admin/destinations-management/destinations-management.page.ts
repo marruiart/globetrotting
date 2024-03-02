@@ -4,7 +4,6 @@ import { catchError, map, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
 import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
-import { AdminAgentOrClientUser } from "src/app/core/models/globetrotting/user.interface";
 import { MappingService } from "src/app/core/services/api/mapping.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";

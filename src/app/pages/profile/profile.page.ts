@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { FormChanges } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AdminAgentOrClientUser, User, UserCredentials } from 'src/app/core/models/globetrotting/user.interface';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { FormChanges } from 'src/app/shared/components/user-form/user-form.component';
 
 @Component({
   selector: 'app-profile',

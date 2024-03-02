@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, of, switchMap, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
 import { MappingService } from './mapping.service';
-import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
 import { DataService } from './data.service';
 import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
@@ -13,7 +12,6 @@ import { StrapiEndpoints } from '../../utilities/utilities';
 })
 export class DestinationsService {
   protected destinationsFacade = inject(DestinationsFacade);
-  private body = (destination: NewDestination) => this.mappingSvc.mapDestinationPayload(destination);
   private queries: { [query: string]: string } = { 'sort': 'name' }
 
   private _endOfData = false;
@@ -73,7 +71,8 @@ export class DestinationsService {
   }
 
   public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
-    return this.dataSvc.save<Destination>(StrapiEndpoints.DESTINATIONS, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
+    const body = this.mappingSvc.mapNewDestinationPayload(destination);
+    return this.dataSvc.save<Destination>(StrapiEndpoints.DESTINATIONS, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
@@ -81,8 +80,8 @@ export class DestinationsService {
   }
 
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
-    // FIXME in firebase
-    return this.dataSvc.update<Destination>(StrapiEndpoints.DESTINATIONS, destination.id, this.body(destination), this.mappingSvc.mapDestination).pipe(tap(_ => {
+    const body = this.mappingSvc.mapDestinationPayload(destination);
+    return this.dataSvc.update<Destination>(StrapiEndpoints.DESTINATIONS, destination.id, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }

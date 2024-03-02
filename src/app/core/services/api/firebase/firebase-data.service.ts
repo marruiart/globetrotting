@@ -45,7 +45,6 @@ export class FirebaseDataService extends DataService {
         const collection: Collection = path.split('/')[2] as Collection;
         const id = this.firebaseSvc.generateId();
         body = { ...body, id: id, updatedAt: new Date() };
-        console.log("body: ", body);
         return from(this.firebaseSvc.createDocumentWithId(collection, body, id)).pipe(map(_ => {
             let doc: FirebaseDocument = {
                 id: body.id,

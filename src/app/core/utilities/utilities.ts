@@ -3,11 +3,17 @@ import { ExtUser, User } from "../models/globetrotting/user.interface";
 
 export const isType = <T>(item: any): item is T => true;
 
-export function getUserName(user: ExtUser | User): string {
+export type FullName = {
+  name: string,
+  surname: string,
+  nickname?: ''
+}
+
+export function getUserName(user: ExtUser | User | FullName): string {
   if (user && user.name) {
     return `${user?.name}${' ' + user?.surname ?? ''}`;
   } else if (user) {
-    return user.nickname;
+    return user.nickname ?? '';
   } else {
     return '';
   }

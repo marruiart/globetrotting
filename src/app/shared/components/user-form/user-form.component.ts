@@ -6,14 +6,23 @@ import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interfac
 import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { Backends, FormType, FormTypes, Roles } from 'src/app/core/utilities/utilities';
+import { Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 import { BACKEND, environment } from 'src/environments/environment';
 import { BackendTypes } from 'src/environments/environment.prod';
 
-type FormChange = { [control: string]: boolean };
-export type FormChanges = { formChanges: FormChange | null };
+export type FormChanges = { updates: BatchUpdate | null };
+export type BatchUpdate = {
+  [controlName: string]: {
+    [collection: string]: {
+      fieldPath: string,
+      value: string | number,
+      fieldName: string,
+      fieldValue?: any
+    }
+  }
+}
 
 @Component({
   selector: 'app-user-form',
@@ -27,7 +36,8 @@ export class UserFormComponent implements OnDestroy {
     NAME: '^[A-Za-zÀ-ÖØ-öø-ÿ ]+$',
     NICKNAME: '^[A-Za-z0-9._-]+$'
   }
-  private formChanges: FormChange = {};
+  private batchUpdate: BatchUpdate | null = null;
+  private hasChanged: boolean = false;
   public userForm: FormGroup = this.fb.group({});;
   public errMsg: string = '';
   public backend = environment.backend as BackendTypes;
@@ -63,8 +73,15 @@ export class UserFormComponent implements OnDestroy {
       this.userForm.controls['surname'].setValue(tableRow.surname);
       this.userForm.controls['nickname'].setValue(tableRow.nickname);
     }
-    if (this._actionUpdate) {
-      this.onCreateGroupFormValueChange('name', 'surname', 'nickname');
+    if (this._actionUpdate && this.backend === Backends.FIREBASE) {
+      this.onCreateGroupFormValueChange({
+        'name': {
+          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'AgentName' }
+        },
+        'surname': {
+          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'AgentName' }
+        }
+      })
     }
   }
 
@@ -85,8 +102,18 @@ export class UserFormComponent implements OnDestroy {
         this.userForm.controls['favorites'].setValue(user.favorites);
       }
     }
-    if (this._actionUpdate) {
-      this.onCreateGroupFormValueChange('name', 'surname', 'nickname', 'password');
+    if (this._actionUpdate && this.backend === Backends.FIREBASE) {
+      // TODO add password change
+      const fieldPath = this._user.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
+      const fieldName = this._user.role === 'AUTHENTICATED' ? 'clientName' : 'AgentName';
+      this.onCreateGroupFormValueChange({
+        'name': {
+          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+        },
+        'surname': {
+          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+        }
+      })
     }
   }
 
@@ -94,7 +121,7 @@ export class UserFormComponent implements OnDestroy {
   @Output() onRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterAgentClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onNavigateToRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
-  @Output() onUpdateProfileClicked: EventEmitter<User & UserCredentials & FormChanges> = new EventEmitter<User & UserCredentials & FormChanges>();
+  @Output() onUpdateProfileClicked: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
     private fb: FormBuilder,
@@ -163,16 +190,29 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  onCreateGroupFormValueChange(...formControlNames: string[]) {
+  onCreateGroupFormValueChange(batchUpdate: BatchUpdate) {
+    this.batchUpdate = {...batchUpdate};
     const initialValue = this.userForm.value;
-    formControlNames.forEach(name => {
-      const formControl = this.userForm.controls[name];
-      this.formChanges[name] = false;
+    Object.entries(batchUpdate).forEach(([controlName, collections]) => {
+      const formControl = this.userForm.controls[controlName];
       this.subsSvc.addSubscriptions(this.COMPONENT,
-        formControl.valueChanges.subscribe(value => {
-          this.formChanges[name] = initialValue[name] !== value;
-          console.log(initialValue[name], value);
-          console.log(this.formChanges);
+        formControl.valueChanges.subscribe(fieldValue => {
+          const hasChanged = initialValue[controlName] !== fieldValue;
+          if (hasChanged) {
+            if (!this.batchUpdate){
+              this.batchUpdate = {};
+            }
+            this.hasChanged = hasChanged;
+            if (controlName === 'name' || controlName === 'surname') {
+              controlName = 'name';
+              const name: string = this.userForm.controls['name'].value;
+              const surname: string = this.userForm.controls['surname'].value;
+              fieldValue = getUserName({ name: name, surname: surname })
+            }
+            Object.entries(collections).forEach(([collection, updates]) => {
+              this.batchUpdate![controlName][collection] = { ...updates, fieldValue }
+            })
+          }
         }))
     })
   }
@@ -209,7 +249,7 @@ export class UserFormComponent implements OnDestroy {
       nickname: this.userForm.value.nickname,
       name: this.userForm.value.name,
       surname: this.userForm.value.surname,
-      formChanges: Object.values(this.formChanges).some(value => value) ? this.formChanges : null
+      updates: this.hasChanged ? this.batchUpdate : null
     }
 
     this.onUpdateProfileClicked.emit(user);
@@ -217,7 +257,7 @@ export class UserFormComponent implements OnDestroy {
 
   private onRegisterOrUpdateAgent(event: Event) {
     event.stopPropagation();
-    const agent: User & UserCredentials = {
+    const agent: User & UserCredentials & FormChanges = {
       role: Roles.AGENT,
       user_id: this.userForm.value.user_id,
       ext_id: this.userForm.value.id,
@@ -226,7 +266,8 @@ export class UserFormComponent implements OnDestroy {
       password: this.userForm.value.password,
       nickname: this.userForm.value.nickname,
       name: this.userForm.value.name,
-      surname: this.userForm.value.surname
+      surname: this.userForm.value.surname,
+      updates: this.hasChanged ? this.batchUpdate : null
     }
     this.onRegisterAgentClicked.emit(agent);
   }

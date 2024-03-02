@@ -4,14 +4,14 @@ import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { BookingsFacade } from 'src/app/core/+state/bookings/bookings.facade';
 import { ClientsFacade } from 'src/app/core/+state/clients/clients.facade';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
-import { Booking, BookingsTableRow, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
+import { BookingsTableRow, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { AdminAgentOrClientUser, User } from 'src/app/core/models/globetrotting/user.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { UsersService } from 'src/app/core/services/api/users.service';
 import { CustomTranslateService } from 'src/app/core/services/custom-translate.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { Roles, getUserName } from 'src/app/core/utilities/utilities';
+import { Roles } from 'src/app/core/utilities/utilities';
 
 @Component({
   selector: 'app-bookings',

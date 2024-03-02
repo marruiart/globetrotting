@@ -28,10 +28,10 @@ export class ProfilePage {
     );
   }
 
-  public updateProfile(_user: User & UserCredentials & FormChanges | null) {
+  public async updateProfile(_user: User & UserCredentials & FormChanges | null) {
     if (_user?.user_id && _user.ext_id) {
-      lastValueFrom(this.userSvc.updateUser(_user)).catch(err => console.error(err));
-      lastValueFrom(this.authSvc.updateIdentifiers(_user)).catch(err => console.error(err));
+      await lastValueFrom(this.userSvc.updateUser(_user)).catch(err => console.error(err));
+      await lastValueFrom(this.authSvc.updateIdentifiers(_user)).catch(err => console.error(err));
     } else {
       console.error("ERROR: Unexpected error. The profile could not be updated.");
     }

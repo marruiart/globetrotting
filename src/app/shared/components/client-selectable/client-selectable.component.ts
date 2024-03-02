@@ -1,7 +1,7 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-import { ExtUser, User } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { ClientService } from 'src/app/core/services/api/client.service';
 import { getUserName } from 'src/app/core/utilities/utilities';
 

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { initializeApp, FirebaseApp } from "firebase/app";
-import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint } from "firebase/firestore";
+import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint, writeBatch, DocumentReference } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
 import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
@@ -36,6 +36,10 @@ export class FirebaseService {
     this._app = this.initFirebaseApp(config);
     this._auth = this.initAuthInstance(this._app);
     this.initSubscriptions();
+  }
+
+  public db() {
+    return this._db;
   }
 
   private initFirebaseApp(config: any, name?: string) {
@@ -93,6 +97,8 @@ export class FirebaseService {
   public generateId(): string {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
+
+  // CREATE
 
   public fileUpload(blob: Blob, mimeType: string, path: string, prefix: string, extension: string): Promise<FirebaseStorageFile> {
     return new Promise(async (resolve, reject) => {
@@ -178,49 +184,41 @@ export class FirebaseService {
     });
   }
 
-  /**
-   * 
-   * @param collectionName 
-   * @param document 
-   * @param data 
-   * @returns 
-   */
-  public updateDocument(collectionName: string, document: string, data: any): Promise<void> {
+  public async createUser(email: string, password: string, admin?: Auth): Promise<FirebaseUserCredential | null> {
     return new Promise(async (resolve, reject) => {
-      if (!this._db)
-        reject({
-          msg: "Database is not connected"
-        });
-      const collectionRef = collection(this._db!, collectionName);
-      await updateDoc(doc(collectionRef, document), data).then(_ => resolve()
-      ).catch(err => reject(err));
+      if (!this._auth && !admin) {
+        resolve(null);
+      }
+      try {
+        resolve({ user: await createUserWithEmailAndPassword((admin ?? this._auth), email, password) });
+      } catch (error: any) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            console.error(`Email address ${email} already in use.`);
+            break;
+          case 'auth/invalid-email':
+            console.error(`Email address ${email} is invalid.`);
+            break;
+          case 'auth/operation-not-allowed':
+            console.error(`Error during sign up.`);
+            break;
+          case 'auth/weak-password':
+            console.error('Password is not strong enough. Add additional characters including special characters and numbers.');
+            break;
+          default:
+            console.error(error.message);
+            break;
+        }
+        reject(error);
+      }
     });
   }
 
-  /**
-   * 
-   * @param collectionName 
-   * @param document 
-   * @param field 
-   * @param value 
-   * @returns 
-   */
-  public pushDocumentArray(collectionName: string, document: string, field: string, value: any): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      if (!this._db)
-        reject({
-          msg: "Database is not connected"
-        });
-      const collectionRef = collection(this._db!, collectionName);
-      await updateDoc(doc(collectionRef, document), {
-        [field]: arrayUnion(value)
-      }).then(_ => resolve()
-      ).catch(err => reject(err));
-    });
-  }
+  public createAgent = (email: string, password: string) => this.createUser(email, password, this._admin);
+  // READ
 
   /**
-   * 
+   * Get all documents in a collection.
    * @param collectionName 
    * @returns 
    */
@@ -249,18 +247,18 @@ export class FirebaseService {
   }
 
   /**
-   * 
+   * Get a document by its id.
    * @param collectionName 
-   * @param uuid 
+   * @param id 
    * @returns 
    */
-  public getDocument(collectionName: string, uuid: string): Promise<FirebaseDocument> {
+  public getDocument(collectionName: string, id: string): Promise<FirebaseDocument> {
     return new Promise(async (resolve, reject) => {
       if (!this._db)
         reject({
           msg: "Error: Database is not connected."
         });
-      const docRef = doc(this._db!, collectionName, uuid);
+      const docRef = doc(this._db!, collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -273,7 +271,7 @@ export class FirebaseService {
   }
 
   /**
-   * 
+   * Get all the documents filtered by a certain 'where' clause.
    * @param collectionName 
    * @param fieldPath
    * @param opStr
@@ -295,6 +293,89 @@ export class FirebaseService {
     });
   }
 
+  // UPDATE
+
+  /**
+   * 
+   * @param collectionName 
+   * @param document 
+   * @param data 
+   * @returns 
+   */
+  public updateDocument(collectionName: string, document: string, data: any): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      if (!this._db)
+        reject({
+          msg: "Database is not connected"
+        });
+      const collectionRef = collection(this._db!, collectionName);
+      await updateDoc(doc(collectionRef, document), data).then(_ => resolve()
+      ).catch(err => reject(err));
+    });
+  }
+
+  /**
+   * Update a field of a document with the value passed. 
+   * @param collectionName 
+   * @param document 
+   * @param fieldName 
+   * @param fieldValue 
+   * @returns 
+   */
+  public updateDocumentField(collectionName: string, document: string, fieldName: string, fieldValue: any): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      if (!this._db) {
+        reject({
+          msg: "Database is not connected"
+        });
+      }
+
+      const documentRef = doc(this._db as Firestore, collectionName, document);
+      const fieldUpdate = { [fieldName]: fieldValue }; // Crear un objeto con el campo a actualizar
+
+      try {
+        await updateDoc(documentRef, fieldUpdate);
+
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  public batchUpdateDocuments(collectionName: string, fieldName: string, fieldValue: any, ...docsId: string[]) {
+    const batch = writeBatch(this._db);
+    docsId.forEach(documentId => {
+      const docRef = doc(this._db, collectionName, documentId);
+      batch.update(docRef, { [fieldName]: fieldValue })
+    });
+    return batch.commit();
+  }
+
+  /**
+   * Push an element inside an array field of the document.
+   * @param collectionName 
+   * @param document 
+   * @param field 
+   * @param value 
+   * @returns 
+   */
+  public pushDocumentArray(collectionName: string, document: string, field: string, value: any): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      if (!this._db)
+        reject({
+          msg: "Database is not connected"
+        });
+      const collectionRef = collection(this._db!, collectionName);
+      await updateDoc(doc(collectionRef, document), {
+        [field]: arrayUnion(value)
+      }).then(_ => resolve()
+      ).catch(err => reject(err));
+    });
+  }
+
+  // DELETE
+
   /**
    * 
    * @param collectionName 
@@ -310,6 +391,17 @@ export class FirebaseService {
       resolve(await deleteDoc(doc(this._db!, collectionName, docId)));
     });
   }
+
+  public deleteUser(): Promise<void> {
+    throw new Error('Method not implemented');
+    /* return new Promise<void>((resolve, reject) => {
+      if (!this._user)
+        reject();
+      resolve(deleteUser(this._user!));
+    }); */
+  }
+
+  // SUBSCRIPTIONS
 
   // TODO Add mapping to subscriptions
   public subscribeToCollection(collectionName: string, subject: BehaviorSubject<FirebaseCollectionResponse | null>): Unsubscribe | null {
@@ -365,6 +457,8 @@ export class FirebaseService {
     }, error => { throw new Error(error.message) });
   }
 
+  // OTHER METHODS
+
   public async signOut(signInAnon: boolean = false): Promise<void> {
     new Promise<void>(async (resolve, reject) => {
       if (this._auth)
@@ -416,39 +510,6 @@ export class FirebaseService {
     return response;
   }
 
-  public async createUser(email: string, password: string, admin?: Auth): Promise<FirebaseUserCredential | null> {
-    return new Promise(async (resolve, reject) => {
-      if (!this._auth && !admin) {
-        resolve(null);
-      }
-      try {
-        resolve({ user: await createUserWithEmailAndPassword((admin ?? this._auth), email, password) });
-      } catch (error: any) {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            console.error(`Email address ${email} already in use.`);
-            break;
-          case 'auth/invalid-email':
-            console.error(`Email address ${email} is invalid.`);
-            break;
-          case 'auth/operation-not-allowed':
-            console.error(`Error during sign up.`);
-            break;
-          case 'auth/weak-password':
-            console.error('Password is not strong enough. Add additional characters including special characters and numbers.');
-            break;
-          default:
-            console.error(error.message);
-            break;
-        }
-        reject(error);
-      }
-    });
-  }
-
-  public createAgent = (email: string, password: string) => this.createUser(email, password, this._admin);
-
-
   public async connectUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
     return new Promise<FirebaseUserCredential | null>(async (resolve, _) => {
       if (!this._auth)
@@ -458,33 +519,4 @@ export class FirebaseService {
 
   }
 
-  public deleteUser(): Promise<void> {
-    throw new Error('Method not implemented');
-    /* return new Promise<void>((resolve, reject) => {
-      if (!this._user)
-        reject();
-      resolve(deleteUser(this._user!));
-    }); */
-  }
-
-  public updateDocumentField(collectionName: string, document: string, fieldName: string, fieldValue: any): Promise<void> {
-    return new Promise(async (resolve, reject) => {
-      if (!this._db) {
-        reject({
-          msg: "Database is not connected"
-        });
-      }
-
-      const documentRef = doc(this._db as Firestore, collectionName, document);
-      const fieldUpdate = { [fieldName]: fieldValue }; // Crear un objeto con el campo a actualizar
-
-      try {
-        await updateDoc(documentRef, fieldUpdate);
-
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
 }

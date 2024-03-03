@@ -29,7 +29,7 @@ export class AgentsManagementPage {
     private userSvc: UsersService,
     private authSvc: AuthService,
     private subsSvc: SubscriptionsService,
-    private confirmationService: ConfirmationService,
+    private confirmationSvc: ConfirmationService,
     private messageService: MessageService,
     private translate: CustomTranslateService,
     public agentsFacade: AgentsFacade
@@ -99,7 +99,7 @@ export class AgentsManagementPage {
   }
 
   showConfirmDialog(tableRow: AgentsTableRow) {
-    this.confirmationService.confirm({
+    this.confirmationSvc.confirm({
       message: '¿Desea eliminar el usuario? \nEsta acción devolverá al estado "sin confirmar" todas las reservas asociadas al agente.',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',

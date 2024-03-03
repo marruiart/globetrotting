@@ -119,6 +119,6 @@ export class DestinationsManagementPage implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subsSvc.unsubscribe('DestinationsPage');
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 }

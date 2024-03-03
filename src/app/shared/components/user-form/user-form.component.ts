@@ -65,10 +65,10 @@ export class UserFormComponent implements OnDestroy {
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
       this.checkValueChanges({
         'name': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'AgentName' }
+          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
         },
         'surname': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'AgentName' }
+          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
         }
       })
     }
@@ -94,7 +94,7 @@ export class UserFormComponent implements OnDestroy {
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
       // TODO add password change
       const fieldPath = this._user.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
-      const fieldName = this._user.role === 'AUTHENTICATED' ? 'clientName' : 'AgentName';
+      const fieldName = this._user.role === 'AUTHENTICATED' ? 'clientName' : 'agentName';
       this.checkValueChanges({
         'name': {
           'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }

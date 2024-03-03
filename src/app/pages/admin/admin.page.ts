@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { GoogleMap, Marker } from '@capacitor/google-maps';
+import { lastValueFrom } from 'rxjs';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
@@ -20,11 +21,9 @@ export class AdminPage implements AfterViewInit, OnDestroy {
   constructor(
     private destsFacade: DestinationsFacade,
     private subsSvc: SubscriptionsService
-  ) {
-    this.init();
-  }
+  ) { }
 
-  private async init() {
+  private async initSubscriptions() {
     this.subsSvc.addSubscriptions(this.COMPONENT,
       this.destsFacade.destinations$.subscribe(async destinations => {
         if (destinations.length) {
@@ -38,11 +37,12 @@ export class AdminPage implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     await this.createMap();
+    this.initSubscriptions();
   }
 
   private async createMap() {
     this.newMap = await GoogleMap.create({
-      id: 'my-cool-map',
+      id: 'globettroting-map',
       element: this.mapRef.nativeElement,
       apiKey: environment.mapsApiKey,
       config: {
@@ -50,7 +50,7 @@ export class AdminPage implements AfterViewInit, OnDestroy {
           lat: 36.740660343024445,
           lng: -4.554452073511114,
         },
-        zoom: 8,
+        zoom: 2.3,
       },
     });
   }

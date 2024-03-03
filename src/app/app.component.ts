@@ -9,6 +9,8 @@ import { SubscriptionsService } from './core/services/subscriptions.service';
 import { FavoritesFacade } from './core/+state/favorites/favorites.facade';
 import { DestinationsFacade } from './core/+state/destinations/destinations.facade';
 import { BookingsFacade } from './core/+state/bookings/bookings.facade';
+import { ClientsFacade } from './core/+state/clients/clients.facade';
+import { AgentsFacade } from './core/+state/agents/agents.facade';
 
 @Component({
   selector: 'app-root',
@@ -16,18 +18,23 @@ import { BookingsFacade } from './core/+state/bookings/bookings.facade';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnDestroy {
+  private readonly COMPONENT = 'AppComponent';
   public language = "es";
   private subs: Subscription[] = [];
 
   constructor(
-    private locationsApiSvc: LocationsApiService,
+    // Services
     private charactersApiSvc: CharactersApiService,
+    private locationsApiSvc: LocationsApiService,
+    private subsSvc: SubscriptionsService,
     public translate: CustomTranslateService,
+    // Facades
+    private agentsFacade: AgentsFacade,
     private authFacade: AuthFacade,
     private bookingsFacade: BookingsFacade,
-    private favsFacade: FavoritesFacade,
+    private clientsFacade: ClientsFacade,
     private destinationsFacade: DestinationsFacade,
-    private subsSvc: SubscriptionsService
+    private favsFacade: FavoritesFacade,
   ) {
     console.info(BACKEND);
     this.init();
@@ -40,11 +47,13 @@ export class AppComponent implements OnDestroy {
   }
 
   private startSubscriptions() {
-    this.subsSvc.addSubscriptions('AppComponent',
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      this.agentsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
       this.authFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
-      this.favsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
+      this.bookingsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
+      this.clientsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
       this.destinationsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe(),
-      this.bookingsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe()
+      this.favsFacade.error$.pipe(tap(error => { if (error) console.error(error) })).subscribe()
     );
   }
 
@@ -65,8 +74,6 @@ export class AppComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.subs) {
-      this.subs.forEach(sub => sub.unsubscribe());
-    }
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 }

@@ -7,7 +7,7 @@ import { DestinationsService } from '../destinations.service';
 import { Destination, NewDestination } from '../../../models/globetrotting/destination.interface';
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
 import { LatLng } from '@capacitor/google-maps/dist/typings/definitions';
-
+import * as turf from "@turf/turf";
 
 @Injectable({
   providedIn: 'root'
@@ -75,9 +75,35 @@ export class LocationsApiService {
   }
 
   private generateCoordinate(): LatLng {
-    let lat = this.generateRandomNumber(-50, 80);
-    let lng = this.generateRandomNumber(-180, 180);
-    return { lat, lng };
+    const oceanPolygons = [
+      turf.bboxPolygon([-176, -180, -80, 6]),
+      turf.bboxPolygon([-137, 23, -180, 55]),
+      turf.bboxPolygon([145, 23, 180, 55]),
+      turf.bboxPolygon([-55, -80, 180, -45]),
+      turf.bboxPolygon([-55, -35, 130, -52]),
+      turf.bboxPolygon([-33, -80, 8, 2]),
+      turf.bboxPolygon([-61, -80, 8, -41]),
+      turf.bboxPolygon([-44, -80, 8, -24]),
+      turf.bboxPolygon([53, -80, 95, 4]),
+      turf.bboxPolygon([53, -80, 112, -10]),
+      turf.bboxPolygon([-52, 30, -12, 58]),
+      turf.bboxPolygon([-69, 22, -18, 42]),
+      turf.bboxPolygon([116, 74, 180, 90]),
+      turf.bboxPolygon([-128, 71, -180, 90]),
+      turf.bboxPolygon([-22, 66, 12, 80]),
+      turf.bboxPolygon([27, 71, 55, 80])
+    ];
+    let randomCoordinate;
+    do {
+      const lat = this.generateRandomNumber(-50, 80);
+      const lng = this.generateRandomNumber(-180, 180);
+      const mark = turf.point([lng, lat]);
+      const isOcean = oceanPolygons.some(polygon => turf.booleanWithin(mark, polygon));
+      if (!isOcean) {
+        randomCoordinate = { lat: lat, lng };
+      }
+    } while (!randomCoordinate);
+    return randomCoordinate;
   }
 
   private generatePrice(): number {

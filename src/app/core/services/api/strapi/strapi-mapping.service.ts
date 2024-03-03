@@ -112,6 +112,7 @@ export class StrapiMappingService extends MappingService {
       type: data.attributes.type,
       dimension: data.attributes.dimension,
       price: data.attributes.price,
+      coordinate: data.attributes.coordinate ?? { lat: 0, lng: 0 },
       image: data.attributes.image?.data ? this.mapImage(data.attributes.image) : undefined,
       description: data.attributes.description
     }

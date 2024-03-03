@@ -6,6 +6,7 @@ import { HttpService } from '../../http/http.service';
 import { DestinationsService } from '../destinations.service';
 import { Destination, NewDestination } from '../../../models/globetrotting/destination.interface';
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
+import { LatLng } from '@capacitor/google-maps/dist/typings/definitions';
 
 
 @Injectable({
@@ -69,10 +70,18 @@ export class LocationsApiService {
     }
   }
 
-  private generatePrice(): number {
-    let min = 40;
-    let max = 600;
+  private generateRandomNumber(min: number, max: number) {
     return Math.random() * (max - min + 1) + min;
+  }
+
+  private generateCoordinate(): LatLng {
+    let lat = this.generateRandomNumber(-50, 80);
+    let lng = this.generateRandomNumber(-180, 180);
+    return { lat, lng };
+  }
+
+  private generatePrice(): number {
+    return this.generateRandomNumber(40, 600);
   }
 
   private mapNewLocation(location: Location): NewDestination {
@@ -80,6 +89,7 @@ export class LocationsApiService {
       name: location.name,
       type: location.type,
       dimension: location.dimension,
+      coordinate: this.generateCoordinate(),
       image: undefined,
       price: this.generatePrice()
     }
@@ -91,6 +101,7 @@ export class LocationsApiService {
       name: location.name,
       type: location.type,
       dimension: location.dimension,
+      coordinate: this.generateCoordinate(),
       image: undefined,
       price: this.generatePrice()
     }

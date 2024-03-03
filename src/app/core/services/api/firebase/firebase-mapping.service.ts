@@ -79,6 +79,7 @@ export class FirebaseMappingService extends MappingService {
             name: res.data['name'] ?? '',
             type: res.data['type'] ?? '',
             dimension: res.data['dimension'] ?? '',
+            coordinate: res.data['coordinate'] ?? { lat: 0, lng: 0 },
             image: res.data['image'] ?? null,
             price: res.data['price'] ?? 0,
             description: res.data['description'] ?? '',
@@ -238,6 +239,7 @@ export class FirebaseMappingService extends MappingService {
             name: destination.name,
             type: destination.type,
             dimension: destination.dimension,
+            coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,
             description: destination.description
@@ -251,6 +253,7 @@ export class FirebaseMappingService extends MappingService {
             name: destination.name,
             type: destination.type,
             dimension: destination.dimension,
+            coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,
             description: destination.description

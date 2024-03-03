@@ -1,3 +1,4 @@
+import { LatLng } from "@capacitor/google-maps/dist/typings/definitions";
 import { Media } from "./media.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
@@ -12,7 +13,8 @@ export interface NewDestination {
     image?: Media,
     price?: number,
     description?: string,
-    fav?: boolean
+    fav?: boolean,
+    coordinate: LatLng
 }
 
 export type PaginatedDestination = PaginatedData<Destination>

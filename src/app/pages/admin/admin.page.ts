@@ -1,5 +1,8 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { GoogleMap } from '@capacitor/google-maps';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { GoogleMap, Marker } from '@capacitor/google-maps';
+import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
+import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -7,18 +10,37 @@ import { environment } from 'src/environments/environment';
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss'],
 })
-export class AdminPage implements AfterViewInit {
-
+export class AdminPage implements AfterViewInit, OnDestroy {
+  private readonly COMPONENT = 'AdminPage';
   @ViewChild('map') mapRef!: ElementRef<HTMLElement>
   newMap: GoogleMap | undefined
 
-  constructor() { }
+  private markersIds: string[] = [];
 
-  ngAfterViewInit(): void {
-    this.createMap();
+  constructor(
+    private destsFacade: DestinationsFacade,
+    private subsSvc: SubscriptionsService
+  ) {
+    this.init();
   }
 
-  async createMap() {
+  private async init() {
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      this.destsFacade.destinations$.subscribe(async destinations => {
+        if (destinations.length) {
+          await this.removeMarkers();
+          const markers = this.generateMarkers(destinations);
+          await this.addMarkers(...markers);
+        }
+      })
+    );
+  }
+
+  async ngAfterViewInit() {
+    await this.createMap();
+  }
+
+  private async createMap() {
     this.newMap = await GoogleMap.create({
       id: 'my-cool-map',
       element: this.mapRef.nativeElement,
@@ -32,5 +54,28 @@ export class AdminPage implements AfterViewInit {
       },
     });
   }
+
+  private generateMarkers(destinations: Destination[]): Marker[] {
+    return destinations.map(dest => ({ coordinate: dest.coordinate, title: dest.name }))
+  }
+
+  private async addMarkers(...markers: Marker[]) {
+    if (this.newMap) {
+      this.markersIds = await this.newMap.addMarkers(markers);
+    }
+  }
+
+  private async removeMarkers() {
+    if (this.newMap && this.markersIds.length) {
+      await this.newMap.removeMarkers(this.markersIds);
+    }
+  }
+
+
+  ngOnDestroy(): void {
+    this.subsSvc.unsubscribe(this.COMPONENT);
+    this.newMap?.destroy();
+  }
+
 
 }

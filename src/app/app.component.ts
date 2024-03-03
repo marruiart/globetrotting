@@ -50,7 +50,7 @@ export class AppComponent implements OnDestroy {
 
   private fetchExternalData() {
     if (environment.apiUpdate) {
-      lastValueFrom(this.charactersApiSvc.getAllFromApi()).catch(err => console.error(err));
+      //lastValueFrom(this.charactersApiSvc.getAllFromApi()).catch(err => console.error(err));
       lastValueFrom(this.locationsApiSvc.getAllFromApi()).catch(err => console.error(err));
     }
   }

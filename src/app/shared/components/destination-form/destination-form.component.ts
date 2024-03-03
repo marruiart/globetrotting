@@ -24,6 +24,7 @@ export class DestinationFormComponent implements OnDestroy {
             this.form.controls['name'].setValue(destination.name);
             this.form.controls['type'].setValue(destination.type);
             this.form.controls['dimension'].setValue(destination.dimension);
+            this.form.controls['coordinate'].setValue(destination.coordinate);
             this.form.controls['price'].setValue(destination.price ?? 0);
             this.form.controls['description'].setValue(destination.description ?? '');
             if (BACKEND === Backends.FIREBASE) {
@@ -66,6 +67,7 @@ export class DestinationFormComponent implements OnDestroy {
             name: ['', [Validators.required]],
             type: ['', [Validators.required]],
             dimension: ['', [Validators.required]],
+            coordinate: [{ lat: 0, lgn: 0 }, [Validators.required]],
             price: [0, [Validators.required]],
             description: ['', [Validators.required]]
         });
@@ -77,6 +79,7 @@ export class DestinationFormComponent implements OnDestroy {
             name: this.form.value.name,
             type: this.form.value.type,
             dimension: this.form.value.dimension,
+            coordinate: this.form.value.coordinate,
             price: this.form.value.price,
             description: this.form.value.description,
             updates: this.hasChanged ? this.batchUpdate : null

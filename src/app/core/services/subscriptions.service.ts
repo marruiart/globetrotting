@@ -17,7 +17,7 @@ export class SubscriptionsService {
     if (component in this._subs) {
       this._subs[component].forEach(s => {
         if (s) {
-          console.info("Unsubscribing... ", s);
+          //console.info("Unsubscribing... ", s);
           s.unsubscribe();
           s = null;
         }

@@ -26,5 +26,6 @@ export const environment = {
     storageBucket: "globetrotting-80e83.appspot.com",
     messagingSenderId: "890217120061",
     appId: "1:890217120061:web:d170ae38db55fe4a260554"
-  }
+  },
+  mapsApiKey:"AIzaSyDT2eugs04AIhnAGjhWZwv94CQfxLRl8d4"
 };

@@ -315,7 +315,7 @@ export class FirebaseMappingService extends MappingService {
         {
             ...booking,
             start: isoDateToTimestamp(new Date(booking.start).toISOString()),
-            end: isoDateToTimestamp(new Date(booking.start).toISOString()),
+            end: isoDateToTimestamp(new Date(booking.end).toISOString()),
             updatedAt: isoDateToTimestamp(`${new Date()}`)
         }
     )

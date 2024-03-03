@@ -13,6 +13,7 @@
   },
   "menu": {
     "home": "Inicio",
+    "dashboard": "Panel",
     "destinations": "Destinos",
     "about": "Sobre mí",
     "managing": {

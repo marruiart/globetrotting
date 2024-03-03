@@ -13,6 +13,7 @@
   },
   "menu": {
     "home": "Home",
+    "dashboard": "Dashboard",
     "destinations": "Destinations",
     "about": "About me",
     "managing": {

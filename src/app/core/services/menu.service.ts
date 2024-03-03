@@ -23,6 +23,12 @@ export class MenuService {
     routerLink: ['/home']
   }
 
+  private dashboardItem = {
+    label: 'Dashboard',
+    icon: 'custom-icon bar-chart-outline',
+    routerLink: ['/admin']
+  }
+
   private destinationsItem =
     {
       label: 'Destinos',
@@ -126,6 +132,7 @@ export class MenuService {
 
   public selectMenu(nickname?: string) {
     const homeItem$ = this.translate.getTranslation("menu.home");
+    const dashboardItem$ = this.translate.getTranslation("menu.dashboard");
     const destinationsItem$ = this.translate.getTranslation("menu.destinations");
     const aboutItem$ = this.translate.getTranslation("menu.about");
     const managingItem$ = this.translate.getTranslation("menu.managing.top");
@@ -140,6 +147,7 @@ export class MenuService {
 
     const customMenu$ = zip(
       homeItem$,
+      dashboardItem$,
       destinationsItem$,
       aboutItem$,
       managingItem$,
@@ -154,6 +162,7 @@ export class MenuService {
       .pipe(
         switchMap(([
           home,
+          dashboard,
           destinations,
           about,
           management,
@@ -166,7 +175,7 @@ export class MenuService {
           logout,
           mybookings
         ]) => {
-          this.translateMenuItems(home, destinations, about, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings, nickname);
+          this.translateMenuItems(home, dashboard, destinations, about, management, managementBookings, managementsDestination, managementAgents, login, user, profile, logout, mybookings, nickname);
           return this.authFacade.role$.pipe(
             switchMap(role => {
               return of(this.createMenu(role));
@@ -179,6 +188,7 @@ export class MenuService {
 
   private translateMenuItems(
     home: string,
+    dashboard: string,
     destinations: string,
     about: string,
     management: string,
@@ -193,6 +203,7 @@ export class MenuService {
     nickname?: string
   ) {
     this.homeItem.label = home;
+    this.dashboardItem.label = dashboard;
     this.destinationsItem.label = destinations;
     this.aboutItem.label = about;
     this.managingItem.label = management;
@@ -219,16 +230,14 @@ export class MenuService {
         ];
       case 'ADMIN':
         return [
-          this.homeItem,
-          this.destinationsItem,
+          this.dashboardItem,
           this.aboutItem,
           this.adminManagingItem,
           this.userProfileItem
         ];
       case 'AGENT':
         return [
-          this.homeItem,
-          this.destinationsItem,
+          this.dashboardItem,
           this.aboutItem,
           this.managingItem,
           this.userProfileItem

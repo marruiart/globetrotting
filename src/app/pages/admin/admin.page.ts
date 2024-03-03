@@ -25,8 +25,8 @@ export class AdminPage implements AfterViewInit {
       apiKey: environment.mapsApiKey,
       config: {
         center: {
-          lat: 33.6,
-          lng: -117.9,
+          lat: 36.740660343024445,
+          lng: -4.554452073511114,
         },
         zoom: 8,
       },

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { finalize, map, Observable, tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { finalize, map, Observable } from 'rxjs';
+import { BACKEND, environment } from 'src/environments/environment';
 import { Location } from '../../../models/rick-morty-api/location.interface';
 import { HttpService } from '../../http/http.service';
 import { DestinationsService } from '../destinations.service';
@@ -8,6 +8,7 @@ import { Destination, NewDestination } from '../../../models/globetrotting/desti
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
 import { LatLng } from '@capacitor/google-maps/dist/typings/definitions';
 import * as turf from "@turf/turf";
+import { Backends } from 'src/app/core/utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -111,26 +112,31 @@ export class LocationsApiService {
   }
 
   private mapNewLocation(location: Location): NewDestination {
-    return {
+    let coordinate: string | LatLng = this.generateCoordinate();
+    let newDest: NewDestination = {
       name: location.name,
       type: location.type,
       dimension: location.dimension,
-      coordinate: this.generateCoordinate(),
+      coordinate: coordinate,
       image: undefined,
       price: this.generatePrice()
+    }
+    if (BACKEND === Backends.STRAPI) {
+      return {
+        ...newDest,
+        lat: coordinate.lat,
+        lng: coordinate.lng
+      } as NewDestination
+    } else {
+      return newDest;
     }
   }
 
   private mapLocation(location: Location): Destination {
     return {
-      id: location.id,
-      name: location.name,
-      type: location.type,
-      dimension: location.dimension,
-      coordinate: this.generateCoordinate(),
-      image: undefined,
-      price: this.generatePrice()
-    }
+      ...this.mapNewLocation(location),
+      id: location.id
+    } as Destination
   }
 
   public addLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {

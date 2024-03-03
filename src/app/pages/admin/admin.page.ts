@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { GoogleMap, Marker } from '@capacitor/google-maps';
+import { LatLng } from '@capacitor/google-maps/dist/typings/definitions';
 import { lastValueFrom } from 'rxjs';
 import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 import { environment } from 'src/environments/environment';
 
@@ -20,10 +22,13 @@ export class AdminPage implements AfterViewInit, OnDestroy {
 
   constructor(
     private destsFacade: DestinationsFacade,
+    private destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService
-  ) { }
+  ) {
+   }
 
   private async initSubscriptions() {
+    await lastValueFrom(this.destinationsSvc.getAllDestinations());
     this.subsSvc.addSubscriptions(this.COMPONENT,
       this.destsFacade.destinations$.subscribe(async destinations => {
         if (destinations.length) {
@@ -56,7 +61,10 @@ export class AdminPage implements AfterViewInit, OnDestroy {
   }
 
   private generateMarkers(destinations: Destination[]): Marker[] {
-    return destinations.map(dest => ({ coordinate: dest.coordinate, title: dest.name }))
+    return destinations.map(dest => {
+      const coordinate = (typeof dest.coordinate === 'string') ? JSON.parse(dest.coordinate) as LatLng : dest.coordinate;
+      return { coordinate: coordinate, title: dest.name }
+    })
   }
 
   private async addMarkers(...markers: Marker[]) {

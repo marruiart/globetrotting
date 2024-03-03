@@ -14,7 +14,9 @@ export interface NewDestination {
     price?: number,
     description?: string,
     fav?: boolean,
-    coordinate: LatLng
+    coordinate: LatLng | string,
+    lat?: number,
+    lng?: number
 }
 
 export type PaginatedDestination = PaginatedData<Destination>

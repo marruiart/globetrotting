@@ -12,5 +12,7 @@ export interface StrapiDestination {
   description?: string,
   coordinate?: LatLng,
   image?: StrapiResponse<StrapiMedia>
-  price?: any
+  price?: any,
+  lat: number,
+  lng: number
 }

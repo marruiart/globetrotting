@@ -105,18 +105,21 @@ export class StrapiMappingService extends MappingService {
 
   // DESTINATIONS
 
-  private mapDestinationData = (data: StrapiData<StrapiDestination>): Destination => (
-    {
+  private mapDestinationData = (data: StrapiData<StrapiDestination>): Destination => {
+    const coordinate = { lat: data.attributes.lat, lng: data.attributes.lng };
+    return {
       id: data.id,
       name: data.attributes.name,
       type: data.attributes.type,
       dimension: data.attributes.dimension,
       price: data.attributes.price,
-      coordinate: data.attributes.coordinate ?? { lat: 0, lng: 0 },
+      lat: coordinate.lat,
+      lng: coordinate.lng,
+      coordinate: coordinate,
       image: data.attributes.image?.data ? this.mapImage(data.attributes.image) : undefined,
       description: data.attributes.description
     }
-  )
+  }
 
   public mapDestination = (res: StrapiResponse<StrapiDestination>): Destination =>
     this.mapDestinationData(res.data);
@@ -344,7 +347,9 @@ export class StrapiMappingService extends MappingService {
         dimension: destination.dimension,
         price: destination.price,
         image: undefined,
-        description: destination.description
+        description: destination.description,
+        lat: destination.lat ?? 0,
+        lng: destination.lng ?? 0
       }
     }
   }

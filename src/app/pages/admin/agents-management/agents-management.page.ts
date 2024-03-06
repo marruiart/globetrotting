@@ -98,15 +98,19 @@ export class AgentsManagementPage {
     this.agentsFacade.initAgents();
   }
 
-  showConfirmDialog(tableRow: AgentsTableRow) {
+  async showConfirmDialog(tableRow: AgentsTableRow) {
+    const message = await lastValueFrom(this.translate.getTranslation("agentsManagement.deleteMessage"));
+    const confirmation = await lastValueFrom(this.translate.getTranslation("agentsManagement.deleteConfirmationTitle"));
+    const detail = await lastValueFrom(this.translate.getTranslation("agentsManagement.deleteDetailMessage"));
+
     this.confirmationSvc.confirm({
-      message: '¿Desea eliminar el usuario? \nEsta acción devolverá al estado "sin confirmar" todas las reservas asociadas al agente.',
-      header: 'Confirmación',
+      message: message,
+      header: confirmation,
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         if (tableRow.ext_id) {
           this.deleteAgent(tableRow.ext_id, tableRow.user_id); // TODO obtener los datos de este agent
-          this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Usuario eliminado' });
+          this.messageService.add({ severity: 'success', summary: confirmation, detail: detail });
         } else {
           console.error("ERROR: Unknown user id. The user could not be deleted.");
         }

@@ -96,7 +96,10 @@
     "tableEmail": "Email",
     "tableOptions": "Opciones",
     "addAgentBtn": "Añadir agente",
-    "editAgentHeader": "Editar datos del agente"
+    "editAgentHeader": "Editar datos del agente",
+    "deleteMessage": "¿Desea eliminar el usuario? \nEsta acción devolverá al estado \"sin confirmar\" todas las reservas asociadas al agente.",
+    "deleteConfirmationTitle": "Confirmación",
+    "deleteDetailMessage": "Usuario eliminado"
   },
   "destinationForm": {
     "destination": "Lugar de destino",

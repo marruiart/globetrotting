@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
-import { User, UserCredentials } from '../../models/globetrotting/user.interface';
-import { MappingService } from './mapping.service';
-import { DataService } from './data.service';
-import { UsersService } from './users.service';
 import { QueryConstraint, Unsubscribe, where } from 'firebase/firestore';
-import { FirebaseService } from '../firebase/firebase.service';
-import { FirebaseCollectionResponse, FormChanges } from '../../models/firebase-interfaces/firebase-data.interface';
-import { Role, Roles, StrapiEndpoints, getCollectionsChanges } from '../../utilities/utilities';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { AuthFacade } from '../../+state/auth/auth.facade';
+import { FirebaseCollectionResponse, FormChanges } from '../../models/firebase-interfaces/firebase-data.interface';
+import { User, UserCredentials } from '../../models/globetrotting/user.interface';
+import { Collections, Role, Roles, StrapiEndpoints, getCollectionsChanges } from '../../utilities/utilities';
+import { FirebaseService } from '../firebase/firebase.service';
+import { DataService } from './data.service';
+import { MappingService } from './mapping.service';
+import { UsersService } from './users.service';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
@@ -35,7 +35,7 @@ export class SubscribableUsersService extends UsersService {
   private subscribeToUsers() {
     const _users = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
     const byRole: QueryConstraint = where('role', '==', Roles.AUTHENTICATED);
-    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _users, byRole);
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery(Collections.USERS, _users, byRole);
     _users.subscribe(clients => {
       if (clients) {
         this.clientsFacade.saveClients(clients.docs.map(client => this.mappingSvc.mapUser(client)));

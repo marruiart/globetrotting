@@ -7,11 +7,11 @@ import { PaginatedData } from "./pagination-data.interface";
  * @property {number | string} user_id - The related user id.
  * @property {Booking[]} bookings - That travel agent bookings.
  */
-export interface TravelAgent extends NewTravelAgent {
+export type TravelAgent = NewTravelAgent & {
     id: number | string
 }
 
-export interface NewTravelAgent {
+export type NewTravelAgent = {
     user_id: number | string,
     bookings: Booking[]
 }
@@ -26,4 +26,4 @@ export interface AgentsTableRow {
     name: string,
     surname: string,
     email: string
-  }
+}

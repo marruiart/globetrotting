@@ -1,11 +1,11 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, concatMap, of, tap } from 'rxjs';
-import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { MappingService } from '../mapping.service';
+import { inject } from '@angular/core';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
-import { DataService } from '../data.service';
-import { Roles, StrapiEndpoints } from 'src/app/core/utilities/utilities';
 import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade';
+import { Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
+import { Roles, StrapiEndpoints } from 'src/app/core/utilities/utilities';
+import { DataService } from '../data.service';
+import { MappingService } from '../mapping.service';
 
 
 export class StrapiFavoritesService {
@@ -53,7 +53,7 @@ export class StrapiFavoritesService {
 
   public addFav(newFav: NewFav): Observable<Fav> {
     return this.dataSvc.save<Fav>(StrapiEndpoints.FAVORITES, this.body(newFav), this.mapSvc.mapFav).pipe(tap(_ => {
-      if (this.userRole == Roles.AUTHENTICATED) {
+      if (this.userRole=== Roles.AUTHENTICATED) {
         this.getAllClientFavs().subscribe();
       }
     }));
@@ -61,7 +61,7 @@ export class StrapiFavoritesService {
 
   public updateFav(fav: Fav): Observable<Fav> {
     return this.dataSvc.update<Fav>(StrapiEndpoints.FAVORITES, fav.id, this.body(fav), this.body).pipe(tap(_ => {
-      if (this.userRole == Roles.AUTHENTICATED) {
+      if (this.userRole=== Roles.AUTHENTICATED) {
         this.getAllClientFavs().subscribe();
       }
     }));
@@ -69,7 +69,7 @@ export class StrapiFavoritesService {
 
   public deleteFav(id: number): Observable<Fav> {
     return this.dataSvc.delete<Fav>(StrapiEndpoints.FAVORITES, this.body, id, {}).pipe(tap(_ => {
-      if (this.userRole == Roles.AUTHENTICATED) {
+      if (this.userRole=== Roles.AUTHENTICATED) {
         this.getAllClientFavs().subscribe();
       }
     }));

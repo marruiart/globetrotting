@@ -8,7 +8,7 @@ import { QueryConstraint, Unsubscribe, orderBy, where } from 'firebase/firestore
 import { FirebaseService } from '../firebase/firebase.service';
 import { FirebaseCollectionResponse } from '../../models/firebase-interfaces/firebase-data.interface';
 import { AgentUser } from '../../models/globetrotting/user.interface';
-import { Roles } from '../../utilities/utilities';
+import { Collections, Roles } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +38,7 @@ export class SubscribableAgentService extends AgentService {
     const _agents = new BehaviorSubject<FirebaseCollectionResponse | null>(null);
     const filterAgents: QueryConstraint = where('role', '!=', Roles.AUTHENTICATED);
     const orderByRole = orderBy('role');
-    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery('users', _agents, orderByRole, filterAgents);
+    this.unsubscribe = this.firebaseSvc.subscribeToCollectionQuery(Collections.USERS, _agents, orderByRole, filterAgents);
     _agents.subscribe(res => {
       if (res) {
         const agents = res.docs.map(doc => this.mappingSvc.mapAdminAgentOrClientUser(doc) as AgentUser);

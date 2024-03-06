@@ -29,7 +29,8 @@ export interface NewBooking {
     clientName?: string,
     destination_id: string | number,
     destinationName?: string,
-    updatedAt?: string
+    updatedAt?: string,
+    createdAt?: string
 }
 
 export interface BookingForm {

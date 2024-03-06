@@ -1,12 +1,12 @@
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
-import { FirebaseService } from '../../firebase/firebase.service';
-import { AuthService } from '../../auth/auth.service';
-import { AgentRegisterInfo, AgentUser, ClientUser, AdminAgentOrClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
-import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { inject } from '@angular/core';
-import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { Observable, from, map } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { AdminAgentOrClientUser, AgentRegisterInfo, AgentUser, ClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { Collections, Role, Roles } from 'src/app/core/utilities/utilities';
+import { AuthService } from '../../auth/auth.service';
+import { FirebaseService } from '../../firebase/firebase.service';
 import { MappingService } from '../mapping.service';
 
 export class FirebaseAuthService extends AuthService {
@@ -35,32 +35,6 @@ export class FirebaseAuthService extends AuthService {
     });
   }
 
-  private mapUserPayload(credentials: FirebaseUserCredential, registerInfo: UserRegisterInfo, isAgent: boolean) {
-    const _agentInfo = (registerInfo as AgentRegisterInfo) ?? undefined;
-    const nickname = (registerInfo as AgentRegisterInfo).nickname ?? registerInfo.username;
-
-    const commonInfo = {
-      user_id: credentials.user.user.uid,
-      username: registerInfo.username,
-      email: registerInfo.email,
-      nickname: nickname
-    };
-    if (isAgent) {
-      return {
-        ...commonInfo,
-        role: Roles.AGENT,
-        name: _agentInfo.name,
-        surname: _agentInfo.surname,
-      } as AgentUser;
-    } else {
-      return {
-        ...commonInfo,
-        role: Roles.AUTHENTICATED,
-        favorites: []
-      } as ClientUser;
-    }
-  }
-
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<any | null> {
 
     return new Observable<any>(observer => {
@@ -76,7 +50,7 @@ export class FirebaseAuthService extends AuthService {
           observer.error('Error: Registration failed.');
         }
         if (credentials?.user.user.uid) {
-          const userInfo = this.mapUserPayload(credentials, registerInfo, isAgent);
+          const userInfo = this.mappingSvc.mapNewExtUserPayload({ ...credentials, ...registerInfo }, isAgent);
           this.postRegister(userInfo).subscribe({
             next: _ => {
               observer.next(userInfo);
@@ -93,7 +67,7 @@ export class FirebaseAuthService extends AuthService {
 
   private postRegister(userInfo: AdminAgentOrClientUser): Observable<any> {
     // TODO FirebaseRegisterPayload
-    return from(this.firebaseSvc.createDocumentWithId('users', userInfo, `${userInfo.user_id}`));
+    return from(this.firebaseSvc.createDocumentWithId(Collections.USERS, userInfo, `${userInfo.user_id}`));
   }
 
   public me(): Observable<AdminAgentOrClientUser> {
@@ -102,10 +76,10 @@ export class FirebaseAuthService extends AuthService {
       this.authFacade.userId$.pipe(map(async uid => {
         if (uid) {
           try {
-            const doc: FirebaseDocument = await this.firebaseSvc.getDocument('users', `${uid}`); // no cambiar el uid, debe ser string
+            const doc: FirebaseDocument = await this.firebaseSvc.getDocument(Collections.USERS, `${uid}`); // no cambiar el uid, debe ser string
             const role = doc.data['role'] as Role;
             let user: AdminAgentOrClientUser; // TODO funciones de mapeo
-            if (role === 'ADMIN' || role === 'AGENT') {
+            if (role === Roles.ADMIN || role === Roles.AGENT) {
               user = {
                 role: role,
                 user_id: uid,

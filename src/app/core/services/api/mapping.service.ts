@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { NewExtUser, PaginatedUser, UserCredentialsOptions, AdminAgentOrClientUser, User } from '../../models/globetrotting/user.interface';
-import { Media } from '../../models/globetrotting/media.interface';
-import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
+import { AgentsTableRow, NewTravelAgent, TravelAgent } from '../../models/globetrotting/agent.interface';
 import { AgentRowInfo, Booking, BookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from '../../models/globetrotting/booking.interface';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { TravelAgent, NewTravelAgent, AgentsTableRow } from '../../models/globetrotting/agent.interface';
+import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
+import { ClientFavDestination, Fav, NewFav } from '../../models/globetrotting/fav.interface';
+import { Media } from '../../models/globetrotting/media.interface';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { AdminAgentOrClientUser, PaginatedUser, User, UserCredentialsOptions } from '../../models/globetrotting/user.interface';
 import { Role } from '../../utilities/utilities';
 
 @Injectable({
@@ -50,12 +50,17 @@ export abstract class MappingService {
 
   public abstract mapNewDestinationPayload(destination: NewDestination): any;
   public abstract mapDestinationPayload(destination: Destination): any;
+
   public abstract mapFavPayload(fav: NewFav): any;
-  public abstract mapNewExtUserPayload(user: any): any;
+
+  public abstract mapNewExtUserPayload(user: any, isAgent?: boolean): any;
   public abstract mapExtUserPayload(user: any): any;
   public abstract mapUserCredentialsPayload(user: User): any;
+
   public abstract mapClientPayload(client: NewClient): any
+
   public abstract mapAgentPayload(client: NewTravelAgent): any
+  
   public abstract mapNewBookingPayload(booking: NewBooking): any;
   public abstract mapBookingPayload(booking: Booking): any;
 }

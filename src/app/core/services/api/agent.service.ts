@@ -5,7 +5,6 @@ import { MappingService } from './mapping.service';
 import { TravelAgent, NewTravelAgent, PaginatedAgent } from '../../models/globetrotting/agent.interface';
 import { DataService } from './data.service';
 import { AgentsFacade } from '../../+state/agents/agents.facade';
-import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Roles, StrapiEndpoints } from '../../utilities/utilities';

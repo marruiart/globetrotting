@@ -1,12 +1,12 @@
 import { inject } from '@angular/core';
-import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
-import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
-import { MappingService } from '../mapping.service';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
-import { DataService } from '../data.service';
+import { ClientFavDestination, Fav, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
 import { AdminAgentOrClientUser } from 'src/app/core/models/globetrotting/user.interface';
-import { FirebaseService } from '../../firebase/firebase.service';
 import { Roles, StrapiEndpoints } from 'src/app/core/utilities/utilities';
+import { FirebaseService } from '../../firebase/firebase.service';
+import { DataService } from '../data.service';
+import { MappingService } from '../mapping.service';
 
 
 export class FirebaseFavoritesService {
@@ -56,7 +56,7 @@ export class FirebaseFavoritesService {
 
   public deleteFav(id: number): Observable<Fav> {
     let deletedFav: Fav | null = null;
-    if (this.user && this.user.role == 'AUTHENTICATED') {
+    if (this.user && this.user.role === Roles.AUTHENTICATED) {
       const favs = this.user.favorites.reduce((prev: ClientFavDestination[], fav: ClientFavDestination) => {
         if (fav.fav_id != id) {
           prev.push(fav);

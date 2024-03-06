@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore"
 import { Role } from "../../utilities/utilities"
 import { Booking, ClientBooking } from "../globetrotting/booking.interface"
 import { ClientFavDestination } from "../globetrotting/fav.interface"
@@ -29,15 +30,19 @@ export interface FirebaseAuthUser {
 // PAYLOAD
 
 export type NewFirebaseUserPayload = {
+    user_id: string,
+    role: Role,
     email: string,
-    nickname: string,
     username: string,
+    nickname: string,
     name?: string,
     surname?: string,
-    favorites?: ClientFavDestination[]
+    favorites?: ClientFavDestination[],
+    createdAt?: Timestamp
 }
 
 export type FirebaseUserPayload = {
     avatar?: any,
     age?: string,
+    updatedAt?: Timestamp
 } & NewFirebaseUserPayload

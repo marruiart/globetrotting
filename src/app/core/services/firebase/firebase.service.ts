@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { Auth, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { DocumentData, DocumentSnapshot, FieldPath, Firestore, QueryCompositeFilterConstraint, QueryConstraint, QueryNonFilterConstraint, Unsubscribe, WhereFilterOp, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, query, setDoc, startAfter, updateDoc, where, writeBatch } from "firebase/firestore";
+import { FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { BehaviorSubject } from 'rxjs';
-import { initializeApp, FirebaseApp } from "firebase/app";
-import { doc, getDoc, startAfter, setDoc, getFirestore, Firestore, updateDoc, onSnapshot, deleteDoc, DocumentData, Unsubscribe, where, addDoc, collection, getDocs, query, limit, DocumentSnapshot, arrayUnion, FieldPath, WhereFilterOp, QueryConstraint, QueryCompositeFilterConstraint, QueryNonFilterConstraint, writeBatch, DocumentReference } from "firebase/firestore";
-import { getStorage, ref, getDownloadURL, uploadBytes, FirebaseStorage } from "firebase/storage";
-import { createUserWithEmailAndPassword, signInAnonymously, signOut, signInWithEmailAndPassword, initializeAuth, indexedDBLocalPersistence, Auth } from "firebase/auth";
 import { CollectionUpdates, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
-import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
+import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Collections, Roles } from '../../utilities/utilities';
 
@@ -402,15 +402,6 @@ export class FirebaseService {
         });
       resolve(await deleteDoc(doc(this._db!, collectionName, docId)));
     });
-  }
-
-  public deleteUser(): Promise<void> {
-    throw new Error('Method not implemented');
-    /* return new Promise<void>((resolve, reject) => {
-      if (!this._user)
-        reject();
-      resolve(deleteUser(this._user!));
-    }); */
   }
 
   // SUBSCRIPTIONS

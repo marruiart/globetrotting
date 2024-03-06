@@ -7,11 +7,10 @@ import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interfac
 import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
+import { Backend, Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 import { BACKEND, environment } from 'src/environments/environment';
-import { BackendTypes } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-user-form',
@@ -29,7 +28,7 @@ export class UserFormComponent implements OnDestroy {
   private hasChanged: boolean = false;
   public userForm: FormGroup = this.fb.group({});;
   public errMsg: string = '';
-  public backend = environment.backend as BackendTypes;
+  public backend = environment.backend as Backend;
 
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
@@ -274,7 +273,7 @@ export class UserFormComponent implements OnDestroy {
     this.onNavigateToRegisterClicked.emit();
   }
 
-  private getUserCredentials(backend: BackendTypes): UserCredentialsOptions {
+  private getUserCredentials(backend: Backend): UserCredentialsOptions {
     // TODO call mapping service to get payload
     if (backend == Backends.FIREBASE) {
       return {
@@ -293,7 +292,7 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  private getUserRegisterInfo(backend: BackendTypes): UserRegisterInfoOptions {
+  private getUserRegisterInfo(backend: Backend): UserRegisterInfoOptions {
     switch (backend) {
       case Backends.FIREBASE:
         let firebaseRegister: FirebaseUserRegisterInfo = {

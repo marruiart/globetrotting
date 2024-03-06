@@ -9,7 +9,7 @@ import { Collection, Collections, StrapiEndpoints } from 'src/app/core/utilities
 export class FirebaseDataService extends DataService {
     private firebaseSvc = inject(FirebaseService);
 
-    private getCollectionName(endpoint: StrapiEndpoints) {
+    private getCollectionName(endpoint: string) {
         switch (endpoint) {
             case StrapiEndpoints.BOOKINGS:
                 return Collections.BOOKINGS

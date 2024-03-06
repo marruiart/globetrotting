@@ -2,10 +2,10 @@ import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { StrapiFavoritesService } from "../services/api/strapi/strapi-favorites.service";
 import { FirebaseFavoritesService } from "../services/api/firebase/firebase-favorites.service";
-import { BackendTypes, Backends } from "../utilities/utilities";
+import { Backend, Backends } from "../utilities/utilities";
 
 export function FavoritesServiceFactory(
-  backend: BackendTypes,
+  backend: Backend,
   dataSvc: DataService,
   mappingSvc: MappingService
 ) {

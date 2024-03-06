@@ -1,6 +1,6 @@
-import { Timestamp } from "firebase/firestore";
-import { ExtUser, User } from "../models/globetrotting/user.interface";
-import { BatchUpdate, CollectionUpdates } from "../models/firebase-interfaces/firebase-data.interface";
+import { Timestamp } from 'firebase/firestore';
+import { ExtUser, User } from '../models/globetrotting/user.interface';
+import { BatchUpdate, CollectionUpdates } from '../models/firebase-interfaces/firebase-data.interface';
 
 export const isType = <T>(item: any): item is T => true;
 
@@ -54,51 +54,56 @@ export function getCollectionsChanges(updates: BatchUpdate): CollectionUpdates {
 // TYPES
 export type Strapi = 'Strapi';
 export type Firebase = 'Firebase';
-export type BackendTypes = Firebase | Strapi;
+export type Backend = Firebase | Strapi;
+
 type Admin = 'ADMIN';
 type Agent = 'AGENT';
 type Authenticated = 'AUTHENTICATED';
 export type Role = Admin | Agent | Authenticated;
-export type Collection = 'destinations' | 'users' | 'bookings';
+
+type Destinations = 'destinations';
+type Users = 'users';
+type Bookings = 'bookings';
+export type Collection = Destinations | Users | Bookings;
+
+export type FormType = 'LOGIN' | 'REGISTER' | 'REGISTER_AGENT' | 'PROFILE' | 'UPDATE_AGENT';
 
 // CONSTANTS
-export class Roles {
-  static AUTHENTICATED: Authenticated = 'AUTHENTICATED'
-  static ADMIN: Admin = 'ADMIN'
-  static AGENT: Agent = 'AGENT'
+export const Roles = {
+  AUTHENTICATED: 'AUTHENTICATED' as Authenticated,
+  ADMIN: 'ADMIN' as Admin,
+  AGENT: 'AGENT' as Agent
 }
 
-export class Collections {
-  static DESTINATIONS: Collection = 'destinations'
-  static USERS: Collection = 'users'
-  static BOOKINGS: Collection = 'bookings'
+export const Collections = {
+  DESTINATIONS: 'destinations' as Destinations,
+  USERS: 'users' as Users,
+  BOOKINGS: 'bookings' as Bookings
 }
 
-export class Backends {
-  static STRAPI: Strapi = 'Strapi'
-  static FIREBASE: BackendTypes = 'Firebase'
+export const Backends = {
+  STRAPI: 'Strapi' as Strapi,
+  FIREBASE: 'Firebase' as Firebase
 }
 
-export class StrapiEndpoints {
-  static BOOKINGS = "/api/bookings"
-  static USER_PERMISSIONS = "/api/users"
-  static EXTENDED_USERS = "/api/extended-users"
-  static ME = "/api/users/me"
-  static REGISTER = "/api/auth/local/register"
-  static LOGIN = "/api/auth/local"
-  static ROLES = "/api/users-permissions/roles"
-  static AGENTS = "/api/agents"
-  static CLIENTS = "/api/clients"
-  static DESTINATIONS = "/api/destinations"
-  static FAVORITES = "/api/favorites"
+export const StrapiEndpoints = {
+  BOOKINGS: '/api/bookings',
+  USER_PERMISSIONS: '/api/users',
+  EXTENDED_USERS: '/api/extended-users',
+  ME: '/api/users/me',
+  REGISTER: '/api/auth/local/register',
+  LOGIN: '/api/auth/local',
+  ROLES: '/api/users-permissions/roles',
+  AGENTS: '/api/agents',
+  CLIENTS: '/api/clients',
+  DESTINATIONS: '/api/destinations',
+  FAVORITES: '/api/favorites'
 }
 
-export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
-
-export class FormTypes {
-  static LOGIN: FormType = "LOGIN"
-  static REGISTER: FormType = "REGISTER"
-  static REGISTER_AGENT: FormType = "REGISTER_AGENT"
-  static PROFILE: FormType = "PROFILE"
-  static UPDATE_AGENT: FormType = "UPDATE_AGENT"
+export const FormTypes = {
+  LOGIN: 'LOGIN' as 'LOGIN',
+  REGISTER: 'REGISTER' as 'REGISTER',
+  REGISTER_AGENT: 'REGISTER_AGENT' as 'REGISTER_AGENT',
+  PROFILE: 'PROFILE' as 'PROFILE',
+  UPDATE_AGENT: 'UPDATE_AGENT' as 'UPDATE_AGENT'
 }

@@ -1,9 +1,7 @@
-export type Strapi = 'Strapi';
-export type Firebase = 'Firebase';
-export type BackendTypes = Firebase | Strapi;
+import { Backend, Firebase } from "src/app/core/utilities/utilities";
 
-export type Backend = Firebase;
-export const BACKEND: BackendTypes = 'Firebase';
+export type CurrentBackend = Firebase;
+export const BACKEND: Backend = 'Firebase';
 
 export const environment = {
   production: true,

@@ -2,10 +2,10 @@ import { StrapiAuthService } from "../services/api/strapi/strapi-auth.service";
 import { FirebaseAuthService } from "../services/api/firebase/firebase-auth.service";
 import { JwtService } from "../services/auth/jwt.service";
 import { ApiService } from "../services/api/api.service";
-import { BackendTypes, Backends } from "../utilities/utilities";
+import { Backend, Backends } from "../utilities/utilities";
 
 export function AuthServiceFactory(
-  backend: BackendTypes,
+  backend: Backend,
   jwtSvc: JwtService,
   apiSvc: ApiService
 ) {

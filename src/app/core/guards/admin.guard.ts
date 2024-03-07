@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AuthFacade } from '../+state/auth/auth.facade';
+import { Roles } from '../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +19,8 @@ export class AdminGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return this.authFacade.role$.pipe(map(role => {
       const url = state.url;
-      const agentPermissions = role == 'AGENT' || role == 'ADMIN';
-      const adminPermissions = role == 'ADMIN';
+      const agentPermissions = role === Roles.AGENT || role === Roles.ADMIN;
+      const adminPermissions = role === Roles.ADMIN;
       if (url == '/admin/agents-management' && adminPermissions) {
         return true;
       } else if (url == '/admin/agents-management' && agentPermissions) {

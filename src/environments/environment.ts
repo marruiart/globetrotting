@@ -2,10 +2,10 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-import { BackendTypes, Firebase, Strapi } from "src/app/core/utilities/utilities";
+import { Backend, Firebase, Strapi } from "src/app/core/utilities/utilities";
 
-export type Backend = Firebase;
-export const BACKEND: BackendTypes = 'Firebase';
+export type CurrentBackend = Firebase;
+export const BACKEND: Backend = 'Firebase';
 
 export const environment = {
   production: false,

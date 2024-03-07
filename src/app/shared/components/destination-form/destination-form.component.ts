@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { BACKEND } from 'src/environments/environment';
-import { Backends } from 'src/app/core/utilities/utilities';
-import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 import { BatchUpdate, FormChanges } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+import { Backends } from 'src/app/core/utilities/utilities';
+import { BACKEND } from 'src/environments/environment';
 
 @Component({
     selector: 'app-destination-form',
@@ -31,31 +31,42 @@ export class DestinationFormComponent implements OnDestroy {
                 // TODO add password change
                 this.checkValueChanges({
                     'name': {
-                        'bookings': { fieldPath: 'destination_id', value: destination.id, fieldName: 'destinationName' }
+                        'bookings': [{ fieldPath: 'destination_id', value: destination.id, fieldName: 'destinationName' }]
                     }
                 })
             }
         }
     }
 
-    private checkValueChanges(batchUpdate: BatchUpdate) {
+    private checkValueChanges(batchUpdate: BatchUpdate, specialFieldsCallback?: (controlName: string, form: FormGroup) => (string | null)) {
+        // TODO export the same in user-form
         this.batchUpdate = { ...batchUpdate };
         const initialValue = this.form.value;
         Object.entries(batchUpdate).forEach(([controlName, collections]) => {
             const formControl = this.form.controls[controlName];
             this.subsSvc.addSubscriptions(this.COMPONENT,
-                formControl.valueChanges.subscribe(fieldValue => {
-                    const hasChanged = initialValue[controlName] !== fieldValue;
+                formControl.valueChanges.subscribe(newFieldValue => {
+                    const hasChanged = initialValue[controlName] !== newFieldValue;
                     if (hasChanged) {
                         this.hasChanged = hasChanged;
+                        //const _newFieldValue = specialFieldsCallback ? specialFieldsCallback(controlName, this.form) : newFieldValue;
+                        if (specialFieldsCallback) {
+                            newFieldValue = specialFieldsCallback(controlName, this.form) ?? newFieldValue;
+                        }
                         Object.entries(collections).forEach(([collection, updates]) => {
-                            this.batchUpdate![controlName][collection] = { ...updates, fieldValue }
+                            updates.map(({ fieldPath, value, fieldName, fieldValue }) => {
+                                const batchUpdate = this.batchUpdate![controlName][collection];
+                                this.batchUpdate![controlName][collection] = batchUpdate.map(upd => {
+                                    const _fieldValue = (upd.fieldPath === fieldPath && upd.value === value && upd.fieldName === fieldName) ? newFieldValue : fieldValue;
+                                    return { ...upd, fieldValue: _fieldValue };
+                                })
+                            })
+
                         })
                     }
                 }))
         })
     }
-
     @Output() onDestinationFormAccepted: EventEmitter<Destination> = new EventEmitter<Destination>();
 
     constructor(

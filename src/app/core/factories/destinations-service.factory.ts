@@ -2,10 +2,10 @@ import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { SubscribableDestinationsService } from "../services/api/subscribable-destinations.service";
 import { DestinationsService } from "../services/api/destinations.service";
-import { BackendTypes, Backends } from "../utilities/utilities";
+import { Backend, Backends } from "../utilities/utilities";
 
 export function DestinationsServiceFactory(
-    backend: BackendTypes,
+    backend: Backend,
     dataSvc: DataService,
     mappingSvc: MappingService
 ) {

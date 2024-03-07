@@ -1,9 +1,9 @@
 import { createReducer, on } from '@ngrx/store';
 import * as AuthActions from './auth.actions';
-import { Backend } from 'src/environments/environment';
 import { ClientUser, AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Firebase, Role, isType } from '../../utilities/utilities';
 import { ClientFavDestination } from '../../models/globetrotting/fav.interface';
+import { CurrentBackend } from 'src/environments/environment';
 
 export const AUTH_FEATURE_KEY = 'auth'
 
@@ -64,7 +64,7 @@ function userMapping(state: AuthState, user: AdminAgentOrClientUser): AuthState 
     return {
         ...state,
         isLogged: true,
-        user_id: (user.user_id as (Backend extends Firebase ? string : number)),
+        user_id: (user.user_id as (CurrentBackend extends Firebase ? string : number)),
         ext_id: user.ext_id ?? user.user_id,
         specific_id: user.specific_id ?? user.user_id,
         nickname: user.nickname,

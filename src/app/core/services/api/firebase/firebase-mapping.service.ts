@@ -1,17 +1,16 @@
+import { DocumentData, DocumentSnapshot } from "firebase/firestore";
+import { FirebaseCollectionResponse, FirebaseDocument, FirebaseUserCredential } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
+import { FirebaseUserPayload } from "src/app/core/models/firebase-interfaces/firebase-user.interface";
 import { AgentsTableRow, NewTravelAgent, TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { FirebaseUserPayload, NewFirebaseUserPayload } from "src/app/core/models/firebase-interfaces/firebase-user.interface";
 import { AdminBookingsTableRow, AgentBookingsTableRow, AgentRowInfo, Booking, BookingsTableRow, ClientBookingsTableRow, ClientRowInfo, NewBooking, PaginatedBooking } from "src/app/core/models/globetrotting/booking.interface";
 import { Client, NewClient, PaginatedClient } from "src/app/core/models/globetrotting/client.interface";
 import { Destination, DestinationsTableRow, NewDestination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
 import { ClientFavDestination, Fav, NewFav } from "src/app/core/models/globetrotting/fav.interface";
 import { Media } from "src/app/core/models/globetrotting/media.interface";
-import { AdminAgentOrClientUser, AgentUser, ClientUser, PaginatedUser, User, UserCredentialsOptions } from "src/app/core/models/globetrotting/user.interface";
-import { MappingService } from "../mapping.service";
 import { PaginatedData } from "src/app/core/models/globetrotting/pagination-data.interface";
-import { DocumentData, DocumentSnapshot } from "firebase/firestore";
-import { FirebaseCollectionResponse, FirebaseDocument } from "src/app/core/models/firebase-interfaces/firebase-data.interface";
+import { AdminAgentOrClientUser, AgentRegisterInfo, AgentUser, ClientUser, PaginatedUser, User, UserCredentialsOptions, UserRegisterInfo } from "src/app/core/models/globetrotting/user.interface";
 import { Role, Roles, isoDateToTimestamp, timestampToYearMonthDay } from "src/app/core/utilities/utilities";
-import { FirebaseDestinationPayload, NewFirebaseDestinationPayload } from "src/app/core/models/firebase-interfaces/firebase-destination.interface";
+import { MappingService } from "../mapping.service";
 
 export class FirebaseMappingService extends MappingService {
 
@@ -215,11 +214,11 @@ export class FirebaseMappingService extends MappingService {
             travelers: booking.travelers,
             isConfirmed: booking.isConfirmed ?? false
         }
-        if (role === 'ADMIN' && client !== undefined && agent !== undefined) {
+        if (role === Roles.ADMIN && client !== undefined && agent !== undefined) {
             return { ...tableRow, ...agent, ...client } as AdminBookingsTableRow;
-        } else if (role === 'AGENT' && client !== undefined) {
+        } else if (role === Roles.AGENT && client !== undefined) {
             return { ...tableRow, ...client } as AgentBookingsTableRow;
-        } else if (role === 'AUTHENTICATED' && agent !== undefined) {
+        } else if (role === Roles.AUTHENTICATED && agent !== undefined) {
             return { ...tableRow, ...agent } as ClientBookingsTableRow;
         } else {
             throw Error('Error: Required bookings table information was not provided.')
@@ -242,7 +241,8 @@ export class FirebaseMappingService extends MappingService {
             coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,
-            description: destination.description
+            description: destination.description,
+            createdAt: isoDateToTimestamp(`${new Date()}`)
         }
         return this.removeEmptyValues(_destination);
     }
@@ -256,7 +256,8 @@ export class FirebaseMappingService extends MappingService {
             coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,
-            description: destination.description
+            description: destination.description,
+            updatedAt: isoDateToTimestamp(`${new Date()}`)
         }
         return this.removeEmptyValues(_destination);
     }
@@ -265,32 +266,45 @@ export class FirebaseMappingService extends MappingService {
         return fav;
     }
 
-    public override mapNewExtUserPayload(user: User) {
-        let payload: NewFirebaseUserPayload = {
-            username: user.username,
-            email: user.email,
-            nickname: user.nickname,
-            name: user.name,
-            surname: user.surname,
+    public override mapNewExtUserPayload(user: UserRegisterInfo & FirebaseUserCredential, isAgent: boolean) {
+        const _agentInfo = (user as AgentRegisterInfo & FirebaseUserCredential) ?? undefined;
+        const nickname = (user as AgentRegisterInfo & FirebaseUserCredential).nickname ?? user.username;
+    
+        const commonInfo = {
+          user_id: user.user.user.uid,
+          username: user.username,
+          email: user.email,
+          nickname: nickname,
+          createdAt: isoDateToTimestamp(`${new Date()}`)
+        };
+        if (isAgent) {
+          return {
+            ...commonInfo,
+            role: Roles.AGENT,
+            name: _agentInfo.name,
+            surname: _agentInfo.surname,
+          } as AgentUser;
+        } else {
+          return {
+            ...commonInfo,
+            role: Roles.AUTHENTICATED,
+            favorites: []
+          } as ClientUser;
         }
-        if (user.role === Roles.AUTHENTICATED) {
-            payload = {
-                ...payload,
-                favorites: []
-            }
-        }
-        return this.removeEmptyValues(payload);
     }
 
     public override mapExtUserPayload(user: AdminAgentOrClientUser) {
         let payload: FirebaseUserPayload = {
+            user_id: user.user_id as string,
+            role: user.role,
             username: user.username,
             email: user.email,
             nickname: user.nickname,
             name: user.name,
             surname: user.surname,
             avatar: user.avatar,
-            age: user.age
+            age: user.age,
+            updatedAt: isoDateToTimestamp(`${new Date()}`)
         }
         return this.removeEmptyValues(payload);
     }
@@ -301,6 +315,7 @@ export class FirebaseMappingService extends MappingService {
     public override mapClientPayload(client: NewClient) {
         throw new Error("Method not implemented.");
     }
+
     public override mapAgentPayload(client: NewTravelAgent) {
         throw new Error("Method not implemented.");
     }
@@ -310,7 +325,7 @@ export class FirebaseMappingService extends MappingService {
             ...booking,
             start: isoDateToTimestamp(booking.start),
             end: isoDateToTimestamp(booking.end),
-            updatedAt: isoDateToTimestamp(booking.updatedAt ?? '0')
+            createdAt: isoDateToTimestamp(`${new Date()}`)
         }
     );
 

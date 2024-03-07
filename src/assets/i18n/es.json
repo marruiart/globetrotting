@@ -86,7 +86,12 @@
     "tableDescription": "Descripción",
     "tableOptions": "Opciones",
     "addDestinationBtn": "Añadir destino",
-    "editDestinationHeader": "Editar datos del destino"
+    "editDestinationHeader": "Editar datos del destino",
+    "deleteMessage": "¿Desea eliminar el destino?",
+    "deleteConfirmationTitle": "Confirmación",
+    "deleteDetailMessage": "Destino eliminado", 
+    "noDeletionMessage": "Este destino no puede ser eliminado porque tiene reservas asociadas.",    
+    "caution": "Eliminación no posible"
   },
   "agentsManagement": {
     "tableHeader": "Gestión de agentes de viaje",
@@ -96,7 +101,10 @@
     "tableEmail": "Email",
     "tableOptions": "Opciones",
     "addAgentBtn": "Añadir agente",
-    "editAgentHeader": "Editar datos del agente"
+    "editAgentHeader": "Editar datos del agente",
+    "deleteMessage": "¿Desea eliminar el usuario? \nEsta acción devolverá al estado \"sin confirmar\" todas las reservas asociadas al agente.",
+    "deleteConfirmationTitle": "Confirmación",
+    "deleteDetailMessage": "Usuario eliminado"
   },
   "destinationForm": {
     "destination": "Lugar de destino",

@@ -7,11 +7,10 @@ import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interfac
 import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
 import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
-import { Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
+import { Backend, Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
 import { BACKEND, environment } from 'src/environments/environment';
-import { BackendTypes } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-user-form',
@@ -29,7 +28,7 @@ export class UserFormComponent implements OnDestroy {
   private hasChanged: boolean = false;
   public userForm: FormGroup = this.fb.group({});;
   public errMsg: string = '';
-  public backend = environment.backend as BackendTypes;
+  public backend = environment.backend as Backend;
 
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
@@ -65,12 +64,12 @@ export class UserFormComponent implements OnDestroy {
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
       this.checkValueChanges({
         'name': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
         },
         'surname': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
         }
-      })
+      }, this.proccessName)
     }
   }
 
@@ -93,16 +92,16 @@ export class UserFormComponent implements OnDestroy {
     }
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
       // TODO add password change
-      const fieldPath = this._user.role === 'AUTHENTICATED' ? 'client_id' : 'agent_id';
-      const fieldName = this._user.role === 'AUTHENTICATED' ? 'clientName' : 'agentName';
+      const fieldPath = this._user.role === Roles.AUTHENTICATED ? 'client_id' : 'agent_id';
+      const fieldName = this._user.role === Roles.AUTHENTICATED ? 'clientName' : 'agentName';
       this.checkValueChanges({
         'name': {
-          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
         },
         'surname': {
-          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
         }
-      })
+      }, this.proccessName)
     }
   }
 
@@ -179,28 +178,44 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  private checkValueChanges(batchUpdate: BatchUpdate) {
+  private checkValueChanges(batchUpdate: BatchUpdate, specialFieldsCallback?: (controlName: string, form: FormGroup) => (string | null)) {
+    // TODO export the same in destination-form
     this.batchUpdate = { ...batchUpdate };
     const initialValue = this.userForm.value;
     Object.entries(batchUpdate).forEach(([controlName, collections]) => {
       const formControl = this.userForm.controls[controlName];
       this.subsSvc.addSubscriptions(this.COMPONENT,
-        formControl.valueChanges.subscribe(fieldValue => {
-          const hasChanged = initialValue[controlName] !== fieldValue;
+        formControl.valueChanges.subscribe(newFieldValue => {
+          const hasChanged = initialValue[controlName] !== newFieldValue;
           if (hasChanged) {
             this.hasChanged = hasChanged;
-            if (controlName === 'name' || controlName === 'surname') {
-              controlName = 'name';
-              const name: string = this.userForm.controls['name'].value;
-              const surname: string = this.userForm.controls['surname'].value;
-              fieldValue = getUserName({ name: name, surname: surname })
+            //const _newFieldValue = specialFieldsCallback ? specialFieldsCallback(controlName, this.userForm) : newFieldValue;
+            if (specialFieldsCallback) {
+              newFieldValue = specialFieldsCallback(controlName, this.userForm) ?? newFieldValue;
             }
             Object.entries(collections).forEach(([collection, updates]) => {
-              this.batchUpdate![controlName][collection] = { ...updates, fieldValue }
+              updates.map(({ fieldPath, value, fieldName, fieldValue }) => {
+                const batchUpdate = this.batchUpdate![controlName][collection];
+                this.batchUpdate![controlName][collection] = batchUpdate.map(upd => {
+                  const _fieldValue = (upd.fieldPath === fieldPath && upd.value === value && upd.fieldName === fieldName) ? newFieldValue : fieldValue;
+                  return { ...upd, fieldValue: _fieldValue };
+                })
+              })
+
             })
           }
         }))
     })
+  }
+
+  private proccessName(controlName: string, form: FormGroup): string | null {
+    if (controlName === 'name' || controlName === 'surname') {
+      controlName = 'name';
+      const name: string = form.controls['name'].value;
+      const surname: string = form.controls['surname'].value;
+      return getUserName({ name: name, surname: surname })
+    }
+    return null;
   }
 
   public onSubmit(event: Event) {
@@ -274,7 +289,7 @@ export class UserFormComponent implements OnDestroy {
     this.onNavigateToRegisterClicked.emit();
   }
 
-  private getUserCredentials(backend: BackendTypes): UserCredentialsOptions {
+  private getUserCredentials(backend: Backend): UserCredentialsOptions {
     // TODO call mapping service to get payload
     if (backend == Backends.FIREBASE) {
       return {
@@ -293,7 +308,7 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  private getUserRegisterInfo(backend: BackendTypes): UserRegisterInfoOptions {
+  private getUserRegisterInfo(backend: Backend): UserRegisterInfoOptions {
     switch (backend) {
       case Backends.FIREBASE:
         let firebaseRegister: FirebaseUserRegisterInfo = {

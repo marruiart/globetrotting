@@ -30,6 +30,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;
+Roles: any;
 
   constructor(
     public destinationsSvc: DestinationsService,
@@ -52,7 +53,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
     this.subsSvc.addSubscriptions(this.COMPONENT,
       this.authFacade.currentUser$.pipe(switchMap(user => {
         this.currentUser = user;
-        if (user?.role == Roles.AUTHENTICATED) {
+        if (user?.role === Roles.AUTHENTICATED) {
           return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs = favs ?? []));
         }
         return of()

@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { User } from '../../models/globetrotting/user.interface';
-import { MappingService } from './mapping.service';
-import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
-import { DataService } from './data.service';
+import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { ClientsFacade } from '../../+state/clients/clients.facade';
+import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { User } from '../../models/globetrotting/user.interface';
 import { Roles, StrapiEndpoints } from '../../utilities/utilities';
+import { DataService } from './data.service';
+import { MappingService } from './mapping.service';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
@@ -72,6 +72,7 @@ export class UsersService {
     }
   }
 
+  /**Currently only used from strapi */
   public addUser(user: User, updateObs: boolean = true): Observable<User> {
     const body = this.mappingSvc.mapNewExtUserPayload(user);
     return this.dataSvc.save<User>(StrapiEndpoints.EXTENDED_USERS, body, this.mappingSvc.mapUser).pipe(tap(_ => {

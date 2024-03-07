@@ -66,7 +66,7 @@ export class ClientService {
           } else {
             return null;
           }
-        }), catchError(() => throwError(() => 'No se ha podido obtener tu cliente')))
+        }), catchError(() => throwError(() => 'ERROR: Unable to get the client.')))
     } else {
       return of(null);
     }
@@ -74,7 +74,7 @@ export class ClientService {
 
   public getClient(id: string | number): Observable<Client> {
     return this.dataSvc.obtain<Client>(StrapiEndpoints.CLIENTS, id, this.mapSvc.mapClient, this.queries)
-      .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
+      .pipe(catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
   public getClientByExtUserId(user_id: number | string): Observable<Client> {
@@ -82,7 +82,7 @@ export class ClientService {
     _queries["filters[user]"] = `${user_id}`;
     return this.dataSvc.obtainAll<Client[]>(StrapiEndpoints.CLIENTS, _queries, this.mapSvc.mapClients)
       .pipe(map(res => res[0]),
-        catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
+        catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
@@ -91,7 +91,7 @@ export class ClientService {
         if (updateObs) {
           this.getAllClients().subscribe();
         }
-      }), catchError(() => throwError(() => 'No se ha podido añadir al cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to create the client.e')));
   }
 
   public updateClient(client: Client, updateObs: boolean = true): Observable<Client> {
@@ -100,13 +100,13 @@ export class ClientService {
         if (updateObs) {
           this.getAllClients().subscribe();
         }
-      }), catchError(() => throwError(() => 'No se ha podido modificar el cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to update the client.')));
   }
 
   public deleteClient(id: number): Observable<Client> {
     return this.dataSvc.delete<Client>(StrapiEndpoints.CLIENTS, this.mapSvc.mapClient, id, {})
       .pipe(tap(_ => {
         this.getAllClients().subscribe();
-      }), catchError(() => throwError(() => 'No se ha podido eliminar al cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to delete the client.')));
   }
 }

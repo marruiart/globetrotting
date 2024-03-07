@@ -2,10 +2,10 @@ import { DataService } from "../services/api/data.service";
 import { MappingService } from "../services/api/mapping.service";
 import { AgentService } from "../services/api/agent.service";
 import { SubscribableAgentService } from "../services/api/subscribable-agent.service";
-import { BackendTypes, Backends } from "../utilities/utilities";
+import { Backend, Backends } from "../utilities/utilities";
 
 export function AgentServiceFactory(
-    backend: BackendTypes,
+    backend: Backend,
     dataSvc: DataService,
     mappingSvc: MappingService
 ) {

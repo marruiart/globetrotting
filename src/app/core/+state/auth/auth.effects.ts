@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { AuthService } from "../../services/auth/auth.service";
-import * as AuthActions from './auth.actions'
-import { catchError, map, of, switchMap } from "rxjs";
-import { AuthFacade } from "./auth.facade";
 import { Router } from "@angular/router";
+import { Actions, createEffect, ofType } from "@ngrx/effects";
+import { catchError, map, of, switchMap } from "rxjs";
 import { AdminAgentOrClientUser } from "../../models/globetrotting/user.interface";
+import { AuthService } from "../../services/auth/auth.service";
 import { Roles } from "../../utilities/utilities";
+import * as AuthActions from './auth.actions';
+import { AuthFacade } from "./auth.facade";
 
 @Injectable()
 export class AuthEffects {
@@ -56,9 +56,9 @@ export class AuthEffects {
             ofType(AuthActions.navigate),
             map(({ role }) => {
                 console.log(role);
-                if (role == Roles.ADMIN || role == Roles.AGENT) {
+                if (role === Roles.ADMIN || role === Roles.AGENT) {
                     this.router.navigate(['/admin']);
-                } else if (role == Roles.AUTHENTICATED) {
+                } else if (role === Roles.AUTHENTICATED) {
                     this.router.navigate(['/home']);
                 }
                 return AuthActions.navigateSuccess();

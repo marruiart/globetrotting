@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { catchError, map, of, switchMap, tap, zip } from "rxjs";
+import { catchError, lastValueFrom, map, of, switchMap, tap, zip } from "rxjs";
 import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
 import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
 import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
@@ -106,14 +106,18 @@ export class DestinationsManagementPage implements OnDestroy {
     this.destinationsFacade.deleteDestination(id);
   }
 
-  showConfirmDialog(id: number) {
+  async showConfirmDialog(id: number) {
+    const message = await lastValueFrom(this.translate.getTranslation("destManagement.deleteMessage"));
+    const confirmation = await lastValueFrom(this.translate.getTranslation("destManagement.deleteConfirmationTitle"));
+    const detail = await lastValueFrom(this.translate.getTranslation("destManagement.deleteDetailMessage"));
+    
     this.confirmationSvc.confirm({
-      message: '¿Desea eliminar el destino?',
-      header: 'Confirmación',
+      message: message,
+      header: confirmation,
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.deleteDestination(id);
-        this.messageSvc.add({ severity: 'success', summary: 'Confirmación', detail: 'Destino eliminado' });
+        this.messageSvc.add({ severity: 'success', summary: confirmation, detail: detail });
       }
     });
   }

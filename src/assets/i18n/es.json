@@ -86,7 +86,10 @@
     "tableDescription": "Descripción",
     "tableOptions": "Opciones",
     "addDestinationBtn": "Añadir destino",
-    "editDestinationHeader": "Editar datos del destino"
+    "editDestinationHeader": "Editar datos del destino",
+    "deleteMessage": "¿Desea eliminar el destino?",
+    "deleteConfirmationTitle": "Confirmación",
+    "deleteDetailMessage": "Destino eliminado"
   },
   "agentsManagement": {
     "tableHeader": "Gestión de agentes de viaje",

@@ -86,7 +86,10 @@
     "tableDescription": "Description",
     "tableOptions": "Options",
     "addDestinationBtn": "Add destination",
-    "editDestinationHeader": "Edit destination information"
+    "editDestinationHeader": "Edit destination information",
+    "deleteMessage": "Do you wish to delete the destination?",
+    "deleteConfirmationTitle": "Confirmation",
+    "deleteDetailMessage": "The destination has been deleted"
   },
   "agentsManagement": {
     "tableHeader": "Travel agents management",

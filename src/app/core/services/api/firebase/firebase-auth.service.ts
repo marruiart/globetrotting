@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
+import { deleteField } from 'firebase/firestore';
 import { Observable, from, map } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
-import { FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { CollectionUpdates, FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
 import { AdminAgentOrClientUser, AgentRegisterInfo, AgentUser, ClientUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
 import { Collections, Role, Roles } from 'src/app/core/utilities/utilities';
@@ -124,7 +125,29 @@ export class FirebaseAuthService extends AuthService {
     throw new Error('Method not implemented.');
   }
   public override deleteUser(user_id: string): Observable<void> {
-    // TODO delete Authentication of the user
-    return from(this.firebaseSvc.deleteDocument(Collections.USERS, user_id));
+    // TODO Update to delete clients when it is available
+    return from(this.firebaseSvc.deleteDocument(Collections.USERS, user_id).then(_ => {
+      const updates: CollectionUpdates = {
+        [Collections.BOOKINGS]: [{
+          fieldPath: 'agent_id',
+          value: user_id,
+          fieldUpdates: [
+            {
+              fieldName: 'agent_id',
+              fieldValue: deleteField()
+            },
+            {
+              fieldName: 'agentName',
+              fieldValue: deleteField()
+            },
+            {
+              fieldName: 'isConfirmed',
+              fieldValue: false
+            }
+          ]
+        }]
+      }
+      this.firebaseSvc.batchUpdateCollections(updates);
+    }));
   }
 }

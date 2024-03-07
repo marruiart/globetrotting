@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
+import { BatchUpdate, CollectionUpdates, FieldUpdate } from '../models/firebase-interfaces/firebase-data.interface';
 import { ExtUser, User } from '../models/globetrotting/user.interface';
-import { BatchUpdate, CollectionUpdates } from '../models/firebase-interfaces/firebase-data.interface';
 
 export const isType = <T>(item: any): item is T => true;
 
@@ -36,15 +36,29 @@ export function isoDateToTimestamp(isoDate: string) {
   return new Timestamp(seconds, nanoseconds);
 }
 
-export function getCollectionsChanges(updates: BatchUpdate): CollectionUpdates {
+export function getCollectionsChanges(batchUpdates: BatchUpdate): CollectionUpdates {
+  let fieldUpdates: { [updateId: string]: (FieldUpdate & { collection: string })[] } = {};
   let collectionUpdates: CollectionUpdates = {};
-  Object.entries(updates).forEach(([_, collections]) => {
-    Object.entries(collections).forEach(([collection, { fieldPath, value, fieldValue, fieldName }]) => {
-      const update = fieldValue ? { fieldPath, value, fieldValue, fieldName } : null;
-      if (collection in collectionUpdates && update) {
-        collectionUpdates[collection].push({ ...update });
-      } else if (update) {
-        collectionUpdates[collection] = [{ ...update }];
+  Object.entries(batchUpdates).forEach(([_, collections]) => {
+    Object.entries(collections).forEach(([collection, updates]) => {
+      updates.forEach(({ fieldPath, value, fieldName, fieldValue }) => {
+        const updateId = `${fieldPath}#${value}`;
+        if (updateId in fieldUpdates && fieldValue) {
+          fieldUpdates[updateId].push({ collection, fieldName, fieldValue });
+        } else if (fieldValue) {
+          fieldUpdates[updateId] = [{ collection, fieldName, fieldValue }];
+        }
+      })
+    })
+  })
+  Object.entries(fieldUpdates).forEach(([updateId, updates]) => {
+    const [fieldPath, value] = updateId.split('#');
+    updates.forEach(({ collection }) => {
+      const _updates: FieldUpdate[] = updates.map(({ fieldName, fieldValue }) => ({ fieldName, fieldValue }))
+      if (collection in collectionUpdates) {
+        collectionUpdates[collection].push({ fieldPath, value, fieldUpdates: [..._updates] });
+      } else {
+        collectionUpdates[collection] = [{ fieldPath, value, fieldUpdates: [..._updates] }];
       }
     })
   })

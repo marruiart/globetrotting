@@ -64,12 +64,12 @@ export class UserFormComponent implements OnDestroy {
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
       this.checkValueChanges({
         'name': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
         },
         'surname': {
-          'bookings': { fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
         }
-      })
+      }, this.proccessName)
     }
   }
 
@@ -96,12 +96,12 @@ export class UserFormComponent implements OnDestroy {
       const fieldName = this._user.role === Roles.AUTHENTICATED ? 'clientName' : 'agentName';
       this.checkValueChanges({
         'name': {
-          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
         },
         'surname': {
-          'bookings': { fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
         }
-      })
+      }, this.proccessName)
     }
   }
 
@@ -178,28 +178,44 @@ export class UserFormComponent implements OnDestroy {
     }
   }
 
-  private checkValueChanges(batchUpdate: BatchUpdate) {
+  private checkValueChanges(batchUpdate: BatchUpdate, specialFieldsCallback?: (controlName: string, form: FormGroup) => (string | null)) {
+    // TODO export the same in destination-form
     this.batchUpdate = { ...batchUpdate };
     const initialValue = this.userForm.value;
     Object.entries(batchUpdate).forEach(([controlName, collections]) => {
       const formControl = this.userForm.controls[controlName];
       this.subsSvc.addSubscriptions(this.COMPONENT,
-        formControl.valueChanges.subscribe(fieldValue => {
-          const hasChanged = initialValue[controlName] !== fieldValue;
+        formControl.valueChanges.subscribe(newFieldValue => {
+          const hasChanged = initialValue[controlName] !== newFieldValue;
           if (hasChanged) {
             this.hasChanged = hasChanged;
-            if (controlName === 'name' || controlName === 'surname') {
-              controlName = 'name';
-              const name: string = this.userForm.controls['name'].value;
-              const surname: string = this.userForm.controls['surname'].value;
-              fieldValue = getUserName({ name: name, surname: surname })
+            //const _newFieldValue = specialFieldsCallback ? specialFieldsCallback(controlName, this.userForm) : newFieldValue;
+            if (specialFieldsCallback) {
+              newFieldValue = specialFieldsCallback(controlName, this.userForm) ?? newFieldValue;
             }
             Object.entries(collections).forEach(([collection, updates]) => {
-              this.batchUpdate![controlName][collection] = { ...updates, fieldValue }
+              updates.map(({ fieldPath, value, fieldName, fieldValue }) => {
+                const batchUpdate = this.batchUpdate![controlName][collection];
+                this.batchUpdate![controlName][collection] = batchUpdate.map(upd => {
+                  const _fieldValue = (upd.fieldPath === fieldPath && upd.value === value && upd.fieldName === fieldName) ? newFieldValue : fieldValue;
+                  return { ...upd, fieldValue: _fieldValue };
+                })
+              })
+
             })
           }
         }))
     })
+  }
+
+  private proccessName(controlName: string, form: FormGroup): string | null {
+    if (controlName === 'name' || controlName === 'surname') {
+      controlName = 'name';
+      const name: string = form.controls['name'].value;
+      const surname: string = form.controls['surname'].value;
+      return getUserName({ name: name, surname: surname })
+    }
+    return null;
   }
 
   public onSubmit(event: Event) {

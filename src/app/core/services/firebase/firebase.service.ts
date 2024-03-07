@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { DocumentData, DocumentSnapshot, FieldPath, Firestore, QueryCompositeFilterConstraint, QueryConstraint, QueryNonFilterConstraint, Unsubscribe, WhereFilterOp, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, query, setDoc, startAfter, updateDoc, where, writeBatch } from "firebase/firestore";
+import { DocumentData, DocumentReference, DocumentSnapshot, FieldPath, Firestore, QueryCompositeFilterConstraint, QueryConstraint, QueryNonFilterConstraint, Transaction, TransactionOptions, Unsubscribe, WhereFilterOp, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, query, runTransaction, setDoc, startAfter, updateDoc, where, writeBatch } from "firebase/firestore";
 import { FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { BehaviorSubject } from 'rxjs';
-import { CollectionUpdates, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { CollectionUpdates, FieldUpdate, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
 import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
@@ -258,7 +258,7 @@ export class FirebaseService {
         reject({
           msg: "Error: Database is not connected."
         });
-      const docRef = doc(this._db!, collectionName, id);
+      const docRef = this.getDocRef(collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -268,6 +268,10 @@ export class FirebaseService {
         reject('Error: Document does not exists.');
       }
     });
+  }
+
+  public getDocRef(collectionName: string, id: string): DocumentReference {
+    return doc(this._db!, collectionName, id);
   }
 
   /**
@@ -345,23 +349,34 @@ export class FirebaseService {
 
   public batchUpdateCollections(updates: CollectionUpdates) {
     Object.entries(updates).map(([collection, updates]) => {
-      updates.forEach(async ({ fieldPath, value, fieldValue, fieldName }) => {
+      updates.forEach(async ({ fieldPath, value, fieldUpdates }) => {
         const docs = await this.getDocumentsBy(collection, fieldPath, value).catch(err => { throw new Error(err) });
         const docsId = docs.map(({ id }) => id);
         if (docs.length) {
-          await this.batchUpdateDocuments(collection, fieldName, fieldValue, ...docsId).catch(err => { throw new Error(err) });
+          await this.batchUpdateDocuments(collection, fieldUpdates, ...docsId).catch(err => { throw new Error(err) });
         }
       })
     })
   }
 
-  public batchUpdateDocuments(collectionName: string, fieldName: string, fieldValue: any, ...docsId: string[]) {
+  public batchUpdateDocuments(collectionName: string, fieldUpdates: FieldUpdate[], ...docsId: string[]) {
     const batch = writeBatch(this._db);
     docsId.forEach(documentId => {
       const docRef = doc(this._db, collectionName, documentId);
-      batch.update(docRef, { [fieldName]: fieldValue })
+      fieldUpdates.forEach(({ fieldName, fieldValue }) => {
+        batch.update(docRef, { [fieldName]: fieldValue })
+      })
     });
     return batch.commit();
+  }
+
+  public async runTransaction(updateFunction: (transaction: Transaction) => Promise<void>, options?: TransactionOptions | undefined) {
+    try {
+      await runTransaction(this._db, updateFunction);
+      console.log("Transaction successfully committed!");
+    } catch (e) {
+      console.log("Transaction failed: ", e);
+    }
   }
 
   /**

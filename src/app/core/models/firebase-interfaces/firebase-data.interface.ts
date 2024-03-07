@@ -31,17 +31,20 @@ export type BatchUpdate = {
             value: string | number,
             fieldName: string,
             fieldValue?: any
-        }
+        }[]
     }
 }
 
+export type FieldUpdate = {
+    fieldName: string,
+    fieldValue?: any
+}
+
 export type CollectionUpdates = {
-    [collection: string]: [
-        {
-            fieldPath: string,
-            value: string | number,
-            fieldName: string,
-            fieldValue: any
-        }
-    ]
+    [collection: string]:
+    {
+        fieldPath: string,
+        value: string | number,
+        fieldUpdates: FieldUpdate[]
+    }[]
 };

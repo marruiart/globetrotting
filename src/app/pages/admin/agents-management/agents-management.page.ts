@@ -63,7 +63,7 @@ export class AgentsManagementPage {
     ]
   }
 
-  public async showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
+  public showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
     this.formType = formType;
     this.isUpdating = actionUpdate;
     if (formType === FormTypes.UPDATE_AGENT && tableRow?.ext_id) {

@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { finalize, map, Observable, tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { finalize, map, Observable } from 'rxjs';
+import { BACKEND, environment } from 'src/environments/environment';
 import { Location } from '../../../models/rick-morty-api/location.interface';
 import { HttpService } from '../../http/http.service';
 import { DestinationsService } from '../destinations.service';
 import { Destination, NewDestination } from '../../../models/globetrotting/destination.interface';
 import { Page } from 'src/app/core/models/rick-morty-api/pagination.interface';
-
+import { LatLng } from '@capacitor/google-maps/dist/typings/definitions';
+import * as turf from "@turf/turf";
+import { Backends } from 'src/app/core/utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +22,7 @@ export class LocationsApiService {
 
   public getAllFromApi(
     allPages: Page<Location>[] = [],
-    url: string = `${environment.API_URL}/location`)
+    url: string = `${environment.apiUrl}/location`)
     : Observable<Page<Location>[]> {
 
     return this.http.get<Page<Location>>(url).pipe(map(res => {
@@ -69,29 +71,76 @@ export class LocationsApiService {
     }
   }
 
+  private generateRandomNumber(min: number, max: number) {
+    return Math.random() * (max - min + 1) + min;
+  }
+
+  private generateCoordinate(): LatLng {
+    const oceanPolygons = [
+      turf.bboxPolygon([-176, -180, -80, 6]),
+      turf.bboxPolygon([-137, 23, -180, 55]),
+      turf.bboxPolygon([145, 23, 180, 55]),
+      turf.bboxPolygon([-55, -80, 180, -45]),
+      turf.bboxPolygon([-55, -35, 130, -52]),
+      turf.bboxPolygon([-33, -80, 8, 2]),
+      turf.bboxPolygon([-61, -80, 8, -41]),
+      turf.bboxPolygon([-44, -80, 8, -24]),
+      turf.bboxPolygon([53, -80, 95, 4]),
+      turf.bboxPolygon([53, -80, 112, -10]),
+      turf.bboxPolygon([-52, 30, -12, 58]),
+      turf.bboxPolygon([-69, 22, -18, 42]),
+      turf.bboxPolygon([116, 74, 180, 90]),
+      turf.bboxPolygon([-128, 71, -180, 90]),
+      turf.bboxPolygon([-22, 66, 12, 80]),
+      turf.bboxPolygon([27, 71, 55, 80])
+    ];
+    let randomCoordinate;
+    do {
+      const lat = this.generateRandomNumber(-50, 80);
+      const lng = this.generateRandomNumber(-180, 180);
+      const mark = turf.point([lng, lat]);
+      const isOcean = oceanPolygons.some(polygon => turf.booleanWithin(mark, polygon));
+      if (!isOcean) {
+        randomCoordinate = { lat: lat, lng };
+      }
+    } while (!randomCoordinate);
+    return randomCoordinate;
+  }
+
+  private generatePrice(): number {
+    return this.generateRandomNumber(40, 600);
+  }
+
   private mapNewLocation(location: Location): NewDestination {
-    return {
+    let coordinate: string | LatLng = this.generateCoordinate();
+    let newDest: NewDestination = {
       name: location.name,
       type: location.type,
       dimension: location.dimension,
+      coordinate: coordinate,
       image: undefined,
+      price: this.generatePrice()
+    }
+    if (BACKEND === Backends.STRAPI) {
+      return {
+        ...newDest,
+        lat: coordinate.lat,
+        lng: coordinate.lng
+      } as NewDestination
+    } else {
+      return newDest;
     }
   }
 
   private mapLocation(location: Location): Destination {
     return {
-      id: location.id,
-      name: location.name,
-      type: location.type,
-      dimension: location.dimension,
-      image: undefined,
-    }
+      ...this.mapNewLocation(location),
+      id: location.id
+    } as Destination
   }
 
   public addLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {
-    return this.destinationsSvc.addDestination(this.mapNewLocation(location), updateLocationObs).pipe(tap(_ => {
-
-    }))
+    return this.destinationsSvc.addDestination(this.mapNewLocation(location), updateLocationObs);
   }
 
   public updateLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {

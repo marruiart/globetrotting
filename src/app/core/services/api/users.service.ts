@@ -1,92 +1,106 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { NewExtUser, ExtUser } from '../../models/globetrotting/user.interface';
-import { ApiService } from './api.service';
-import { MappingService } from './mapping.service';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
+import { ClientsFacade } from '../../+state/clients/clients.facade';
 import { PaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { User } from '../../models/globetrotting/user.interface';
+import { Roles, StrapiEndpoints } from '../../utilities/utilities';
+import { DataService } from './data.service';
+import { MappingService } from './mapping.service';
 
 export class LoginErrorException extends Error { }
 export class UserNotFoundException extends Error { }
-
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService extends ApiService {
-  private path: string = "/api/extended-users";
-  private _users: BehaviorSubject<ExtUser[]> = new BehaviorSubject<ExtUser[]>([]);
-  public users$: Observable<ExtUser[]> = this._users.asObservable();
-  private _extendedMe: BehaviorSubject<ExtUser | null> = new BehaviorSubject<ExtUser | null>(null);
-  public extendedMe$: Observable<ExtUser | null> = this._extendedMe.asObservable();
+export class UsersService {
+  protected clientsFacade = inject(ClientsFacade);
+  private _users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
   public jwt: string = "";
   private queries: { [query: string]: string } = {
-    "populate": "user"
+    "populate": "user.role"
   }
 
   constructor(
-    private mapSvc: MappingService
-  ) {
-    super();
-  }
+    protected dataSvc: DataService,
+    protected mappingSvc: MappingService,
+  ) { }
 
-  public getAllUsers(): Observable<ExtUser[]> {
-    return this.getAll<ExtUser[]>(this.path, this.queries, this.mapSvc.mapUsers).pipe(tap(res => {
+
+  public getAllUsers(queries: { [query: string]: string } = {}): Observable<User[]> {
+    let _queries = { ...this.queries, ...queries };
+    return this.dataSvc.obtainAll<User[]>(StrapiEndpoints.EXTENDED_USERS, _queries, this.mappingSvc.mapUsers).pipe(tap(res => {
       this._users.next(res);
-    }), catchError((err) => throwError(() => { 'No se han podido obtener los usuarios'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
-  public getUser(id: number): Observable<ExtUser> {
-    return this.get<ExtUser>(this.path, id, this.mapSvc.mapUser, this.queries)
-      .pipe(catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })));
+  public getAllClientsUsers(): Observable<User[]> {
+    return this.getAllUsers().pipe(map(users => {
+      const clients = users.filter(user => user.role === Roles.AUTHENTICATED);
+      this.clientsFacade.saveClients(clients);
+      return clients;
+    }))
   }
 
-  public getAgentUser(id: number | null): Observable<ExtUser | null> {
-    return this.extendedMe(id);
+  public getUser(id: number | string): Observable<User> {
+    return this.dataSvc.obtain<User>(StrapiEndpoints.EXTENDED_USERS, id, this.mappingSvc.mapUser, this.queries)
+      .pipe(catchError((err) => { throw new Error(err) }));
   }
 
-  public getClientUser(id: number | null): Observable<ExtUser | null> {
-    return this.extendedMe(id);
+  /**
+   * Get an agent from the extended user table. 
+   * @param id The user id of the agent.
+   * @returns The information of the extended user and user credentials of the agent.
+   */
+  public getAgentExtUser(id: number | string | null): Observable<User | null> {
+    return id ? this.extendedMe(id) : of(null);
+  }
+
+  public getClientExtUser(id: number | string | string | null): Observable<User | null> {
+    return id ? this.extendedMe(id) : of(null);
   }
 
   /** Returns the corresponding extended user with the id */
-  public extendedMe(id: number | null): Observable<ExtUser | null> {
+  public extendedMe(id: number | string | null): Observable<User | null> {
     if (id) {
-      let _queries = JSON.parse(JSON.stringify(this.queries));
-      _queries["filters[user]"] = `${id}`;
-      return this.getAll<PaginatedData<any>>(this.path, _queries, this.mapSvc.mapPaginatedUsers)
-        .pipe(map(res => {
-          if (res.data.length > 0) {
-            let me = res.data[0];
-            this._extendedMe.next(me);
-            return me;
-          } else {
-            return null;
-          }
-        }), catchError((err) => throwError(() => { 'No se ha podido obtener el usuario'; console.error(err) })))
+      let _queries = { ...this.queries, "filters[user]": `${id}` };
+      return this.dataSvc.obtainAll<PaginatedData<any>>(StrapiEndpoints.EXTENDED_USERS, _queries, this.mappingSvc.mapPaginatedUsers).pipe(map(res => {
+        const users = res.data;
+        return (users.length > 0) ? users[0] : null;
+      }), catchError((err) => { throw new Error(err) }));
     } else {
       return of(null);
     }
   }
 
-  public addUser(user: NewExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.add<ExtUser>(this.path, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+  /**Currently only used from strapi */
+  public addUser(user: User, updateObs: boolean = true): Observable<User> {
+    const body = this.mappingSvc.mapNewExtUserPayload(user);
+    return this.dataSvc.save<User>(StrapiEndpoints.EXTENDED_USERS, body, this.mappingSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError((err) => throwError(() => { 'No se ha podido añadir al usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
-  public updateUser(user: ExtUser, updateObs: boolean = true): Observable<ExtUser> {
-    return this.update<ExtUser>(this.path, user.id, this.mapSvc.mapExtendedUserPayload(user), this.mapSvc.mapUser).pipe(tap(_ => {
+  /**
+   * 
+   * @param user any value to be updated in a user
+   * @param updateObs 
+   * @returns 
+   */
+  public updateUser(user: any, updateObs: boolean = true): Observable<User> {
+    const body = this.mappingSvc.mapExtUserPayload(user);
+    return this.dataSvc.update<User>(StrapiEndpoints.EXTENDED_USERS, user.ext_id, body, this.mappingSvc.mapUser).pipe(tap(_ => {
       if (updateObs) {
         this.getAllUsers().subscribe();
       }
-    }), catchError((err) => throwError(() => { 'No se ha podido modificar el usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
-  public deleteUser(id: number): Observable<ExtUser> {
-    return this.delete<ExtUser>(this.path, this.mapSvc.mapUser, id).pipe(tap(_ => {
+  public deleteUser(id: number | string): Observable<User> {
+    return this.dataSvc.delete<User>(StrapiEndpoints.EXTENDED_USERS, this.mappingSvc.mapUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();
-    }), catchError((err) => throwError(() => { 'No se ha podido eliminar al usuario'; console.error(err) })));
+    }), catchError((err) => { throw new Error(err) }));
   }
 
 }

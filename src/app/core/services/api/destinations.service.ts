@@ -1,45 +1,50 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, of, switchMap, tap } from 'rxjs';
 import { Destination, NewDestination, PaginatedDestination } from '../../models/globetrotting/destination.interface';
-import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
-import { emptyPaginatedData } from '../../models/globetrotting/pagination-data.interface';
+import { DataService } from './data.service';
+import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
+import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
+import { StrapiEndpoints } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DestinationsService extends ApiService {
-  private path: string = "/api/destinations";
-  private body = (destination: NewDestination) => this.mapSvc.mapDestinationPayload(destination);
+export class DestinationsService {
+  protected destinationsFacade = inject(DestinationsFacade);
   private queries: { [query: string]: string } = { 'sort': 'name' }
 
-  private endOfData = false;
+  private _endOfData = false;
   public itemsCount: number = 0;
 
-  private _destinationsPage = new BehaviorSubject<PaginatedDestination>(emptyPaginatedData);
-  public destinationsPage$ = this._destinationsPage.asObservable();
-  private _destinations = new BehaviorSubject<Destination[]>([]);
-  public destinations$: Observable<Destination[]> = this._destinations.asObservable();
+  private _next: DocumentSnapshot<DocumentData> | number | null = null;
+  private _destinations: Destination[] = [];
 
 
   constructor(
-    private mapSvc: MappingService
+    protected dataSvc: DataService,
+    protected mappingSvc: MappingService
   ) {
-    super();
+    this.destinationsFacade.destinations$.pipe(switchMap(destinations => {
+      this._destinations = destinations;
+      return this.destinationsFacade.destinationsPage$.pipe(tap(page =>
+        this._next = page.pagination.next));
+    }), catchError(error => { throw Error(error) })
+    ).subscribe();
   }
 
-  public getAllDestinations(page: number | null = 1): Observable<PaginatedDestination | null> {
+  public getAllDestinations(page: DocumentSnapshot<DocumentData> | number | null = 1): Observable<PaginatedDestination | null> {
     if (page == null) {
       return of(null);
     }
     let _queries = JSON.parse(JSON.stringify(this.queries));
-    _queries["pagination[page]"] = `${page}`;
-    return this.getAll<PaginatedDestination>(this.path, _queries, this.mapSvc.mapPaginatedDestinations).pipe(tap(page => {
+    _queries["pagination[page]"] = typeof page === 'number' ? `${page}` : page as DocumentSnapshot;
+    return this.dataSvc.obtainAll<PaginatedDestination>(StrapiEndpoints.DESTINATIONS, _queries, this.mappingSvc.mapPaginatedDestinations).pipe(tap(page => {
       if (page.data.length > 0) {
-        this.endOfData = false;
-        let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations.value));
+        this._endOfData = false;
+        let _newDestinations: Destination[] = JSON.parse(JSON.stringify(this._destinations));
         page.data.forEach(destData => {
-          let foundDest: Destination | undefined = this._destinations.value.find(dest => dest.name == destData.name);
+          let foundDest: Destination | undefined = this._destinations.find(dest => dest.name == destData.name);
           if (!foundDest) {
             _newDestinations.push(destData);
           }
@@ -49,24 +54,25 @@ export class DestinationsService extends ApiService {
           data: page.data,
           pagination: page.pagination
         }
-        this._destinations.next(_newDestinations);
-        this._destinationsPage.next(_pagination);
+        this.destinationsFacade.saveDestinations(_newDestinations);
+        this.destinationsFacade.savePaginatedDestinations(_pagination);
       } else {
-        this.endOfData = true;
+        this._endOfData = true;
       }
     }));
   }
 
   public getNextDestinationsPage() {
-    return this.getAllDestinations(this._destinationsPage.value.pagination.page + 1);
+    return this.getAllDestinations(this._next);
   }
 
-  public getDestination(id: number): Observable<Destination> {
-    return this.get<Destination>(this.path, id, this.mapSvc.mapDestination, this.queries);
+  public getDestination(id: string | number): Observable<Destination> {
+    return this.dataSvc.obtain<Destination>(StrapiEndpoints.DESTINATIONS, id, this.mappingSvc.mapDestination, this.queries);
   }
 
   public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
-    return this.add<Destination>(this.path, this.body(destination), this.mapSvc.mapDestination).pipe(tap(_ => {
+    const body = this.mappingSvc.mapNewDestinationPayload(destination);
+    return this.dataSvc.save<Destination>(StrapiEndpoints.DESTINATIONS, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
@@ -74,41 +80,18 @@ export class DestinationsService extends ApiService {
   }
 
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
-    return this.update<Destination>(this.path, destination.id, this.body(destination), this.mapSvc.mapDestination).pipe(tap(res => {
-      let _newDestinations = JSON.parse(JSON.stringify(this._destinations.value));
-      let index = -1;
-      this._destinations.value.forEach((dest, i) => {
-        if (res.id == dest.id) {
-          index = i;
-          return;
-        }
-      });
-      if (index != -1) {
-        _newDestinations[index] = res;
-        this._destinations.next(_newDestinations);
-      }
+    const body = this.mappingSvc.mapDestinationPayload(destination);
+    return this.dataSvc.update<Destination>(StrapiEndpoints.DESTINATIONS, destination.id, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
       if (updateObs) {
         this.getAllDestinations().subscribe();
       }
     }));
   }
 
-  public deleteDestination(id: number): Observable<Destination> {
-    return this.delete<Destination>(this.path, this.mapSvc.mapDestination, id).pipe(tap(res => {
-      let _newDestinations = JSON.parse(JSON.stringify(this._destinations.value));
-      let index = -1;
-      this._destinations.value.forEach((dest, i) => {
-        if (res.id == dest.id) {
-          index = i;
-          return;
-        }
-      });
-      if (index != -1) {
-        _newDestinations.splice(index, 1);
-        this._destinations.next(_newDestinations);
-      }
+  public deleteDestination(id: number | string): Observable<Destination> {
+    return this.dataSvc.delete<Destination>(StrapiEndpoints.DESTINATIONS, this.mappingSvc.mapDestination, id, {}).pipe(tap(_ => {
       this.getAllDestinations().subscribe();
-    }));;
+    }));
   }
 
 }

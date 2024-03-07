@@ -26,7 +26,7 @@
   </ng-template>
 
   <!-- Username -->
-  <div class="p-inputgroup">
+  <div *ngIf="backend !== 'Firebase' || formType !== 'LOGIN'" class="p-inputgroup">
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
     </span>

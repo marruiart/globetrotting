@@ -7,7 +7,7 @@
         [breakpoint]="'960px'"
         styleClass="agents-table"
         [columns]="cols"
-        [value]="(agentTable$ | async) ?? []"
+        [value]="(agentsFacade.agentTable$ | async) ?? []"
         [lazy]="true"
       >
         <ng-template pTemplate="caption" let-columns>
@@ -105,10 +105,17 @@
         contentStyleClass="agent-form-content"
       >
         <app-user-form
-          *ngIf="showForm"
+          *ngIf="selectedAgent"
+          [actionUpdate]="isUpdating"
           [formType]="formType"
           [agent]="selectedAgent"
+          (onRegisterAgentClicked)="addOrEditAgent($event)"
+        />
+
+        <app-user-form
+          *ngIf="formType == 'REGISTER_AGENT'"
           [actionUpdate]="isUpdating"
+          [formType]="formType"
           (onRegisterAgentClicked)="addOrEditAgent($event)"
         />
       </p-dialog>

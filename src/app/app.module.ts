@@ -18,13 +18,32 @@ import { MappingServiceFactory } from './core/factories/mapping-service.factory'
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthModule } from './core/+state/auth/auth.module';
-import { UserModule } from './core/+state/load-user/load-user.module';
 import { DatePipe } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
 import { ButtonModule } from 'primeng/button';
+import { environment } from 'src/environments/environment';
+import { DataService } from './core/services/api/data.service';
+import { ApiService } from './core/services/api/api.service';
+import { DataServiceFactory } from './core/factories/data-service.factory';
+import { JwtService } from './core/services/auth/jwt.service';
+import { FavoritesService } from './core/services/api/favorites.service';
+import { FavoritesServiceFactory } from './core/factories/favorites-service.factory';
+import { FavoritesModule } from './core/+state/favorites/favorites.module';
+import { DestinationsModule } from './core/+state/destinations/destinations.module';
+import { DestinationsService } from './core/services/api/destinations.service';
+import { DestinationsServiceFactory } from './core/factories/destinations-service.factory';
+import { AgentServiceFactory } from './core/factories/agent-service.factory';
+import { AgentService } from './core/services/api/agent.service';
+import { AgentsModule } from './core/+state/agents/agents.module';
+import { BookingsModule } from './core/+state/bookings/bookings.module';
+import { BookingsService } from './core/services/api/bookings.service';
+import { BookingsServiceFactory } from './core/factories/bookings-service.factory';
+import { ClientsModule } from './core/+state/clients/clients.module';
+import { UsersService } from './core/services/api/users.service';
+import { UsersServiceFactory } from './core/factories/users-service.factory';
 
 @NgModule({
   declarations: [
@@ -47,17 +66,21 @@ import { ButtonModule } from 'primeng/button';
       }
     }),
     AuthModule,
-    UserModule
+    FavoritesModule,
+    DestinationsModule,
+    AgentsModule,
+    BookingsModule,
+    ClientsModule
   ],
   providers: [
-    // PrimeNg
     DatePipe,
+    // PrimeNG
     ConfirmationService,
     MessageService,
     // General
     {
       provide: 'backend',
-      useValue: 'Strapi'
+      useValue: environment.backend
     },
     {
       provide: RouteReuseStrategy,
@@ -75,8 +98,46 @@ import { ButtonModule } from 'primeng/button';
     },
     {
       provide: AuthService,
-      deps: ['backend'],
+      deps: ['backend', JwtService, ApiService],
       useFactory: AuthServiceFactory
+    },
+    {
+      provide: DataService,
+      deps: ['backend', ApiService],
+      useFactory: DataServiceFactory,
+    },
+    {
+      provide: FavoritesService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: FavoritesServiceFactory,
+    },
+    {
+      provide: DestinationsService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: DestinationsServiceFactory,
+    },
+    {
+      provide: AgentService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: AgentServiceFactory,
+    },
+    {
+      provide: BookingsService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: BookingsServiceFactory,
+    },    
+    {
+      provide: UsersService,
+      deps: ['backend', DataService, MappingService],
+      useFactory: UsersServiceFactory,
+    },
+    {
+      provide: 'firebase-config',
+      useValue: environment.firebaseConfig
+    },
+    {
+      provide: 'admin-config',
+      useValue: environment.adminConfig
     }
   ],
   bootstrap: [AppComponent],

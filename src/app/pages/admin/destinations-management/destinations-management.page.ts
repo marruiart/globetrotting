@@ -1,93 +1,63 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { BehaviorSubject, Observable, catchError, lastValueFrom, of, switchMap, tap, zip } from "rxjs";
-import { UserFacade } from "src/app/core/+state/load-user/load-user.facade";
-import { TravelAgent } from "src/app/core/models/globetrotting/agent.interface";
-import { Client } from "src/app/core/models/globetrotting/client.interface";
-import { Destination, PaginatedDestination } from "src/app/core/models/globetrotting/destination.interface";
-import { DestinationsService } from "src/app/core/services/api/destinations.service";
+import { catchError, lastValueFrom, map, of, switchMap, tap, zip } from "rxjs";
+import { AuthFacade } from "src/app/core/+state/auth/auth.facade";
+import { DestinationsFacade } from "src/app/core/+state/destinations/destinations.facade";
+import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
+import { MappingService } from "src/app/core/services/api/mapping.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
+import { FirebaseService } from "src/app/core/services/firebase/firebase.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
+import { Collections, Roles } from "src/app/core/utilities/utilities";
 
-
-interface TableRow {
-  id: number,
-  name: string,
-  type?: string,
-  dimension?: string,
-  price?: number,
-  description?: string
-}
 
 @Component({
   selector: 'app-destinations-management',
   templateUrl: './destinations-management.page.html',
   styleUrls: ['./destinations-management.page.scss'],
 })
-export class DestinationsManagementPage {
-  private _destinationTable: BehaviorSubject<TableRow[]> = new BehaviorSubject<TableRow[]>(new Array(10));
-  public destinationTable$: Observable<TableRow[]> = this._destinationTable.asObservable();
+export class DestinationsManagementPage implements OnDestroy {
+  private readonly COMPONENT = 'DestinationsManagementPage';
 
   public loading: boolean = false;
-  public data: TableRow[] = [];
+  public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
-  public currentUser: Client | TravelAgent | null = null;
   public showEditForm: boolean = false;
+  public showNoDeletionForm: boolean = false;
   public selectedDestination: Destination | null = null;
 
   constructor(
-    private destinationsSvc: DestinationsService,
-    private userFacade: UserFacade,
+    // Services
     private subsSvc: SubscriptionsService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-    private translate: CustomTranslateService
+    private mappingSvc: MappingService,
+    private translate: CustomTranslateService,
+    private firebaseSvc: FirebaseService,
+    // Facades
+    public destinationsFacade: DestinationsFacade,
+    private authFacade: AuthFacade,
+    // PrimeNG
+    private confirmationSvc: ConfirmationService,
+    private messageSvc: MessageService
   ) {
-
-
-    this.subsSvc.addSubscriptions([
-      {
-        component: 'DestinationsPage',
-        sub: this.userFacade.currentSpecificUser$
-          .subscribe(currentUser => {
-            this.currentUser = currentUser;
-          })
-      },
-      {
-        component: 'DestinationsPage',
-        sub: this.translate.language$.pipe(
-          switchMap((_: string) => this.getCols()),
-          catchError(err => of(err)))
-          .subscribe()
-      },
-      {
-        component: 'DestinationsPage',
-        sub: this.destinationsSvc.getAllDestinations().subscribe()
-      },
-      {
-        component: 'DestinationsPage',
-        sub: this.displayTable().subscribe((table: TableRow[]) => {
-          this._destinationTable.next(table);
-        })
-      }
-    ])
+    this.destinationsFacade.initDestinations();
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      // Fetch data
+      this.authFacade.currentUser$.pipe(switchMap(user => {
+        const role = user?.role;
+        if (role === Roles.AGENT || role === Roles.ADMIN) {
+          return this.destinationsFacade.destinationsPage$.pipe(map(page => {
+            const destinations: Destination[] = page.data;
+            const table: DestinationsTableRow[] = destinations.map(destination => this.mappingSvc.mapDestinationTableRow(destination));
+            this.destinationsFacade.saveDestinationsManagementTable(table);
+          }), catchError(err => { console.error(err); throw new Error(err) }));
+        } else {
+          return of();
+        }
+      })).subscribe(),
+      // Translation
+      this.translate.language$.pipe(switchMap((_: string) => this.getCols()), catchError(err => { console.error(err); throw new Error(err) })).subscribe()
+    )
   }
-
-  /**
-* Obtains from the agent service an array of destinations and maps each of them into a TableRow.
-* @returns an observable of an array of TableRow.
-*/
-  private displayTable(): Observable<TableRow[]> {
-    if (this.currentUser?.type == 'AGENT') {
-      return this.destinationsSvc.destinationsPage$.pipe(
-        switchMap((page: PaginatedDestination): Observable<TableRow[]> => this.mapDestinationsRows(page.data)),
-        catchError(err => of(err))
-      )
-    } else {
-      return of([]);
-    }
-  }
-
 
   private getCols() {
     const name$ = this.translate.getTranslation("destManagement.tableName");
@@ -100,7 +70,7 @@ export class DestinationsManagementPage {
     const tableHeaders$ = zip(name$, type$, dimension$, price$, description$, options$).pipe(
       tap(([name, type, dimension, price, description, options]) => {
         this.cols = this.translateMenuItems(name, type, dimension, price, description, options);
-      }), catchError(err => of(err)));
+      }), catchError(err => { throw new Error(err) }));
 
     return tableHeaders$;
   }
@@ -116,66 +86,51 @@ export class DestinationsManagementPage {
     ]
   }
 
-  private mapTableRow(destination: Destination) {
-    return {
-      id: destination.id,
-      name: destination.name,
-      type: destination.type,
-      dimension: destination.dimension == 'unknown' ? '' : destination.dimension,
-      price: destination.price,
-      description: destination.description
-    }
-  }
-
-  /**
-  * Receives an array of destinations and turn it into an array of rows ready to display on a table.
-  * @param destinations array of all the destinations
-  * @returns an observable with all the rows of the table to be displayed
-  */
-  private mapDestinationsRows(destinations: Destination[]): Observable<TableRow[]> {
-    return of(destinations.map((destination: Destination) => this.mapTableRow(destination)));
-  }
-
   public showDestinationForm(destination?: Destination) {
-    if (destination) {
-      this.selectedDestination = destination;
-    }
+    this.selectedDestination = destination ?? null;
     this.showEditForm = true;
   }
 
   private hideDestinationForm() {
+    this.selectedDestination = null;
     this.showEditForm = false;
   }
 
   public addOrEditDestination(destination: Destination) {
     if (destination.id) {
-      lastValueFrom(this.destinationsSvc.updateDestination(destination))
-        .catch(err => console.error(err));
+      this.destinationsFacade.updateDestination(destination);
     } else {
-      lastValueFrom(this.destinationsSvc.addDestination(destination))
-        .catch(err => console.error(err));
+      this.destinationsFacade.addDestination(destination);
     }
     this.hideDestinationForm();
   }
 
   private deleteDestination(id: number) {
-    lastValueFrom(this.destinationsSvc.deleteDestination(id))
-      .catch(err => console.error(err));
+    this.destinationsFacade.deleteDestination(id);
   }
 
-  showConfirmDialog(id: number) {
-    this.confirmationService.confirm({
-      message: '¿Desea eliminar el destino?',
-      header: 'Confirmación',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.deleteDestination(id);
-        this.messageService.add({ severity: 'success', summary: 'Confirmación', detail: 'Destino eliminado' });
-      }
-    });
+  async showConfirmDialog(id: number) {
+    const bookings = await this.firebaseSvc.getDocumentsBy(Collections.BOOKINGS, 'destination_id', id);
+    if (bookings.length) {
+      this.showNoDeletionForm = true;
+    } else {
+      const message = await lastValueFrom(this.translate.getTranslation("destManagement.deleteMessage"));
+      const confirmation = await lastValueFrom(this.translate.getTranslation("destManagement.deleteConfirmationTitle"));
+      const detail = await lastValueFrom(this.translate.getTranslation("destManagement.deleteDetailMessage"));
+
+      this.confirmationSvc.confirm({
+        message: message,
+        header: confirmation,
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          this.deleteDestination(id);
+          this.messageSvc.add({ severity: 'success', summary: confirmation, detail: detail });
+        }
+      });
+    }
   }
 
   ngOnDestroy() {
-    this.subsSvc.unsubscribe('DestinationsPage');
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 }

@@ -1,16 +1,18 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
-import { lastValueFrom } from 'rxjs';
-import { UserFacade } from 'src/app/core/+state/load-user/load-user.facade';
+import { lastValueFrom, map, of, switchMap } from 'rxjs';
+import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
+import { DestinationsFacade } from 'src/app/core/+state/destinations/destinations.facade';
+import { FavoritesFacade } from 'src/app/core/+state/favorites/favorites.facade';
 import { BookingForm, NewBooking } from 'src/app/core/models/globetrotting/booking.interface';
-import { ClientFavDestination } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
-import { NewFav } from 'src/app/core/models/globetrotting/fav.interface';
+import { ClientFavDestination, NewFav } from 'src/app/core/models/globetrotting/fav.interface';
+import { AdminAgentOrClientUser } from 'src/app/core/models/globetrotting/user.interface';
 import { BookingsService } from 'src/app/core/services/api/bookings.service';
 import { DestinationsService } from 'src/app/core/services/api/destinations.service';
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+import { Roles, getUserName } from 'src/app/core/utilities/utilities';
 
 export interface FavClickedEvent {
   fav: boolean;
@@ -22,44 +24,45 @@ export interface FavClickedEvent {
   styleUrls: ['./destinations.page.scss'],
 })
 export class DestinationsPage implements OnInit, OnDestroy {
-  private _selectedDestination: Destination | null = null;
-  public role: string | null = null;
-  public specificUserId: number | null = null;
-  private favs: ClientFavDestination[] = [];
+  private readonly COMPONENT = 'DestinationsPage';
+  public selectedDestination: Destination | null = null;
+  public currentUser: AdminAgentOrClientUser | null = null;
+  private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;
+Roles: any;
 
   constructor(
     public destinationsSvc: DestinationsService,
     private subsSvc: SubscriptionsService,
-    public userFacade: UserFacade,
+    public authFacade: AuthFacade,
+    public favsFacade: FavoritesFacade,
+    public destinationsFacade: DestinationsFacade,
     public favsSvc: FavoritesService,
-    public bookingsSvc: BookingsService,
-    private datePipe: DatePipe
+    public bookingsSvc: BookingsService
   ) {
-    this.subsSvc.addSubscriptions([
-      {
-        component: 'DestinationsPage',
-        sub: this.userFacade.currentUser$.subscribe(res => {
-          this.role = res.role;
-          if (res.specificUser) {
-            this.specificUserId = res.specificUser.id
-            if (res.specificUser.type == 'AUTHENTICATED') {
-              this.favs = res.specificUser.favorites;
-            }
-          }
-        })
-      }])
+    this.startSubscriptions();
   }
 
-  ngOnInit() {
-    lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => {
-      console.error(err);
-    });
+  async ngOnInit() {
+    await lastValueFrom(this.destinationsSvc.getAllDestinations()).catch(err => console.error(err));
+    //await lastValueFrom(this.favsSvc.getAllClientFavs()).catch(err => console.error(err));
+  }
+
+  private startSubscriptions() {
+    this.subsSvc.addSubscriptions(this.COMPONENT,
+      this.authFacade.currentUser$.pipe(switchMap(user => {
+        this.currentUser = user;
+        if (user?.role === Roles.AUTHENTICATED) {
+          return this.favsFacade.clientFavs$.pipe(map(favs => this._clientFavs = favs ?? []));
+        }
+        return of()
+      })).subscribe()
+    )
   }
 
   public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {
-    if (event && event.first != undefined && event.rows != undefined && event.rows != 0 && event.last != undefined) {
+    if (event && event.first !== undefined && event.rows !== undefined && event.rows != 0 && event.last !== undefined) {
       const visibleEnd = event.last >= this.destinationsSvc.itemsCount;
       if (visibleEnd) {
         this.loadNextPage();
@@ -74,42 +77,46 @@ export class DestinationsPage implements OnInit, OnDestroy {
   }
 
   public onFavClicked(destination: Destination, event: FavClickedEvent) {
-    if (this.specificUserId) {
+    if (this.currentUser?.specific_id) {
       if (event.fav) {
         // Create new fav
         let fav: NewFav = {
-          client_id: this.specificUserId,
+          client_id: this.currentUser.specific_id,
           destination_id: destination.id
         }
-        lastValueFrom(this.favsSvc.addFav(fav)).catch(err => console.error(err));
+        this.favsFacade.addFav(fav);
       } else {
         // Delete fav
-        let fav = this.favs.find(f => f.destination_id == destination.id);
+        let fav = this._clientFavs.find(f => f.destination_id == destination.id);
         if (fav) {
-          lastValueFrom(this.favsSvc.deleteFav(fav.fav_id)).catch(err => console.error(err));;
+          this.favsFacade.deleteFav(fav.fav_id);
         }
       }
     }
   }
 
   public showBookingForm(destination: Destination) {
-    this._selectedDestination = destination;
+    this.selectedDestination = destination;
     this.showDialog = true;
   }
 
   private hideDialog() {
-    this._selectedDestination = null;
+    this.selectedDestination = null;
     this.showDialog = false;
   }
 
   public onBookingAccepted(booking: BookingForm) {
-    if (this.specificUserId && this._selectedDestination) {
+    if (this.currentUser?.specific_id && this.selectedDestination) {
       let _booking: NewBooking = {
-        start: this.datePipe.transform(booking.start, 'yyyy-MM-dd'),
-        end: this.datePipe.transform(booking.end, 'yyyy-MM-dd'),
-        travelers: booking.travelers,
-        client_id: this.specificUserId,
-        destination_id: this._selectedDestination.id
+        clientName: getUserName(this.currentUser),
+        client_id: this.currentUser.specific_id,
+        destination_id: this.selectedDestination.id,
+        destinationName: this.selectedDestination.name,
+        end: booking.end,
+        isActive: true,
+        isConfirmed: false,
+        start: booking.start,
+        travelers: booking.travelers
       }
       lastValueFrom(this.bookingsSvc.addBooking(_booking)).catch(err => console.error(err));
     }
@@ -119,5 +126,4 @@ export class DestinationsPage implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subsSvc.unsubscribe('DestinationsPage');
   }
-
 }

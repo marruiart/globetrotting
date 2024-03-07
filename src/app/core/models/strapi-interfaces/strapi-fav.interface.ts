@@ -9,9 +9,9 @@ export interface StrapiFav {
     /**
     * Strapi destination data as a response or destination id (number) as payload 
     */
-    destination: StrapiResponse<StrapiDestination> | number,
+    destination: StrapiResponse<StrapiDestination> | number | string,
     /**
     * Strapi client data as a response or client id (number) as payload 
     */
-    client?: StrapiResponse<StrapiClient> | number,
+    client?: StrapiResponse<StrapiClient> | number | string,
 }

@@ -25,7 +25,7 @@ export class HomePage {
     }
   }
 
-  public navigateDestinations() {
+  public async navigateDestinations() {
     this.router.navigate(['/destinations']);
   }
 }

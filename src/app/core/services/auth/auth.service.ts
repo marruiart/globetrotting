@@ -1,26 +1,27 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
-import { ApiService } from '../api/api.service';
-import { UserCredentials } from '../../models/globetrotting/user.interface';
+import { AgentRegisterInfo, AdminAgentOrClientUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo } from '../../models/globetrotting/user.interface';
+import { StrapiRole } from '../../models/strapi-interfaces/strapi-user.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export abstract class AuthService extends ApiService {
+export abstract class AuthService {
 
-  public abstract login(credentials: Object): Observable<any>;
+  public abstract login(credentials: UserCredentials): Observable<any>;
 
-  public abstract register(info: Object, isAgent?: boolean): Observable<any>;
+  public abstract register(info: UserRegisterInfo | AgentRegisterInfo, isAgent?: boolean): Observable<any>;
 
   public abstract logout(): Observable<any>;
 
-  public abstract me(): Observable<any>;
+  public abstract me(): Observable<AdminAgentOrClientUser>;
 
-  public abstract updateIdentifiers(user: any): Observable<UserCredentials>;
+  public abstract getRoles(): Observable<any>;
 
-  public abstract getUserIdentifiers(id: number): Observable<UserCredentials>;
+  public abstract updateIdentifiers(user: any): Observable<UserCredentialsOptions>;
 
-  public abstract deleteUser(id: number): Observable<UserCredentials>;
+  public abstract getUserIdentifiers(id: number | string): Observable<UserCredentialsOptions>;
+
+  public abstract deleteUser(user_id: number | string, ext_id?: number | string, isAgent?: boolean): Observable<void>;
 
 }

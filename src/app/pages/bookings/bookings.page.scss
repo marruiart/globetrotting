@@ -15,7 +15,7 @@
         color: var(--primary-700);
         font-size: 1.3rem;
         vertical-align: middle;
-        
+
         p-button button {
           display: flex;
           flex-wrap: wrap;
@@ -35,6 +35,12 @@
 
         > span.group-name {
           font-weight: bold;
+        }
+      }
+
+      @media screen and (max-width: 960px) {
+        td {
+          justify-content: left !important;
         }
       }
     }

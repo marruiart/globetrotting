@@ -1,8 +1,9 @@
+import { LatLng } from "@capacitor/google-maps/dist/typings/definitions";
 import { Media } from "./media.interface";
 import { PaginatedData } from "./pagination-data.interface";
 
 export interface Destination extends NewDestination {
-    id: number
+    id: number | string
 }
 
 export interface NewDestination {
@@ -12,7 +13,19 @@ export interface NewDestination {
     image?: Media,
     price?: number,
     description?: string,
-    fav?: boolean
+    fav?: boolean,
+    coordinate: LatLng | string,
+    lat?: number,
+    lng?: number
 }
 
 export type PaginatedDestination = PaginatedData<Destination>
+
+export interface DestinationsTableRow {
+    id: number | string,
+    name: string,
+    type?: string,
+    dimension?: string,
+    price?: number,
+    description?: string
+  }

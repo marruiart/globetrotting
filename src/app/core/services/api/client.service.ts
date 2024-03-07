@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { ApiService } from './api.service';
 import { MappingService } from './mapping.service';
 import { Client, NewClient, PaginatedClient } from '../../models/globetrotting/client.interface';
-import { UserFacade } from '../../+state/load-user/load-user.facade';
+import { DataService } from './data.service';
+import { DocumentData, DocumentSnapshot } from 'firebase/firestore';
+import { StrapiEndpoints } from '../../utilities/utilities';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ClientService extends ApiService {
-  private path: string = "/api/clients";
+export class ClientService {
   private body = (client: NewClient) => this.mapSvc.mapClientPayload(client);
   private queries: { [query: string]: string } = {
-    "populate": "bookings,favorites.destination,user"
+    "populate": "bookings,favorites.destination,user.role"
   }
 
   private _clientsPage: BehaviorSubject<PaginatedClient | null> = new BehaviorSubject<PaginatedClient | null>(null);
@@ -21,19 +21,16 @@ export class ClientService extends ApiService {
   public clients$: Observable<Client[]> = this._clients.asObservable();
 
   constructor(
-    private mapSvc: MappingService,
-    private userFacade: UserFacade
-  ) {
-    super();
-  }
+    private dataSvc: DataService,
+    private mapSvc: MappingService
+  ) { }
 
-  public getAllClients(page: number | null = 1): Observable<PaginatedClient | null> {
+  public getAllClients(page: number | DocumentSnapshot<DocumentData> | null = 1): Observable<PaginatedClient | null> {
     if (page == null) {
       return of(null);
     }
-    let _queries = JSON.parse(JSON.stringify(this.queries));
-    _queries["pagination[page]]"] = `${page}`;
-    return this.getAll<PaginatedClient>(this.path, this.queries, this.mapSvc.mapPaginatedClients)
+    let _queries = { ...this.queries, ...{ "pagination[page]]": `${page}` } };
+    return this.dataSvc.obtainAll<PaginatedClient>(StrapiEndpoints.CLIENTS, _queries, this.mapSvc.mapPaginatedClients)
       .pipe(tap((page: PaginatedClient) => {
         if (page.data.length > 0) {
           let _clients: Client[] = JSON.parse(JSON.stringify(page.data))
@@ -61,56 +58,55 @@ export class ClientService extends ApiService {
     if (currentUserId) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
       _queries["filters[user]"] = `${currentUserId}`;
-      return this.getAll<PaginatedClient>(this.path, _queries, this.mapSvc.mapPaginatedClients)
+      return this.dataSvc.obtainAll<PaginatedClient>(StrapiEndpoints.CLIENTS, _queries, this.mapSvc.mapPaginatedClients)
         .pipe(map(res => {
           if (res.data.length > 0) {
             let clientMe = res.data[0];
-            this.userFacade.updateSpecificUser(clientMe);
             return clientMe;
           } else {
             return null;
           }
-        }), catchError(() => throwError(() => 'No se ha podido obtener tu cliente')))
+        }), catchError(() => throwError(() => 'ERROR: Unable to get the client.')))
     } else {
       return of(null);
     }
   }
 
-  public getClient(id: number): Observable<Client> {
-    return this.get<Client>(this.path, id, this.mapSvc.mapClient, this.queries)
-      .pipe(catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
+  public getClient(id: string | number): Observable<Client> {
+    return this.dataSvc.obtain<Client>(StrapiEndpoints.CLIENTS, id, this.mapSvc.mapClient, this.queries)
+      .pipe(catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
-  public getClientByExtUserId(user_id: number): Observable<Client> {
+  public getClientByExtUserId(user_id: number | string): Observable<Client> {
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["filters[user]"] = `${user_id}`;
-    return this.getAll<Client[]>(this.path, _queries, this.mapSvc.mapClients)
+    return this.dataSvc.obtainAll<Client[]>(StrapiEndpoints.CLIENTS, _queries, this.mapSvc.mapClients)
       .pipe(map(res => res[0]),
-        catchError(() => throwError(() => 'No se ha podido obtener el cliente')));
+        catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
-    return this.add<Client>(this.path, this.body(client), this.mapSvc.mapClient)
+    return this.dataSvc.save<Client>(StrapiEndpoints.CLIENTS, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
         if (updateObs) {
           this.getAllClients().subscribe();
         }
-      }), catchError(() => throwError(() => 'No se ha podido añadir al cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to create the client.e')));
   }
 
   public updateClient(client: Client, updateObs: boolean = true): Observable<Client> {
-    return this.update<Client>(this.path, client.id, this.body(client), this.mapSvc.mapClient)
+    return this.dataSvc.update<Client>(StrapiEndpoints.CLIENTS, client.id, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
         if (updateObs) {
           this.getAllClients().subscribe();
         }
-      }), catchError(() => throwError(() => 'No se ha podido modificar el cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to update the client.')));
   }
 
   public deleteClient(id: number): Observable<Client> {
-    return this.delete<Client>(this.path, this.mapSvc.mapClient, id)
+    return this.dataSvc.delete<Client>(StrapiEndpoints.CLIENTS, this.mapSvc.mapClient, id, {})
       .pipe(tap(_ => {
         this.getAllClients().subscribe();
-      }), catchError(() => throwError(() => 'No se ha podido eliminar al cliente')));
+      }), catchError(() => throwError(() => 'ERROR: Unable to delete the client.')));
   }
 }

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { Observable } from 'rxjs';
-import { Auth } from '../models/globetrotting/auth.interface';
+import { JwtAuth } from '../models/globetrotting/auth.interface';
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
 
-  add(token: string): Observable<Auth> {
-    return new Observable<Auth>(observer => {
+  add(token: string): Observable<JwtAuth> {
+    return new Observable<JwtAuth>(observer => {
       if (token) {
         Preferences.set({
           key: 'jwtToken',
@@ -33,8 +33,8 @@ export class StorageService {
     });
   }
 
-  get(): Observable<Auth> {
-    return new Observable<Auth>(observer => {
+  get(): Observable<JwtAuth> {
+    return new Observable<JwtAuth>(observer => {
       Preferences.get({ key: 'jwtToken' })
         .then((token: any) => {
           if (token != null && token['value']) {

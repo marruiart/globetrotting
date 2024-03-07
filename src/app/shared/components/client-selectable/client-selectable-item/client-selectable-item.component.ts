@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
+import { getUserName } from 'src/app/core/utilities/utilities';
 
 @Component({
   selector: 'app-client-selectable-item',
@@ -8,17 +9,16 @@ import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
 })
 export class ClientSelectableItemComponent {
   public name: string = '';
-  private _clientExtUser: ExtUser | null = null;
-  @Input() set clientExtUser(clientExtUser: ExtUser | null) {
+
+  private _clientExtUser: User | null = null;
+  @Input() set clientExtUser(clientExtUser: User | null) {
     if (clientExtUser) {
+      this.name = getUserName(clientExtUser);
       this._clientExtUser = clientExtUser;
     }
   };
-  get clientExtUser(): ExtUser | null {
-    return this._clientExtUser;
-  }
 
-  @Output() onClientSelected = new EventEmitter<ExtUser>();
+  @Output() onClientSelected = new EventEmitter<User>();
 
   onUserClicked() {
     if (this._clientExtUser) {
@@ -26,13 +26,4 @@ export class ClientSelectableItemComponent {
     }
   }
 
-  getClientName(): string {
-    if (this._clientExtUser && this._clientExtUser.name) {
-      return `${this._clientExtUser?.name}${' ' + this._clientExtUser?.surname ?? ''}`;
-    } else if (this._clientExtUser) {
-      return this._clientExtUser.nickname;
-    } else {
-      return '';
-    }
-  }
 }

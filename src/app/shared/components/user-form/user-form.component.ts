@@ -1,12 +1,16 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import { FullUser, UserCredentials, UserRegisterInfo } from 'src/app/core/models/globetrotting/user.interface';
+import { BatchUpdate, FormChanges } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
+import { FirebaseUserRegisterInfo } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
+import { AgentsTableRow } from 'src/app/core/models/globetrotting/agent.interface';
+import { AdminAgentOrClientUser, User, UserCredentials, UserCredentialsOptions, UserRegisterInfo, UserRegisterInfoOptions } from 'src/app/core/models/globetrotting/user.interface';
+import { StrapiUserRegisterInfo } from 'src/app/core/models/strapi-interfaces/strapi-user.interface';
+import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
+import { Backend, Backends, FormType, FormTypes, Roles, getUserName } from 'src/app/core/utilities/utilities';
 import { IdentifierValidator } from 'src/app/core/validators/identifier.validator';
 import { PasswordValidator } from 'src/app/core/validators/password.validator';
-
-export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UPDATE_AGENT";
+import { BACKEND, environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-user-form',
@@ -14,9 +18,18 @@ export type FormType = "LOGIN" | "REGISTER" | "REGISTER_AGENT" | "PROFILE" | "UP
   styleUrls: ['./user-form.component.scss'],
 })
 export class UserFormComponent implements OnDestroy {
-  private _subs: Subscription[] = []
+  private readonly COMPONENT = 'UserFormComponent';
+  private readonly Pattern = {
+    EMAIL: '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$',
+    NAME: '^[A-Za-zÀ-ÖØ-öø-ÿ ]+$',
+    NICKNAME: '^[A-Za-z0-9._-]+$'
+  }
+  private batchUpdate: BatchUpdate | null = null;
+  private hasChanged: boolean = false;
   public userForm: FormGroup = this.fb.group({});;
-  public errMsg: string = "";
+  public errMsg: string = '';
+  public backend = environment.backend as Backend;
+
   private _formType: FormType | null = null;
   @Input() set formType(formType: FormType | null) {
     this._formType = formType;
@@ -27,6 +40,7 @@ export class UserFormComponent implements OnDestroy {
   public get formType() {
     return this._formType;
   }
+
   private _actionUpdate: boolean = false;
   @Input() set actionUpdate(actionUpdate: boolean) {
     this._actionUpdate = actionUpdate;
@@ -34,180 +48,240 @@ export class UserFormComponent implements OnDestroy {
   public get actionUpdate() {
     return this._actionUpdate;
   }
-  @Input() set agent(agent: any | null) {
-    if (agent) {
-      this.userForm.controls['id'].setValue(agent.id);
-      this.userForm.controls['user_id'].setValue(agent.user_id);
-      this.userForm.controls['username'].setValue(agent.username);
-      this.userForm.controls['email'].setValue(agent.email);
-      this.userForm.controls['name'].setValue(agent.name);
-      this.userForm.controls['surname'].setValue(agent.surname);
-      this.userForm.controls['nickname'].setValue(agent.nickname);
+
+  @Input() set agent(tableRow: AgentsTableRow) {
+    if (tableRow) {
+      this.userForm.controls['id'].setValue(tableRow.ext_id);
+      this.userForm.controls['user_id'].setValue(tableRow.user_id);
+      this.userForm.controls['username'].setValue(tableRow.username);
+      this.userForm.controls['_username'].setValue(tableRow.username);
+      this.userForm.controls['email'].setValue(tableRow.email);
+      this.userForm.controls['_email'].setValue(tableRow.email);
+      this.userForm.controls['name'].setValue(tableRow.name);
+      this.userForm.controls['surname'].setValue(tableRow.surname);
+      this.userForm.controls['nickname'].setValue(tableRow.nickname);
+    }
+    if (this._actionUpdate && this.backend === Backends.FIREBASE) {
+      this.checkValueChanges({
+        'name': {
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
+        },
+        'surname': {
+          'bookings': [{ fieldPath: 'agent_id', value: tableRow.user_id, fieldName: 'agentName' }]
+        }
+      }, this.proccessName)
     }
   }
-  @Input() set user(fullUser: FullUser | null) {
-    if (fullUser) {
-      this.userForm.controls['id'].setValue(fullUser.extendedUser?.id);
-      this.userForm.controls['username'].setValue(fullUser.user?.username);
-      this.userForm.controls['user_id'].setValue(fullUser.user?.id);
-      this.userForm.controls['email'].setValue(fullUser.user?.email);
-      this.userForm.controls['name'].setValue(fullUser.extendedUser?.name);
-      this.userForm.controls['surname'].setValue(fullUser.extendedUser?.surname);
-      this.userForm.controls['nickname'].setValue(fullUser.extendedUser?.nickname);
+
+  private _user!: AdminAgentOrClientUser;
+  @Input() set user(user: AdminAgentOrClientUser | null) {
+    if (user) {
+      this._user = user;
+      this.userForm.controls['id'].setValue(user.ext_id);
+      this.userForm.controls['username'].setValue(user.username);
+      this.userForm.controls['_username'].setValue(user.username);
+      this.userForm.controls['user_id'].setValue(user.user_id);
+      this.userForm.controls['email'].setValue(user.email);
+      this.userForm.controls['_email'].setValue(user.email);
+      this.userForm.controls['name'].setValue(user.name);
+      this.userForm.controls['surname'].setValue(user.surname);
+      this.userForm.controls['nickname'].setValue(user.nickname);
+      if (user.role === Roles.AUTHENTICATED) {
+        this.userForm.controls['favorites'].setValue(user.favorites);
+      }
+    }
+    if (this._actionUpdate && this.backend === Backends.FIREBASE) {
+      // TODO add password change
+      const fieldPath = this._user.role === Roles.AUTHENTICATED ? 'client_id' : 'agent_id';
+      const fieldName = this._user.role === Roles.AUTHENTICATED ? 'clientName' : 'agentName';
+      this.checkValueChanges({
+        'name': {
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
+        },
+        'surname': {
+          'bookings': [{ fieldPath: fieldPath, value: this._user.user_id, fieldName: fieldName }]
+        }
+      }, this.proccessName)
     }
   }
+
   @Output() onLoginClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onRegisterAgentClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onNavigateToRegisterClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onUpdateProfileClicked: EventEmitter<any> = new EventEmitter<any>();
 
-
   constructor(
     private fb: FormBuilder,
+    private subsSvc: SubscriptionsService,
     public translate: TranslateService
   ) { }
 
   initForm() {
     switch (this.formType) {
-      case 'LOGIN':
+      case FormTypes.LOGIN:
         this.userForm = this.fb.group({
-          email: ['', [Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-          username: ['', [Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          email: ['', [Validators.pattern(this.Pattern.EMAIL)]],
+          username: ['', [Validators.pattern(this.Pattern.NICKNAME)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]]
         }, { validator: [IdentifierValidator.identifierRequired('email', 'username')] } as AbstractControlOptions);
         break;
-      case 'REGISTER':
+      case FormTypes.REGISTER:
         this.userForm = this.fb.group({
-          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]]
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'REGISTER_AGENT':
+      case FormTypes.REGISTER_AGENT:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
-          username: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
+          username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
           password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
           passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'PROFILE':
+      case FormTypes.PROFILE:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
           username: [{ value: '', disabled: true }],
-          email: ['', [Validators.required]],
-          password: ['', [PasswordValidator.passwordProto('password')]],
-          passwordRepeat: ['', [PasswordValidator.passwordProto('passwordRepeat')]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
+          _username: ['', [Validators.required]],
+          email: [{ value: '', disabled: true }],
+          _email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
+          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
+          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          favorites: [[]]
         }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
         break;
-      case 'UPDATE_AGENT':
+      case FormTypes.UPDATE_AGENT:
         this.userForm = this.fb.group({
           id: [null],
           user_id: [null],
           username: [{ value: '', disabled: true }],
-          email: ['', [Validators.required, Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]],
-          name: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          surname: ['', [Validators.required, Validators.pattern("^[A-Za-z ]+$")]],
-          nickname: ['', [Validators.required, Validators.pattern("^[A-Za-z0-9._-]+$")]],
-        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
-        break;
-      default:
-        this.userForm = this.fb.group({});
-        console.error("Error al asignar el formulario");
+          _username: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+          email: [{ value: '', disabled: true }],
+          _email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
+          name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
+          nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
+        });
     }
+  }
+
+  private checkValueChanges(batchUpdate: BatchUpdate, specialFieldsCallback?: (controlName: string, form: FormGroup) => (string | null)) {
+    // TODO export the same in destination-form
+    this.batchUpdate = { ...batchUpdate };
+    const initialValue = this.userForm.value;
+    Object.entries(batchUpdate).forEach(([controlName, collections]) => {
+      const formControl = this.userForm.controls[controlName];
+      this.subsSvc.addSubscriptions(this.COMPONENT,
+        formControl.valueChanges.subscribe(newFieldValue => {
+          const hasChanged = initialValue[controlName] !== newFieldValue;
+          if (hasChanged) {
+            this.hasChanged = hasChanged;
+            //const _newFieldValue = specialFieldsCallback ? specialFieldsCallback(controlName, this.userForm) : newFieldValue;
+            if (specialFieldsCallback) {
+              newFieldValue = specialFieldsCallback(controlName, this.userForm) ?? newFieldValue;
+            }
+            Object.entries(collections).forEach(([collection, updates]) => {
+              updates.map(({ fieldPath, value, fieldName, fieldValue }) => {
+                const batchUpdate = this.batchUpdate![controlName][collection];
+                this.batchUpdate![controlName][collection] = batchUpdate.map(upd => {
+                  const _fieldValue = (upd.fieldPath === fieldPath && upd.value === value && upd.fieldName === fieldName) ? newFieldValue : fieldValue;
+                  return { ...upd, fieldValue: _fieldValue };
+                })
+              })
+
+            })
+          }
+        }))
+    })
+  }
+
+  private proccessName(controlName: string, form: FormGroup): string | null {
+    if (controlName === 'name' || controlName === 'surname') {
+      controlName = 'name';
+      const name: string = form.controls['name'].value;
+      const surname: string = form.controls['surname'].value;
+      return getUserName({ name: name, surname: surname })
+    }
+    return null;
   }
 
   public onSubmit(event: Event) {
     switch (this.formType) {
-      case 'LOGIN':
+      case FormTypes.LOGIN:
         this.onLogin(event);
         break;
-      case 'REGISTER':
+      case FormTypes.REGISTER:
         this.onRegister(event);
         break;
-      case 'REGISTER_AGENT':
-      case 'UPDATE_AGENT':
-        this.onRegisterAgent(event);
+      case FormTypes.REGISTER_AGENT:
+      case FormTypes.UPDATE_AGENT:
+        this.onRegisterOrUpdateAgent(event);
         break;
-      case 'PROFILE':
+      case FormTypes.PROFILE:
         this.onUpdateProfile(event);
         break;
       default:
-        console.error("Error al enviar el formulario");
+        console.error("ERROR: Unexpected error. Unable to send the form.");
     }
   }
 
   private onUpdateProfile(event: Event) {
     event.stopPropagation();
-    const fullUser: FullUser = {
-      user: {
-        id: this.userForm.value.user_id,
-        email: this.userForm.value.email,
-        username: this.userForm.value.username,
-        password: this.userForm.value.password
-      },
-      extendedUser: {
-        id: this.userForm.value.id,
-        nickname: this.userForm.value.nickname,
-        name: this.userForm.value.name,
-        surname: this.userForm.value.surname
-      },
-      specificUser: null
-    };
-    this.onUpdateProfileClicked.emit(fullUser);
-  }
-
-  private onRegisterAgent(event: Event) {
-    event.stopPropagation();
-    const credentials: any = {
+    const user: User & UserCredentials & FormChanges = {
+      role: this._user.role,
       user_id: this.userForm.value.user_id,
-      username: this.userForm.value.username,
-      email: this.userForm.value.email,
+      ext_id: this.userForm.value.id,
+      username: this.userForm.value.username ?? this.userForm.value._username,
+      email: this.userForm.value.email ?? this.userForm.value._email,
       password: this.userForm.value.password,
-      id: this.userForm.value.id,
+      nickname: this.userForm.value.nickname,
       name: this.userForm.value.name,
       surname: this.userForm.value.surname,
-      nickname: this.userForm.value.nickname
+      updates: this.hasChanged ? this.batchUpdate : null
     }
-    this.onRegisterAgentClicked.emit(credentials);
+
+    this.onUpdateProfileClicked.emit(user);
+  }
+
+  private onRegisterOrUpdateAgent(event: Event) {
+    event.stopPropagation();
+    const agent: User & UserCredentials & FormChanges = {
+      role: Roles.AGENT,
+      user_id: this.userForm.value.user_id,
+      ext_id: this.userForm.value.id,
+      username: this.userForm.value.username ?? this.userForm.value._username,
+      email: this.userForm.value.email ?? this.userForm.value._email,
+      password: this.userForm.value.password,
+      nickname: this.userForm.value.nickname,
+      name: this.userForm.value.name,
+      surname: this.userForm.value.surname,
+      updates: this.hasChanged ? this.batchUpdate : null
+    }
+    this.onRegisterAgentClicked.emit(agent);
   }
 
   private onRegister(event: Event) {
     event.stopPropagation();
-    const credentials: UserRegisterInfo = {
-      username: this.userForm.value.username,
-      email: this.userForm.value.email,
-      password: this.userForm.value.password
-    }
+    const credentials = this.getUserRegisterInfo(BACKEND) as UserRegisterInfo
     this.onRegisterClicked.emit(credentials);
   }
 
   private onLogin(event: Event) {
     event.stopPropagation();
-    let credentials: UserCredentials;
-    
-    if (this.userForm.value.username) {
-      credentials = {
-        username: this.userForm.value.username,
-        password: this.userForm.value.password
-      }
-    } else {
-      credentials = {
-        username: this.userForm.value.username,
-        password: this.userForm.value.password
-      }
-    }
+    let credentials = this.getUserCredentials(BACKEND) as UserCredentials;
     this.onLoginClicked.emit(credentials);
   }
 
@@ -215,8 +289,48 @@ export class UserFormComponent implements OnDestroy {
     this.onNavigateToRegisterClicked.emit();
   }
 
+  private getUserCredentials(backend: Backend): UserCredentialsOptions {
+    // TODO call mapping service to get payload
+    if (backend == Backends.FIREBASE) {
+      return {
+        email: this.userForm.value.email ?? '',
+        password: this.userForm.value.password
+      }
+    } else if (backend == Backends.STRAPI) {
+      return {
+        username: this.userForm.value.username ?? '',
+        email: this.userForm.value.email ?? '',
+        password: this.userForm.value.password
+      }
+    }
+    else {
+      throw new Error('Backend not implemented');
+    }
+  }
+
+  private getUserRegisterInfo(backend: Backend): UserRegisterInfoOptions {
+    switch (backend) {
+      case Backends.FIREBASE:
+        let firebaseRegister: FirebaseUserRegisterInfo = {
+          username: this.userForm.value.username,
+          email: this.userForm.value.email,
+          password: this.userForm.value.password
+        }
+        return firebaseRegister;
+      case Backends.STRAPI:
+        let strapiRegister: StrapiUserRegisterInfo =
+        {
+          username: this.userForm.value.username,
+          email: this.userForm.value.email,
+          password: this.userForm.value.password
+        }
+        return strapiRegister;
+      default: throw new Error('Backend not implemented');
+    }
+  }
+
   ngOnDestroy(): void {
-    this._subs.forEach(s => s.unsubscribe());
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 
 }

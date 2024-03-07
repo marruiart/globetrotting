@@ -16,8 +16,8 @@ export interface StrapiMedia {
   previewUrl: any
   provider: string
   provider_metadata: ProviderMetadata
-  createdAt: string
   updatedAt: string
+  createdAt: string
 }
 
 export interface Formats {

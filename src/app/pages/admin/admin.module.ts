@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 
 import { AdminPageRoutingModule } from './admin-routing.module';
 
@@ -10,8 +10,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
     AdminPageRoutingModule
   ],
-  declarations: [
-    AdminPage
-  ]
+  declarations: [AdminPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AdminPageModule { }

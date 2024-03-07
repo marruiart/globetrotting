@@ -5,7 +5,7 @@
       <p-table
         styleClass="bookings-table"
         [columns]="cols"
-        [value]="(bookingTable$ | async) ?? []"
+        [value]="(bookingsFacade.bookingTable$ | async) ?? []"
         [lazy]="true"
         dataKey="destination_id"
         rowGroupMode="subheader"
@@ -19,7 +19,7 @@
               {{ "bookingsPage.tableHeader" | translate | uppercase }}
             </div>
             <div
-              *ngIf="currentUser?.type == 'AGENT'"
+              *ngIf="currentUser?.role === 'AGENT' || currentUser?.role === 'ADMIN'"
               styleClass="table-caption__th"
             >
               <p-button
@@ -57,7 +57,7 @@
                   {{ "bookingsPage.tableDestination" | translate }}:
                 </span>
                 <span class="group-name"
-                  >{{ booking?.destination | uppercase }}</span
+                  >{{ booking?.destinationName | uppercase }}</span
                 >
               </td>
             </tr>
@@ -84,6 +84,17 @@
                     [label]="booking[col.field]"
                     image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
                   ></p-chip>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'agentName'">
+                  <p-chip
+                    *ngIf="booking[col.field]"
+                    [label]="booking[col.field]"
+                    image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  ></p-chip>
+                  <ng-container *ngIf="!booking[col.field]">
+                    {{ '-' }}
+                  </ng-container>
                 </ng-container>
 
                 <ng-container *ngSwitchCase="'dates'">
@@ -115,23 +126,23 @@
                     icon="pi pi-check"
                   ></p-tag>
                   <p-tag
-                    *ngIf="!booking[col.field] && currentUser?.type == 'AUTHENTICATED'"
+                    *ngIf="!booking[col.field] && currentUser?.role === 'AUTHENTICATED'"
                     [value]="'bookingsPage.unconfirmedTag' | translate | uppercase"
                     severity="danger"
                     [rounded]="true"
                   ></p-tag>
                   <p-button
-                    *ngIf="!booking[col.field] && currentUser?.type == 'AGENT'"
+                    *ngIf="!booking[col.field] && (currentUser?.role === 'AGENT' || currentUser?.role === 'ADMIN')"
                     [label]="'bookingsPage.confirmBtn' | translate | uppercase"
                     icon="pi pi-thumbs-up"
                     styleClass="p-button-secondary p-button-rounded light-tag"
-                    (click)="confirmBook(booking.booking_id)"
+                    (click)="confirmBook(booking)"
                   ></p-button>
                 </ng-container>
 
                 <!-- Otherwise, display the content of the field -->
                 <ng-container *ngSwitchDefault>
-                  {{ booking[col.field] }}
+                  {{ booking[col.field] ?? '-' }}
                 </ng-container>
               </ng-template>
             </td>
@@ -153,10 +164,11 @@
         contentStyleClass="agent-form-content"
       >
         <app-booking-form
-          *ngIf="showForm"
+          *ngIf="showForm && clients"
           [destinations]="destinations"
-          [currentUserType]="'AGENT'"
+          [currentUser]="currentUser"
           (onBookingAccepted)="addBooking($event)"
+          [clients]="clients"
         />
       </p-dialog>
     </div>

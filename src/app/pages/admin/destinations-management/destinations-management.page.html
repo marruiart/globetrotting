@@ -7,7 +7,7 @@
         [breakpoint]="'960px'"
         styleClass="destinations-table"
         [columns]="cols"
-        [value]="(destinationTable$ | async) ?? []"
+        [value]="(destinationsFacade.destinationTable$ | async) ?? []"
         [lazy]="true"
       >
         <ng-template pTemplate="caption" let-columns>
@@ -43,7 +43,7 @@
                   <span class="p-column-title"
                     >{{ col.header | uppercase }}:
                   </span>
-                  {{ rowData[col.field] }}
+                  {{ rowData[col.field]?.toFixed(2) }}
                   <ng-container *ngIf="rowData[col.field]">€</ng-container>
                 </ng-container>
                 <ng-container *ngSwitchCase="'options'">
@@ -87,7 +87,21 @@
       </p-table>
 
       <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+
+      <p-dialog
+        [header]="'destManagement.caution' | translate"
+        [draggable]="false"
+        [resizable]="false"
+        [(visible)]="showNoDeletionForm"
+        [modal]="true"
+        [blockScroll]="true"
+        [dismissableMask]="true"
+      >
+      <i class="pi pi-exclamation-triangle"></i> {{ "destManagement.noDeletionMessage" | translate }}
+      </p-dialog>
+
       <p-toast></p-toast>
+
       <p-dialog
         [header]="'destManagement.editDestinationHeader' | translate"
         [draggable]="false"

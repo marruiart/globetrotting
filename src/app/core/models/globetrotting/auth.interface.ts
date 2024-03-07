@@ -1,10 +1,10 @@
-import { ExtUser } from "./user.interface"
+import { Role } from "../../utilities/utilities"
 
-export interface Auth {
+export interface JwtAuth {
     jwt: string
 }
 
 export interface AuthUser {
-    user_id: number,
-    role: string
-}
+    user_id: string | number
+    role: Role
+};

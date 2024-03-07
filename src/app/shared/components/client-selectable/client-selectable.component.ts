@@ -1,9 +1,9 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-import { ExtUser } from 'src/app/core/models/globetrotting/user.interface';
+import { User } from 'src/app/core/models/globetrotting/user.interface';
 import { ClientService } from 'src/app/core/services/api/client.service';
-import { UsersService } from 'src/app/core/services/api/users.service';
+import { getUserName } from 'src/app/core/utilities/utilities';
 
 export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
@@ -18,38 +18,33 @@ export const CLIENT_SELECTABLE_VALUE_ACCESSOR: any = {
   providers: [CLIENT_SELECTABLE_VALUE_ACCESSOR]
 })
 export class ClientSelectableComponent implements ControlValueAccessor {
-  public clientsExtUsers: ExtUser[] = [];
   public name: string = '';
-  public selectedClient?: number;
+  public selectedClient?: User;
   public disabled: boolean = false;
   public showSelectable: boolean = false;
 
-  constructor(
-    private userSvc: UsersService,
-    private clientsSvc: ClientService
-  ) {
-    this.loadClients();
-  }
-
-  private async loadClients() {
-    let users = await lastValueFrom(this.userSvc.getAllUsers());
-    let clients = await lastValueFrom(this.clientsSvc.getAllClients());
-
-    for (let client of clients?.data ?? []) {
-      for (let user of users) {
-        if (client.user_id == user.user_id) {
-          this.clientsExtUsers.push(user);
-        }
-      }
+  private _clients: User[] = [];
+  @Input() set clients(clients: User[]) {
+    if (clients) {
+      this._clients = clients;
     }
+  };
+  get clients(): User[] {
+    return (this._clients) ? this._clients : [];
   }
+
+  constructor(
+    private clientsSvc: ClientService
+  ) { }
 
   /**
 * Writes the value of the given object to the component.
 * @param obj The object to write the value.
 */
   writeValue(obj: any): void {
-    this.selectClient(obj);
+    if (obj) {
+      this.selectClient(obj);
+    }
   }
 
   /** Registers a callback function that will be called when the value of this directive changes.
@@ -87,35 +82,35 @@ export class ClientSelectableComponent implements ControlValueAccessor {
   */
   private propagateChange = (obj: any) => { }
 
-  public onClientSelected(clientExtUser: ExtUser) {
-    this.name = this.getClientName(clientExtUser);
-    this.selectClient(clientExtUser.user_id, true);
+  public async onClientSelected(clientExtUser: User) {
+    this.name = getUserName(clientExtUser);
+    let client = clientExtUser;
+    if (!client.specific_id) {
+      let clientSpecificUser = await lastValueFrom(this.clientsSvc.getClientByExtUserId(clientExtUser.user_id))
+        .catch(err => {
+          console.error(err);
+          return undefined;
+        });
+      if (clientSpecificUser) {
+        client = { ...clientExtUser, ...{ specific_id: clientSpecificUser.id } };
+      }
+    }
+    if (client) {
+      await this.selectClient(client, true);
+    }
     this.hideClientSelectable();
   }
 
-  public async selectClient(id: number | undefined, propagate: boolean = false) {
-    let clientId = id ? await lastValueFrom(this.clientsSvc.getClientByExtUserId(id)) : null;
-    if (propagate && clientId) {
-      this.selectedClient = clientId.id;
+  public selectClient(client: User | undefined, propagate: boolean = false) {
+    if (propagate && client) {
+      this.selectedClient = client;
       this.propagateChange(this.selectedClient);
     }
-    this.hideClientSelectable();
   }
 
   public deselect() {
     this.selectClient(undefined);
     this.hideClientSelectable();
   }
-
-  getClientName(clientExtUser: ExtUser): string {
-    if (clientExtUser && clientExtUser.name) {
-      return `${clientExtUser?.name}${' ' + clientExtUser?.surname ?? ''}`;
-    } else if (clientExtUser) {
-      return clientExtUser.nickname;
-    } else {
-      return '';
-    }
-  }
-
 
 }

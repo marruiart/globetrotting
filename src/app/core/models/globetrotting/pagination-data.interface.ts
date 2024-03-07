@@ -1,10 +1,12 @@
+import { DocumentData, DocumentSnapshot } from "firebase/firestore"
+
 export interface Pagination {
-    prev: number | null,
-    page: number,
-    next: number | null,
-    pageSize: number,
-    pageCount: number,
-    total: number
+    prev?: number | null,
+    page?: number,
+    next: DocumentSnapshot<DocumentData> | number | null,
+    pageSize?: number,
+    pageCount?: number,
+    total?: number
 }
 export interface PaginatedData<T> {
     data: T[],

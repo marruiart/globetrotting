@@ -1,17 +1,17 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { TravelAgent } from 'src/app/core/models/globetrotting/agent.interface';
-import { Client } from 'src/app/core/models/globetrotting/client.interface';
 import { Destination } from 'src/app/core/models/globetrotting/destination.interface';
+import { ClientFavDestination } from 'src/app/core/models/globetrotting/fav.interface';
 
 @Pipe({
   name: 'fav'
 })
 export class FavPipe implements PipeTransform {
 
-  transform(destinations: Destination[], client: Client | TravelAgent | null): Destination[] {
-    if (client?.type == 'AUTHENTICATED') {
-      destinations.map(destination => {
-        return destination["fav"] = client.favorites.reduce((prev, fav) => prev || fav.destination_id == destination.id, false) ?? false;
+  transform(destinations: Destination[], favorites: ClientFavDestination[] | null): Destination[] {
+    if (favorites) {
+      destinations = destinations.map(destination => {
+        let fav = favorites.reduce((prev: any, fav: ClientFavDestination) => prev || fav.destination_id == destination.id, false) ?? false;
+        return { ...destination, ...{ fav: fav } }
       })
     }
     return destinations;

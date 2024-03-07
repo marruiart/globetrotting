@@ -89,7 +89,9 @@
     "editDestinationHeader": "Edit destination information",
     "deleteMessage": "Do you wish to delete the destination?",
     "deleteConfirmationTitle": "Confirmation",
-    "deleteDetailMessage": "The destination has been deleted"
+    "deleteDetailMessage": "The destination has been deleted", 
+    "noDeletionMessage": "This destination cannot be deleted because it has reservations associated with it.", 
+    "caution": "Deletion not possible"
   },
   "agentsManagement": {
     "tableHeader": "Travel agents management",

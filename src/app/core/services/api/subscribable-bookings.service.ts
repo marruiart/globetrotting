@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, from, of, switchMap, tap, zip } from 'rxjs';
-import { Booking } from '../../models/globetrotting/booking.interface';
-import { MappingService } from './mapping.service';
-import { DataService } from './data.service';
-import { BookingsService } from './bookings.service';
+import { QueryConstraint, Unsubscribe, orderBy, where } from 'firebase/firestore';
+import { BehaviorSubject, Observable, from, of, switchMap, zip } from 'rxjs';
 import { FirebaseCollectionResponse, } from '../../models/firebase-interfaces/firebase-data.interface';
-import { QueryConstraint, Unsubscribe, where, orderBy } from 'firebase/firestore';
-import { FirebaseService } from '../firebase/firebase.service';
-import { Collections, Roles, StrapiEndpoints, getUserName } from '../../utilities/utilities';
+import { Booking } from '../../models/globetrotting/booking.interface';
 import { User } from '../../models/globetrotting/user.interface';
+import { Collections, Roles, StrapiEndpoints, getUserName } from '../../utilities/utilities';
+import { FirebaseService } from '../firebase/firebase.service';
+import { BookingsService } from './bookings.service';
+import { DataService } from './data.service';
+import { MappingService } from './mapping.service';
 
 @Injectable({
   providedIn: 'root'

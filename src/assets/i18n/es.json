@@ -89,7 +89,9 @@
     "editDestinationHeader": "Editar datos del destino",
     "deleteMessage": "¿Desea eliminar el destino?",
     "deleteConfirmationTitle": "Confirmación",
-    "deleteDetailMessage": "Destino eliminado"
+    "deleteDetailMessage": "Destino eliminado", 
+    "noDeletionMessage": "Este destino no puede ser eliminado porque tiene reservas asociadas.",    
+    "caution": "Eliminación no posible"
   },
   "agentsManagement": {
     "tableHeader": "Gestión de agentes de viaje",

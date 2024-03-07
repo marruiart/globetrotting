@@ -6,8 +6,9 @@ import { DestinationsFacade } from "src/app/core/+state/destinations/destination
 import { Destination, DestinationsTableRow } from "src/app/core/models/globetrotting/destination.interface";
 import { MappingService } from "src/app/core/services/api/mapping.service";
 import { CustomTranslateService } from "src/app/core/services/custom-translate.service";
+import { FirebaseService } from "src/app/core/services/firebase/firebase.service";
 import { SubscriptionsService } from "src/app/core/services/subscriptions.service";
-import { Roles } from "src/app/core/utilities/utilities";
+import { Collections, Roles } from "src/app/core/utilities/utilities";
 
 
 @Component({
@@ -22,6 +23,7 @@ export class DestinationsManagementPage implements OnDestroy {
   public data: DestinationsTableRow[] = [];
   public cols: any[] = [];
   public showEditForm: boolean = false;
+  public showNoDeletionForm: boolean = false;
   public selectedDestination: Destination | null = null;
 
   constructor(
@@ -29,6 +31,7 @@ export class DestinationsManagementPage implements OnDestroy {
     private subsSvc: SubscriptionsService,
     private mappingSvc: MappingService,
     private translate: CustomTranslateService,
+    private firebaseSvc: FirebaseService,
     // Facades
     public destinationsFacade: DestinationsFacade,
     private authFacade: AuthFacade,
@@ -107,19 +110,24 @@ export class DestinationsManagementPage implements OnDestroy {
   }
 
   async showConfirmDialog(id: number) {
-    const message = await lastValueFrom(this.translate.getTranslation("destManagement.deleteMessage"));
-    const confirmation = await lastValueFrom(this.translate.getTranslation("destManagement.deleteConfirmationTitle"));
-    const detail = await lastValueFrom(this.translate.getTranslation("destManagement.deleteDetailMessage"));
-    
-    this.confirmationSvc.confirm({
-      message: message,
-      header: confirmation,
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.deleteDestination(id);
-        this.messageSvc.add({ severity: 'success', summary: confirmation, detail: detail });
-      }
-    });
+    const bookings = await this.firebaseSvc.getDocumentsBy(Collections.BOOKINGS, 'destination_id', id);
+    if (bookings.length) {
+      this.showNoDeletionForm = true;
+    } else {
+      const message = await lastValueFrom(this.translate.getTranslation("destManagement.deleteMessage"));
+      const confirmation = await lastValueFrom(this.translate.getTranslation("destManagement.deleteConfirmationTitle"));
+      const detail = await lastValueFrom(this.translate.getTranslation("destManagement.deleteDetailMessage"));
+
+      this.confirmationSvc.confirm({
+        message: message,
+        header: confirmation,
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          this.deleteDestination(id);
+          this.messageSvc.add({ severity: 'success', summary: confirmation, detail: detail });
+        }
+      });
+    }
   }
 
   ngOnDestroy() {

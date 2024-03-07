@@ -13,7 +13,7 @@ export type FirebaseCollectionResponse = {
     docs: FirebaseDocument[]
 }
 
-export interface FirebaseDocument {
+export type FirebaseDocument = {
     id: string,
     data: DocumentData
 }

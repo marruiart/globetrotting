@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { QueryConstraint, Unsubscribe, orderBy, where } from 'firebase/firestore';
-import { BehaviorSubject, Observable, from, of, switchMap, zip } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, forkJoin, from, merge, mergeAll, of, switchMap, zip } from 'rxjs';
 import { FirebaseCollectionResponse, } from '../../models/firebase-interfaces/firebase-data.interface';
 import { Booking } from '../../models/globetrotting/booking.interface';
 import { User } from '../../models/globetrotting/user.interface';
@@ -54,10 +54,11 @@ export class SubscribableBookingsService extends BookingsService {
   }
 
   private subscribeToBookingsAsAdmin() {
-    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollection(Collections.BOOKINGS, this._bookings));
+    const orderByDestinationName = orderBy('destinationName');
+    this.unsubscriptions.push(this.firebaseSvc.subscribeToCollectionQuery(Collections.BOOKINGS, this._bookings, orderByDestinationName));
     this._bookings.subscribe(res => {
       if (res) {
-        const bookings = this.sortBookings(res.docs.map(doc => this.mappingSvc.mapBooking(doc)));
+        const bookings = res.docs.map(doc => this.mappingSvc.mapBooking(doc));
         if (this.currentUser) {
           this.bookingsFacade.saveBookingsTable(bookings, this.currentUser.role);
         }
@@ -69,15 +70,13 @@ export class SubscribableBookingsService extends BookingsService {
     this.subscribeToNotConfirmedBookings();
     this.subscribeToBookingsByUser();
 
-    zip(this._bookings, this._notConfirmedBookings).subscribe(([userBookings, notConfirmed]) => {
-      if (userBookings && notConfirmed) {
-        const _userBookings = userBookings.docs.map(doc => this.mappingSvc.mapBooking(doc));
-        const _notConfirmed = notConfirmed.docs.map(doc => this.mappingSvc.mapBooking(doc));
+    combineLatest([this._bookings, this._notConfirmedBookings]).subscribe(([userBookings, notConfirmed]) => {
+        const _userBookings = userBookings?.docs.map(doc => this.mappingSvc.mapBooking(doc)) ?? [];
+        const _notConfirmed = notConfirmed?.docs.map(doc => this.mappingSvc.mapBooking(doc)) ?? [];
         const bookings = this.sortBookings([..._userBookings, ..._notConfirmed]);
         if (this.currentUser) {
           this.bookingsFacade.saveBookingsTable(bookings, this.currentUser.role);
         }
-      }
     });
   }
 

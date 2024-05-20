@@ -1,28 +1,27 @@
-import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom, map, tap } from 'rxjs';
-import { UserCredentials } from '../../../interfaces/user-credentials';
-import { UserRegisterInfo } from '../../../interfaces/user-register-info';
-import { JwtService } from '../../jwt.service';
+import { Observable } from 'rxjs';
 import { ApiService } from '../api.service';
-import { AuthService } from '../auth.service';
-import { StrapiArrayResponse, StrapiExtendedUser, StrapiLoginPayload, StrapiLoginResponse, StrapiMe, StrapiRegisterPayload, StrapiRegisterResponse, StrapiResponse, StrapiUploadResponse, StrapiUser } from '../../../interfaces/strapi';
-import { User } from '../../../interfaces/user';
 import { MediaService } from '../media.service';
+import { FIREBASE_API_URL, FirebaseEndpoints } from 'src/app/core/utilities/utilities';
 
-export class FirebaseMediaService extends MediaService{
+export class FirebaseMediaService extends MediaService {
 
   constructor(
-    private apiSvc:ApiService
-  ) { 
+    private apiSvc: ApiService
+  ) {
     super();
   }
 
-  public upload(blob:Blob):Observable<number[]>{
-    const formData = new FormData();
-    formData.append('files', blob);
-    return this.apiSvc.post('/upload', formData).pipe(map((response:StrapiUploadResponse)=>{
-      return response.map(media=>media.id);
-    }));
+  public override upload(blob: Blob): Observable<any[]> {
+    throw new Error('Method not implemented.');
   }
+
+  public override generateCsv(body: any, token: string): Observable<{ "files_location": string[] }> {
+    return this.apiSvc.post(`${FIREBASE_API_URL}${FirebaseEndpoints.DOWNLOAD_CSV}`, body, token)
+  }
+
+  public override downloadFile(url: string): Observable<any> {
+    return this.apiSvc.get(url);
+  }
+
 
 }

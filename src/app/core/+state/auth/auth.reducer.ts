@@ -9,6 +9,7 @@ export const AUTH_FEATURE_KEY = 'auth'
 
 export type AuthState = {
     isLogged: boolean,
+    token: string | null,
     user_id: (string | number) | null,
     ext_id: (string | number) | null,
     specific_id: (string | number) | null,
@@ -26,6 +27,7 @@ export type AuthState = {
 
 export const initialState: AuthState = {
     isLogged: false,
+    token: null,
     user_id: null,
     ext_id: null,
     specific_id: null,
@@ -45,6 +47,7 @@ export const authReducer = createReducer(
     initialState,
     on(AuthActions.loginSuccess, (state) => ({ ...state, isLogged: true, error: null })),
     on(AuthActions.loginFailure, (state, { error }) => ({ ...state, isLogged: false, role: null, user_id: null, error: error })),
+    on(AuthActions.setToken, (state, { token }) => ({ ...state, token: token })),
 
     on(AuthActions.updateUser, (state, { user }) => userMapping(state, user)),
     on(AuthActions.assignUserSuccess, (state, { user }) => userMapping(state, user)), // TODO map all the user input

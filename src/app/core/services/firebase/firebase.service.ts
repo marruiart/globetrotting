@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Auth, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { Auth, UserCredential, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { DocumentData, DocumentReference, DocumentSnapshot, FieldPath, Firestore, QueryCompositeFilterConstraint, QueryConstraint, QueryNonFilterConstraint, Transaction, TransactionOptions, Unsubscribe, WhereFilterOp, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, query, runTransaction, setDoc, startAfter, updateDoc, where, writeBatch } from "firebase/firestore";
 import { FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { CollectionUpdates, FieldUpdate, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
@@ -62,6 +62,8 @@ export class FirebaseService {
     let isFirstTime = true;
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
+        let token = await user.getIdToken();
+        this.authFacade.setToken(token)
         const _user = new BehaviorSubject<AdminAgentOrClientUser | null>(null);
         this.unsubscribe = this.subscribeToDocument(Collections.USERS, `${user.uid}`, _user);
         _user.subscribe(user => {
@@ -140,6 +142,14 @@ export class FirebaseService {
       });
     });
   }
+
+  public async getFileDownloadUrl(url: string): Promise<string> {
+    const fileRef = ref(this._webStorage!, url);
+    const fileUrl = await getDownloadURL(fileRef)
+    console.log(`Download file here: ${fileUrl}`)
+    return fileUrl
+  }
+
 
   public imageUpload(blob: Blob): Promise<any> {
     return this.fileUpload(blob, 'image/jpeg', 'images', 'image', ".jpg");
@@ -528,11 +538,11 @@ export class FirebaseService {
     return response;
   }
 
-  public async connectUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
-    return new Promise<FirebaseUserCredential | null>(async (resolve, _) => {
+  public async connectUserWithEmailAndPassword(email: string, password: string): Promise<UserCredential | null> {
+    return new Promise<UserCredential | null>(async (resolve, _) => {
       if (!this._auth)
         resolve(null);
-      resolve({ user: await signInWithEmailAndPassword(this._auth!, email, password) });
+      resolve(await signInWithEmailAndPassword(this._auth!, email, password));
     });
 
   }

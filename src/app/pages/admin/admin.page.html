@@ -2,6 +2,21 @@
   <app-header></app-header>
   <main>
     <div class="content">
+      <form [formGroup]="csvForm"  (ngSubmit)="onDownloadCsv($event)">
+        <div
+          *ngFor="let collection of collections"
+          class="field-checkbox"
+        >
+          <p-radioButton
+            [inputId]="collection"
+            [value]="collection"
+            formControlName="collection"
+          />
+          <label [for]="collection"> {{ collection }} </label>
+        </div>
+        <p-button type="submit">Download</p-button>
+      </form>
+
       <div class="map">
         <capacitor-google-map #map></capacitor-google-map>
       </div>

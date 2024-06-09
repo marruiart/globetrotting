@@ -2,19 +2,34 @@
   <app-header></app-header>
   <main>
     <div class="content">
-      <form [formGroup]="csvForm"  (ngSubmit)="onDownloadCsv($event)">
-        <div
-          *ngFor="let collection of collections"
-          class="field-checkbox"
-        >
+      <form [formGroup]="csvForm" (ngSubmit)="onDownloadCsv($event)">
+        <div *ngFor="let collection of collections" class="field-checkbox">
           <p-radioButton
             [inputId]="collection"
             [value]="collection"
             formControlName="collection"
           />
-          <label [for]="collection"> {{ collection }} </label>
+          <label [for]="collection">
+            <ng-template #radioButtonLabel [ngSwitch]="collection">
+              <span *ngSwitchCase="'all'"> 
+                {{ "adminPage.all" | translate }}
+              </span>
+              <span *ngSwitchCase="'users'">
+                {{ "adminPage.users" | translate }}
+              </span>
+              <span *ngSwitchCase="'bookings'">
+                {{ "adminPage.bookings" | translate }}
+              </span>
+              <span *ngSwitchCase="'destinations'">
+                {{ "adminPage.destinations" | translate }}
+              </span>
+            </ng-template>
+            <ng-container *ngTemplateOutlet="radioButtonLabel" />
+          </label>
         </div>
-        <p-button type="submit">Download</p-button>
+        <p-button type="submit"
+          >{{ "adminPage.download" | translate }}</p-button
+        >
       </form>
 
       <div class="map">

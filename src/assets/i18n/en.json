@@ -4,6 +4,13 @@
     "heroDescription": "Explore stunning destinations, immerse yourself in unique cultures, and create unforgettable memories as you travel the world with us. Make your travel dreams come true with our expert guidance and personalized experiences!",
     "heroButton": "Book yours now"
   },
+  "adminPage": {
+    "download": "Download report",
+    "all": "All files",
+    "users": "Users",
+    "destinations": "Destinations",
+    "bookings": "Bookings"
+  },
   "destinationsPage": {
     "booking": "Booking details"
   },
@@ -81,7 +88,7 @@
     "tableHeader": "Destinations management",
     "tableName": "Destination",
     "tableType": "Type",
-    "tableDimension": "Dimension",
+    "tableKeywords": "Keywords",
     "tablePrice": "Price/person/night",
     "tableDescription": "Description",
     "tableOptions": "Options",
@@ -109,7 +116,7 @@
   "destinationForm": {
     "destination": "Destination place",
     "type": "Type of destination",
-    "dimension": "Dimension of destination",
+    "keywords": "Keywords of destination",
     "price": "Price/person/night",
     "description": "Description",
     "submitBtn": "Submit"

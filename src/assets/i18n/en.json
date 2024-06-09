@@ -116,7 +116,7 @@
   "destinationForm": {
     "destination": "Destination place",
     "type": "Type of destination",
-    "keywords": "Keywords of destination",
+    "keywords": "Destination's keywords",
     "price": "Price/person/night",
     "description": "Description",
     "submitBtn": "Submit"

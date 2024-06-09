@@ -116,7 +116,7 @@ export class LocationsApiService {
     let newDest: NewDestination = {
       name: location.name,
       type: location.type,
-      dimension: location.dimension,
+      keywords: location.keywords,
       coordinate: coordinate,
       image: undefined,
       price: this.generatePrice()

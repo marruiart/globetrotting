@@ -77,7 +77,7 @@ export class FirebaseMappingService extends MappingService {
             id: res.id,
             name: res.data['name'] ?? '',
             type: res.data['type'] ?? '',
-            dimension: res.data['dimension'] ?? '',
+            keywords: res.data['keywords'] ?? '',
             coordinate: res.data['coordinate'] ?? { lat: 0, lng: 0 },
             image: res.data['image'] ?? null,
             price: res.data['price'] ?? 0,
@@ -95,7 +95,7 @@ export class FirebaseMappingService extends MappingService {
             id: destination.id,
             name: destination.name,
             type: destination.type,
-            dimension: destination.dimension === 'unknown' ? '' : destination.dimension,
+            keywords: destination.keywords === 'unknown' ? '' : destination.keywords,
             price: destination.price,
             description: destination.description
         }
@@ -237,7 +237,7 @@ export class FirebaseMappingService extends MappingService {
         let _destination = {
             name: destination.name,
             type: destination.type,
-            dimension: destination.dimension,
+            keywords: destination.keywords,
             coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,
@@ -252,7 +252,7 @@ export class FirebaseMappingService extends MappingService {
             id: destination.id,
             name: destination.name,
             type: destination.type,
-            dimension: destination.dimension,
+            keywords: destination.keywords,
             coordinate: destination.coordinate,
             image: destination.image,
             price: destination.price,

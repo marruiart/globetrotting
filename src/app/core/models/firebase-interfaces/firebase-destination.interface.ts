@@ -3,7 +3,7 @@
 export type NewFirebaseDestinationPayload = {
     name: string,
     type: string,
-    dimension: string,
+    keywords: string,
     image: any,
     price: number,
     description: string,

@@ -111,7 +111,7 @@ export class StrapiMappingService extends MappingService {
       id: data.id,
       name: data.attributes.name,
       type: data.attributes.type,
-      dimension: data.attributes.dimension,
+      keywords: data.attributes.keywords,
       price: data.attributes.price,
       lat: coordinate.lat,
       lng: coordinate.lng,
@@ -132,7 +132,7 @@ export class StrapiMappingService extends MappingService {
       id: destination.id,
       name: destination.name,
       type: destination.type,
-      dimension: destination.dimension === 'unknown' ? '' : destination.dimension,
+      keywords: destination.keywords === 'unknown' ? '' : destination.keywords,
       price: destination.price,
       description: destination.description
     }
@@ -344,7 +344,7 @@ export class StrapiMappingService extends MappingService {
       data: {
         name: destination.name,
         type: destination.type,
-        dimension: destination.dimension,
+        keywords: destination.keywords,
         price: destination.price,
         image: undefined,
         description: destination.description,

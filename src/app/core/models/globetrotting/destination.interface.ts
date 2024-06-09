@@ -9,7 +9,7 @@ export interface Destination extends NewDestination {
 export interface NewDestination {
     name: string,
     type?: string,
-    dimension?: string,
+    keywords?: string,
     image?: Media,
     price?: number,
     description?: string,
@@ -25,7 +25,7 @@ export interface DestinationsTableRow {
     id: number | string,
     name: string,
     type?: string,
-    dimension?: string,
+    keywords?: string,
     price?: number,
     description?: string
   }

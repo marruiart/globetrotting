@@ -218,6 +218,12 @@ export class UserFormComponent implements OnDestroy {
     return null;
   }
 
+  /**
+ * Handles form submission based on the form type.
+ *
+ * @param event - The form submission event.
+ * @returns void
+ */
   public onSubmit(event: Event) {
     switch (this.formType) {
       case FormTypes.LOGIN:
@@ -285,6 +291,11 @@ export class UserFormComponent implements OnDestroy {
     this.onLoginClicked.emit(credentials);
   }
 
+  /**
+ * Emits an event to navigate to the registration page.
+ *
+ * @returns void
+ */
   public onNavigateToRegister() {
     this.onNavigateToRegisterClicked.emit();
   }

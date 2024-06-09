@@ -30,7 +30,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   private _clientFavs: ClientFavDestination[] = [];
   public itemSize = 600;
   public showDialog: boolean = false;
-Roles: any;
+  Roles: any;
 
   constructor(
     public destinationsSvc: DestinationsService,
@@ -61,6 +61,14 @@ Roles: any;
     )
   }
 
+  /**
+ * Loads destinations based on the virtual scroller's lazy load event.
+ *
+ * This method checks if the end of the visible destinations has been reached
+ * and loads the next page of destinations if necessary.
+ *
+ * @param event The virtual scroller lazy load event.
+ */
   public loadDestinations(event?: VirtualScrollerLazyLoadEvent) {
     if (event && event.first !== undefined && event.rows !== undefined && event.rows != 0 && event.last !== undefined) {
       const visibleEnd = event.last >= this.destinationsSvc.itemsCount;
@@ -76,6 +84,14 @@ Roles: any;
     });
   }
 
+  /**
+ * Handles the event when a favorite is clicked.
+ *
+ * This method adds or removes a favorite destination for the current user based on the event.
+ *
+ * @param destination The destination that was clicked.
+ * @param event The favorite clicked event.
+ */
   public onFavClicked(destination: Destination, event: FavClickedEvent) {
     if (this.currentUser?.specific_id) {
       if (event.fav) {
@@ -95,6 +111,13 @@ Roles: any;
     }
   }
 
+  /**
+ * Shows the booking form for the selected destination.
+ *
+ * This method sets the selected destination and displays the booking form dialog.
+ *
+ * @param destination The destination to be booked.
+ */
   public showBookingForm(destination: Destination) {
     this.selectedDestination = destination;
     this.showDialog = true;
@@ -105,6 +128,13 @@ Roles: any;
     this.showDialog = false;
   }
 
+  /**
+ * Handles the event when a booking is accepted.
+ *
+ * This method creates a new booking based on the booking form data and the selected destination.
+ *
+ * @param booking The booking form data.
+ */
   public onBookingAccepted(booking: BookingForm) {
     if (this.currentUser?.specific_id && this.selectedDestination) {
       let _booking: NewBooking = {

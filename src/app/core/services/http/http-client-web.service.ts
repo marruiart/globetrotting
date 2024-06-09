@@ -11,11 +11,11 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * create http headers
+   * Creates HTTP headers.
    *
-   * @param headers http headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns angular http headers
+   * @param headers HTTP headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Angular HTTP headers.
    */
   private createHeaders(
     headers: any,
@@ -30,11 +30,11 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * create http request body
+   * Creates HTTP request body.
    *
-   * @param body http request body
-   * @param urlEncoded http request as url encoded content-type
-   * @returns http request body
+   * @param body HTTP request body.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns HTTP request body.
    */
   private createBody(body: any, urlEncoded: boolean): any | HttpParams {
 
@@ -42,12 +42,12 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * get the HTTP options to send with the request
+   * Gets the HTTP options to send with the request.
    * 
-   * @param headers http headers
-   * @param params http params
-   * @param urlEncoded http request as url encoded content-type
-   * @returns object with http options
+   * @param headers HTTP headers.
+   * @param params HTTP params.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Object with HTTP options.
    */
   protected createOptions(
     headers: any,
@@ -63,13 +63,13 @@ export class HttpClientWebService extends HttpService {
   // CRUD methods
 
   /**
-   * get
+   * Sends a GET HTTP request.
    *
-   * @param url http request url
-   * @param params http request params
-   * @param headers http request headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns observable with http response
+   * @param url HTTP request URL.
+   * @param params HTTP request params.
+   * @param headers HTTP request headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Observable with HTTP response.
    */
   public get<T>(
     url: string,
@@ -82,13 +82,13 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * post
+   * Sends a POST HTTP request.
    *
-   * @param url http request url
-   * @param body http request body
-   * @param headers http request headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns observable with http response
+   * @param url HTTP request URL.
+   * @param body HTTP request body.
+   * @param headers HTTP request headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Observable with HTTP response.
    */
   public post<T>(
     url: string,
@@ -104,13 +104,13 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * put
+   * Sends a PUT HTTP request.
    *
-   * @param url http request url
-   * @param body http request body
-   * @param headers http request headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns observable with http response
+   * @param url HTTP request URL.
+   * @param body HTTP request body.
+   * @param headers HTTP request headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Observable with HTTP response.
    */
   public put<T>(
     url: string,
@@ -126,13 +126,13 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * patch
+   * Sends a PATCH HTTP request.
    *
-   * @param url http request url
-   * @param body http request body
-   * @param headers http request headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns observable with http response
+   * @param url HTTP request URL.
+   * @param body HTTP request body.
+   * @param headers HTTP request headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Observable with HTTP response.
    */
   public patch<T>(
     url: string,
@@ -153,13 +153,13 @@ export class HttpClientWebService extends HttpService {
   }
 
   /**
-   * delete
+   * Sends a DELETE HTTP request.
    *
-   * @param url http request url
-   * @param params http request params
-   * @param headers http request headers
-   * @param urlEncoded http request as url encoded content-type
-   * @returns observable with http response
+   * @param url HTTP request URL.
+   * @param params HTTP request params.
+   * @param headers HTTP request headers.
+   * @param urlEncoded Indicates if the request should be URL encoded.
+   * @returns Observable with HTTP response.
    */
   public delete<T>(
     url: string,

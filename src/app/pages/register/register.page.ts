@@ -13,16 +13,32 @@ export class RegisterPage {
   constructor(
     private authFacade: AuthFacade,
     private router: Router
-  ) {  }
+  ) { }
 
+  /**
+ * Navigates to the home page.
+ *
+ * @returns void
+ */
   public navigateHome() {
     this.router.navigate(['/home']);
   }
 
+  /**
+ * Navigates to the login page.
+ *
+ * @returns void
+ */
   public navigateLogin() {
     this.router.navigate(['/login']);
   }
 
+  /**
+ * Registers a new user with the provided credentials.
+ *
+ * @param credentials - The user's registration information.
+ * @returns void
+ */
   public doRegister(credentials: UserRegisterInfo) {
     this.authFacade.register(credentials);
   }

@@ -122,6 +122,14 @@ export class BookingsPage implements OnDestroy {
     }
   }
 
+  /**
+ * Confirms a booking by updating its status and assigning the current agent's ID.
+ *
+ * This method updates the booking status to confirmed and assigns the current agent's ID.
+ * If the agent's ID is not available, it logs an error message.
+ *
+ * @param booking The booking to be confirmed.
+ */
   public async confirmBook(booking: BookingsTableRow) {
     const agent_id = this.currentUser?.specific_id;
     if (agent_id) {
@@ -137,6 +145,13 @@ export class BookingsPage implements OnDestroy {
     }
   }
 
+  /**
+ * Adds a new booking.
+ *
+ * This method adds a new booking by calling the booking service and then hides the booking form.
+ *
+ * @param booking The new booking to be added.
+ */
   public addBooking(booking: NewBooking) {
     lastValueFrom(this.bookingsSvc.addBooking(booking)).catch(err => console.error(err));
     this.hideBookingForm();
@@ -146,6 +161,11 @@ export class BookingsPage implements OnDestroy {
     this.showForm = false;
   }
 
+  /**
+ * Shows the booking form after retrieving all clients.
+ *
+ * This method retrieves all clients and shows the booking form if both the clients and destinations are available.
+ */
   public async showBookingForm() {
     await lastValueFrom(this.usersSvc.getAllClientsUsers()).catch(err => console.error(err));
     this.clientsFacade.clients$.subscribe(clients => {

@@ -86,6 +86,14 @@ export class DestinationsManagementPage implements OnDestroy {
     ]
   }
 
+  /**
+ * Displays the destination form for editing or adding a new destination.
+ *
+ * This method sets the selected destination and displays the edit form. 
+ * If no destination is provided, it prepares the form for adding a new destination.
+ *
+ * @param destination (optional) The destination to be edited. If not provided, a new destination will be added.
+ */
   public showDestinationForm(destination?: Destination) {
     this.selectedDestination = destination ?? null;
     this.showEditForm = true;
@@ -96,6 +104,14 @@ export class DestinationsManagementPage implements OnDestroy {
     this.showEditForm = false;
   }
 
+  /**
+ * Adds or edits a destination.
+ *
+ * This method either updates an existing destination if the `id` is present, 
+ * or adds a new destination if the `id` is not present.
+ *
+ * @param destination The destination data to be added or edited.
+ */
   public addOrEditDestination(destination: Destination) {
     if (destination.id) {
       this.destinationsFacade.updateDestination(destination);
@@ -109,7 +125,16 @@ export class DestinationsManagementPage implements OnDestroy {
     this.destinationsFacade.deleteDestination(id);
   }
 
-  async showConfirmDialog(id: number) {
+  /**
+ * Displays a confirmation dialog for deleting a destination.
+ *
+ * This method checks if there are any bookings associated with the given destination ID.
+ * If there are bookings, it shows a form indicating that deletion is not possible.
+ * Otherwise, it shows a confirmation dialog asking the user to confirm the deletion.
+ *
+ * @param id The ID of the destination to be deleted.
+ */
+  public async showConfirmDialog(id: number) {
     const bookings = await this.firebaseSvc.getDocumentsBy(Collections.BOOKINGS, 'destination_id', id);
     if (bookings.length) {
       this.showNoDeletionForm = true;

@@ -20,6 +20,18 @@ export class LocationsApiService {
     private destinationsSvc: DestinationsService
   ) { }
 
+  /**
+ * Retrieves all pages of locations from the API recursively.
+ *
+ * This function makes an HTTP GET request to the specified URL, retrieving
+ * a page of locations. If more pages are available, it recursively requests
+ * the next page until all pages are retrieved. The retrieved pages are added
+ * to the local database once all pages are fetched.
+ *
+ * @param {Page<Location>[]} [allPages=[]] - An array to store all pages of locations.
+ * @param {string} [url=`${environment.apiUrl}/location`] - The URL to fetch the locations from.
+ * @returns {Observable<Page<Location>[]>} - An observable containing the array of all location pages.
+ */
   public getAllFromApi(
     allPages: Page<Location>[] = [],
     url: string = `${environment.apiUrl}/location`)
@@ -139,10 +151,32 @@ export class LocationsApiService {
     } as Destination
   }
 
+  /**
+ * Adds a new location by mapping it to a new destination and sending it to the destinations service.
+ *
+ * This function takes a location object, maps it to a new destination object,
+ * and sends it to the destinations service to be added. It also specifies whether
+ * to update the location observable.
+ *
+ * @param {Location} location - The location to be added.
+ * @param {boolean} updateLocationObs - Flag indicating whether to update the location observable.
+ * @returns {Observable<NewDestination>} - An observable containing the new destination information.
+ */
   public addLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {
     return this.destinationsSvc.addDestination(this.mapNewLocation(location), updateLocationObs);
   }
 
+  /**
+ * Updates an existing location by mapping it to a destination and sending it to the destinations service.
+ *
+ * This function takes a location object, maps it to a destination object,
+ * and sends it to the destinations service to be updated. It also specifies whether
+ * to update the location observable.
+ *
+ * @param {Location} location - The location to be updated.
+ * @param {boolean} updateLocationObs - Flag indicating whether to update the location observable.
+ * @returns {Observable<NewDestination>} - An observable containing the updated destination information.
+ */
   public updateLocation(location: Location, updateLocationObs: boolean): Observable<NewDestination> {
     return this.destinationsSvc.updateDestination(this.mapLocation(location), updateLocationObs);
   }

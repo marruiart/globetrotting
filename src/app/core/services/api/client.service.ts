@@ -25,6 +25,12 @@ export class ClientService {
     private mapSvc: MappingService
   ) { }
 
+  /**
+ * Retrieves all clients with pagination.
+ * 
+ * @param {number | DocumentSnapshot<DocumentData> | null} [page=1] - The page number or DocumentSnapshot for pagination. If null, returns null.
+ * @returns {Observable<PaginatedClient | null>} An observable of the paginated clients.
+ */
   public getAllClients(page: number | DocumentSnapshot<DocumentData> | null = 1): Observable<PaginatedClient | null> {
     if (page == null) {
       return of(null);
@@ -47,12 +53,20 @@ export class ClientService {
       }), catchError(() => throwError(() => 'No se han podido obtener los clientes')));
   }
 
+  /**
+ * Retrieves the next page of clients.
+ * 
+ * @returns {Observable<PaginatedClient | null>} An observable of the next paginated clients.
+ */
   public getNextClientsPage(): Observable<PaginatedClient | null> {
     return this.getAllClients(this._clientsPage.value?.pagination.next);
   }
 
   /**
-   * Find in the client table de user with the id of the current user. If another user id is passed, the state of the application will be updated!
+   * Finds the client with the id of the current user. If another user id is passed, the state of the application will be updated.
+   * 
+   * @param {number | null} currentUserId - The ID of the current user.
+   * @returns {Observable<Client | null>} An observable of the client.
    */
   public clientMe(currentUserId: number | null): Observable<Client | null> {
     if (currentUserId) {
@@ -72,11 +86,23 @@ export class ClientService {
     }
   }
 
+  /**
+ * Retrieves a specific client by their ID.
+ * 
+ * @param {string | number} id - The ID of the client to retrieve.
+ * @returns {Observable<Client>} An observable of the client.
+ */
   public getClient(id: string | number): Observable<Client> {
     return this.dataSvc.obtain<Client>(StrapiEndpoints.CLIENTS, id, this.mapSvc.mapClient, this.queries)
       .pipe(catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
+  /**
+ * Retrieves a client by their external user ID.
+ * 
+ * @param {number | string} user_id - The external user ID of the client to retrieve.
+ * @returns {Observable<Client>} An observable of the client.
+ */
   public getClientByExtUserId(user_id: number | string): Observable<Client> {
     let _queries = JSON.parse(JSON.stringify(this.queries));
     _queries["filters[user]"] = `${user_id}`;
@@ -85,6 +111,13 @@ export class ClientService {
         catchError(() => throwError(() => 'ERROR: Unable to get the client.')));
   }
 
+  /**
+ * Adds a new client.
+ * 
+ * @param {NewClient} client - The new client to add.
+ * @param {boolean} [updateObs=true] - Whether to update the observable after adding the client.
+ * @returns {Observable<Client>} An observable of the added client.
+ */
   public addClient(client: NewClient, updateObs: boolean = true): Observable<Client> {
     return this.dataSvc.save<Client>(StrapiEndpoints.CLIENTS, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
@@ -94,6 +127,13 @@ export class ClientService {
       }), catchError(() => throwError(() => 'ERROR: Unable to create the client.e')));
   }
 
+  /**
+ * Updates an existing client.
+ * 
+ * @param {Client} client - The client to update.
+ * @param {boolean} [updateObs=true] - Whether to update the observable after updating the client.
+ * @returns {Observable<Client>} An observable of the updated client.
+ */
   public updateClient(client: Client, updateObs: boolean = true): Observable<Client> {
     return this.dataSvc.update<Client>(StrapiEndpoints.CLIENTS, client.id, this.body(client), this.mapSvc.mapClient)
       .pipe(tap(_ => {
@@ -103,6 +143,12 @@ export class ClientService {
       }), catchError(() => throwError(() => 'ERROR: Unable to update the client.')));
   }
 
+  /**
+ * Deletes a specific client by their ID.
+ * 
+ * @param {number} id - The ID of the client to delete.
+ * @returns {Observable<Client>} An observable of the deleted client.
+ */
   public deleteClient(id: number): Observable<Client> {
     return this.dataSvc.delete<Client>(StrapiEndpoints.CLIENTS, this.mapSvc.mapClient, id, {})
       .pipe(tap(_ => {

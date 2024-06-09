@@ -33,6 +33,12 @@ export class DestinationsService {
     ).subscribe();
   }
 
+  /**
+ * Retrieves all destinations with pagination.
+ * 
+ * @param {DocumentSnapshot<DocumentData> | number | null} [page=1] - The page number or DocumentSnapshot for pagination. If null, returns null.
+ * @returns {Observable<PaginatedDestination | null>} An observable of the paginated destinations.
+ */
   public getAllDestinations(page: DocumentSnapshot<DocumentData> | number | null = 1): Observable<PaginatedDestination | null> {
     if (page == null) {
       return of(null);
@@ -62,14 +68,32 @@ export class DestinationsService {
     }));
   }
 
+  /**
+ * Retrieves the next page of destinations.
+ * 
+ * @returns {Observable<PaginatedDestination | null>} An observable of the next paginated destinations.
+ */
   public getNextDestinationsPage() {
     return this.getAllDestinations(this._next);
   }
 
+  /**
+ * Retrieves a specific destination by its ID.
+ * 
+ * @param {string | number} id - The ID of the destination to retrieve.
+ * @returns {Observable<Destination>} An observable of the destination.
+ */
   public getDestination(id: string | number): Observable<Destination> {
     return this.dataSvc.obtain<Destination>(StrapiEndpoints.DESTINATIONS, id, this.mappingSvc.mapDestination, this.queries);
   }
 
+  /**
+ * Adds a new destination.
+ * 
+ * @param {NewDestination} destination - The new destination to add.
+ * @param {boolean} [updateObs=true] - Whether to update the observable after adding the destination.
+ * @returns {Observable<Destination>} An observable of the added destination.
+ */
   public addDestination(destination: NewDestination, updateObs: boolean = true): Observable<Destination> {
     const body = this.mappingSvc.mapNewDestinationPayload(destination);
     return this.dataSvc.save<Destination>(StrapiEndpoints.DESTINATIONS, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
@@ -79,6 +103,13 @@ export class DestinationsService {
     }));
   }
 
+  /**
+ * Updates an existing destination.
+ * 
+ * @param {Destination} destination - The destination to update.
+ * @param {boolean} [updateObs=true] - Whether to update the observable after updating the destination.
+ * @returns {Observable<Destination>} An observable of the updated destination.
+ */
   public updateDestination(destination: Destination, updateObs: boolean = true): Observable<Destination> {
     const body = this.mappingSvc.mapDestinationPayload(destination);
     return this.dataSvc.update<Destination>(StrapiEndpoints.DESTINATIONS, destination.id, body, this.mappingSvc.mapDestination).pipe(tap(_ => {
@@ -88,6 +119,12 @@ export class DestinationsService {
     }));
   }
 
+  /**
+ * Deletes a specific destination by its ID.
+ * 
+ * @param {number | string} id - The ID of the destination to delete.
+ * @returns {Observable<Destination>} An observable of the deleted destination.
+ */
   public deleteDestination(id: number | string): Observable<Destination> {
     return this.dataSvc.delete<Destination>(StrapiEndpoints.DESTINATIONS, this.mappingSvc.mapDestination, id, {}).pipe(tap(_ => {
       this.getAllDestinations().subscribe();

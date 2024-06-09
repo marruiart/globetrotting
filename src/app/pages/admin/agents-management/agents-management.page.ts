@@ -63,6 +63,17 @@ export class AgentsManagementPage {
     ]
   }
 
+  /**
+ * Displays the agent form for updating or registering an agent.
+ *
+ * This method sets the form type and whether an update action is being performed. 
+ * It displays the form if the form type is for updating an agent and a valid agent is selected, 
+ * or if the form type is for registering a new agent.
+ *
+ * @param formType The type of form to display, either for updating or registering an agent.
+ * @param tableRow Optional parameter for the selected agent's table row, required for updating an agent.
+ * @param actionUpdate Optional parameter indicating if the action is an update. Defaults to false.
+ */
   public showAgentForm(formType: FormType, tableRow?: AgentsTableRow, actionUpdate: boolean = false) {
     this.formType = formType;
     this.isUpdating = actionUpdate;
@@ -82,6 +93,14 @@ export class AgentsManagementPage {
     this.showForm = false;
   }
 
+  /**
+ * Adds or edits an agent.
+ *
+ * This method either updates an existing agent if the `ext_id` is present, 
+ * or registers a new agent if the `ext_id` is not present.
+ *
+ * @param agent The agent data, which includes user and user credentials.
+ */
   public async addOrEditAgent(agent: User & UserCredentials) {
     if (agent.ext_id) {
       await lastValueFrom(this.userSvc.updateUser(agent)).catch(err => console.error(err));

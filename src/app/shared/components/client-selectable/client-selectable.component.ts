@@ -68,20 +68,39 @@ export class ClientSelectableComponent implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
+  /**
+ * Displays the client selectable component.
+ *
+ * @returns void
+ */
   public showClientSelectable() {
     this.showSelectable = true;
   }
 
+  /**
+ * Hides the client selectable component.
+ *
+ * @returns void
+ */
   private hideClientSelectable() {
     this.showSelectable = false;
   }
 
   /**
-  * Propagates a change of an object.
-  * @param obj The object.
-  */
+   * Propagates a change of an object.
+   * 
+   * @param obj - The object to be propagated.
+   * @returns void
+   */
   private propagateChange = (obj: any) => { }
 
+
+  /**
+ * Handles the event of selecting a client.
+ * 
+ * @param clientExtUser - The selected client user.
+ * @returns Promise<void>
+ */
   public async onClientSelected(clientExtUser: User) {
     this.name = getUserName(clientExtUser);
     let client = clientExtUser;
@@ -101,6 +120,13 @@ export class ClientSelectableComponent implements ControlValueAccessor {
     this.hideClientSelectable();
   }
 
+  /**
+ * Selects a client and propagates the change if specified.
+ * 
+ * @param client - The client to select.
+ * @param propagate - Whether to propagate the change.
+ * @returns void
+ */
   public selectClient(client: User | undefined, propagate: boolean = false) {
     if (propagate && client) {
       this.selectedClient = client;
@@ -108,6 +134,11 @@ export class ClientSelectableComponent implements ControlValueAccessor {
     }
   }
 
+  /**
+ * Deselects the currently selected client and hides the client selectable component.
+ * 
+ * @returns void
+ */
   public deselect() {
     this.selectClient(undefined);
     this.hideClientSelectable();

@@ -130,6 +130,16 @@ export class MenuService {
       .subscribe((menu: any[]) => this._menu.next(menu));
   }
 
+  /**
+ * Selects and translates menu items based on the user's role and optional nickname.
+ * 
+ * This method retrieves translations for various menu items and then constructs a custom menu
+ * based on the user's role. The menu items are translated using the translate service, and the 
+ * final menu structure is built based on the user's role.
+ *
+ * @param nickname Optional nickname of the user.
+ * @returns Observable that emits the custom menu items.
+ */
   public selectMenu(nickname?: string) {
     const homeItem$ = this.translate.getTranslation("menu.home");
     const dashboardItem$ = this.translate.getTranslation("menu.dashboard");

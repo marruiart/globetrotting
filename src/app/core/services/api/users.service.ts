@@ -26,6 +26,11 @@ export class UsersService {
   ) { }
 
 
+  /**
+   * Retrieves all users with the provided queries.
+   * @param queries Additional queries to filter the results.
+   * @returns An observable of a list of users.
+   */
   public getAllUsers(queries: { [query: string]: string } = {}): Observable<User[]> {
     let _queries = { ...this.queries, ...queries };
     return this.dataSvc.obtainAll<User[]>(StrapiEndpoints.EXTENDED_USERS, _queries, this.mappingSvc.mapUsers).pipe(tap(res => {
@@ -33,6 +38,10 @@ export class UsersService {
     }), catchError((err) => { throw new Error(err) }));
   }
 
+  /**
+   * Retrieves all users with the role of client.
+   * @returns An observable of a list of client users.
+   */
   public getAllClientsUsers(): Observable<User[]> {
     return this.getAllUsers().pipe(map(users => {
       const clients = users.filter(user => user.role === Roles.AUTHENTICATED);
@@ -41,25 +50,39 @@ export class UsersService {
     }))
   }
 
+    /**
+   * Retrieves a specific user by ID.
+   * @param id The ID of the user to retrieve.
+   * @returns An observable of the user.
+   */
   public getUser(id: number | string): Observable<User> {
     return this.dataSvc.obtain<User>(StrapiEndpoints.EXTENDED_USERS, id, this.mappingSvc.mapUser, this.queries)
       .pipe(catchError((err) => { throw new Error(err) }));
   }
 
   /**
-   * Get an agent from the extended user table. 
-   * @param id The user id of the agent.
+   * Retrieves an agent from the extended user table.
+   * @param id The user ID of the agent.
    * @returns The information of the extended user and user credentials of the agent.
    */
   public getAgentExtUser(id: number | string | null): Observable<User | null> {
     return id ? this.extendedMe(id) : of(null);
   }
 
+    /**
+   * Retrieves a client from the extended user table.
+   * @param id The user ID of the client.
+   * @returns The information of the extended user and user credentials of the client.
+   */
   public getClientExtUser(id: number | string | string | null): Observable<User | null> {
     return id ? this.extendedMe(id) : of(null);
   }
 
-  /** Returns the corresponding extended user with the id */
+  /**
+   * Returns the corresponding extended user with the ID.
+   * @param id The ID of the user.
+   * @returns An observable of the extended user.
+   */
   public extendedMe(id: number | string | null): Observable<User | null> {
     if (id) {
       let _queries = { ...this.queries, "filters[user]": `${id}` };
@@ -72,7 +95,12 @@ export class UsersService {
     }
   }
 
-  /**Currently only used from strapi */
+  /**
+   * Adds a new user.
+   * @param user The new user data.
+   * @param updateObs Indicates whether to update the observations.
+   * @returns An observable of the added user.
+   */
   public addUser(user: User, updateObs: boolean = true): Observable<User> {
     const body = this.mappingSvc.mapNewExtUserPayload(user);
     return this.dataSvc.save<User>(StrapiEndpoints.EXTENDED_USERS, body, this.mappingSvc.mapUser).pipe(tap(_ => {
@@ -83,10 +111,10 @@ export class UsersService {
   }
 
   /**
-   * 
-   * @param user any value to be updated in a user
-   * @param updateObs 
-   * @returns 
+   * Updates an existing user.
+   * @param user The user data to update.
+   * @param updateObs Indicates whether to update the observations.
+   * @returns An observable of the updated user.
    */
   public updateUser(user: any, updateObs: boolean = true): Observable<User> {
     const body = this.mappingSvc.mapExtUserPayload(user);
@@ -97,6 +125,11 @@ export class UsersService {
     }), catchError((err) => { throw new Error(err) }));
   }
 
+    /**
+   * Deletes a user by ID.
+   * @param id The ID of the user to delete.
+   * @returns An observable of the deleted user.
+   */
   public deleteUser(id: number | string): Observable<User> {
     return this.dataSvc.delete<User>(StrapiEndpoints.EXTENDED_USERS, this.mappingSvc.mapUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();

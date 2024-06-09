@@ -17,6 +17,11 @@ export class JwtService {
     private authFacade: AuthFacade
   ) { }
 
+  /**
+ * Saves the JWT token.
+ * @param jwt The JWT token to be saved.
+ * @returns An observable of the saved JWT authentication object.
+ */
   public saveToken(jwt: string): Observable<JwtAuth> {
     return this.storageSvc.add(jwt).pipe(tap({
       next: res => {
@@ -30,6 +35,10 @@ export class JwtService {
     }));
   }
 
+  /**
+ * Loads the JWT token from storage.
+ * @returns An observable of the loaded JWT authentication object.
+ */
   public loadToken(): Observable<JwtAuth> {
     return this.storageSvc.get().pipe(tap({
       next: token => {
@@ -44,10 +53,18 @@ export class JwtService {
     }));
   }
 
+  /**
+ * Retrieves the current JWT token.
+ * @returns The current JWT token as a string.
+ */
   public getToken(): string {
     return this._jwt;
   }
 
+  /**
+ * Destroys the current JWT token by setting it to an empty string and saving the change in storage.
+ * @returns An observable of the updated JWT authentication object.
+ */
   public destroyToken() {
     this._jwt = "";
     return this.storageSvc.add(this._jwt);

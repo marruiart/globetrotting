@@ -31,6 +31,12 @@ export class AgentService extends ApiService {
     this.authFacade.currentUser$.subscribe(user => this.currentUser = user);
   }
 
+  /**
+ * Retrieves all travel agents with pagination.
+ *
+ * @param {number | null} page - The page number to retrieve. If null, returns an observable of null.
+ * @returns {Observable<PaginatedAgent | null>} An observable of paginated agents.
+ */
   public getAllAgents(page: number | null = 1): Observable<PaginatedAgent | null> {
     if (page == null) {
       return of(null);
@@ -56,6 +62,12 @@ export class AgentService extends ApiService {
       }));
   }
 
+  /**
+ * Retrieves the agent information for the current user.
+ *
+ * @param {number | null} user_id - The user ID. If null, returns an observable of null.
+ * @returns {Observable<TravelAgent | null>} An observable of the current user's agent information.
+ */
   public agentMe(user_id: number | null): Observable<TravelAgent | null> {
     if (user_id) {
       let _queries = JSON.parse(JSON.stringify(this.queries));
@@ -74,10 +86,23 @@ export class AgentService extends ApiService {
     }
   }
 
+  /**
+ * Retrieves a travel agent by ID.
+ *
+ * @param {string | number} id - The ID of the travel agent.
+ * @returns {Observable<TravelAgent>} An observable of the travel agent.
+ */
   public getAgent(id: string | number): Observable<TravelAgent> {
     return this.dataSvc.obtain<TravelAgent>(StrapiEndpoints.AGENTS, id, this.mappingSvc.mapAgent, this.queries);
   }
 
+  /**
+ * Adds a new travel agent.
+ *
+ * @param {NewTravelAgent} agent - The new travel agent to add.
+ * @param {boolean} [updateObs=true] - Whether to update the observable list of agents after adding.
+ * @returns {Observable<TravelAgent>} An observable of the added travel agent.
+ */
   public addAgent(agent: NewTravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
     return this.dataSvc.save<TravelAgent>(StrapiEndpoints.AGENTS, this.body(agent), this.mappingSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
@@ -86,6 +111,13 @@ export class AgentService extends ApiService {
     }));
   }
 
+  /**
+ * Updates an existing travel agent.
+ *
+ * @param {TravelAgent} agent - The travel agent to update.
+ * @param {boolean} [updateObs=true] - Whether to update the observable list of agents after updating.
+ * @returns {Observable<TravelAgent>} An observable of the updated travel agent.
+ */
   public updateAgent(agent: TravelAgent, updateObs: boolean = true): Observable<TravelAgent> {
     return this.dataSvc.update<TravelAgent>(StrapiEndpoints.AGENTS, agent.id, this.body(agent), this.mappingSvc.mapAgent).pipe(tap(_ => {
       if (updateObs) {
@@ -94,6 +126,12 @@ export class AgentService extends ApiService {
     }));
   }
 
+  /**
+ * Deletes a travel agent by ID.
+ *
+ * @param {number | string} id - The ID of the travel agent to delete.
+ * @returns {Observable<TravelAgent>} An observable of the deleted travel agent.
+ */
   public deleteAgent(id: number | string): Observable<TravelAgent> {
     return this.dataSvc.delete<TravelAgent>(StrapiEndpoints.AGENTS, this.mappingSvc.mapAgent, id, {}).pipe(tap(res => {
       let _newAgents = JSON.parse(JSON.stringify(this._agents));

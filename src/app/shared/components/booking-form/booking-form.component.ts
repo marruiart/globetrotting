@@ -67,6 +67,12 @@ export class BookingFormComponent {
         }
     }
 
+    /**
+     * Handles the accept event to create a booking form and emit it if valid.
+     *
+     * @param event - The event triggered by accepting the booking form.
+     * @returns void
+     */
     public onAccept(event: Event) {
         const values = this.bookingForm.value;
         let bookingForm!: BookingForm;
@@ -106,6 +112,12 @@ export class BookingFormComponent {
         event.stopPropagation();
     }
 
+
+    /**
+     * Resets the booking form to its default values.
+     *
+     * @returns void
+     */
     public resetForm() {
         this.bookingForm.patchValue({
             travelers: 1,

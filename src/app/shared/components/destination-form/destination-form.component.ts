@@ -84,8 +84,16 @@ export class DestinationFormComponent implements OnDestroy {
         });
     }
 
+    /**
+ * Handles the accept event for the destination form.
+ *
+ * @param event - The event triggering the accept action.
+ * @returns void
+ */
     public onAccept(event: Event) {
         let keywords = this.form.value.keywords
+
+        // Check if keywords is a string and split it by commas if necessary
         if (typeof keywords === 'string') {
             if (keywords.includes(",")) {
                 keywords = keywords.split(",")
@@ -93,6 +101,7 @@ export class DestinationFormComponent implements OnDestroy {
                 keywords = [keywords]
             }
         }
+        // Construct the destination object with form values and possible updates
         const destination: Destination & FormChanges = {
             id: this.form.value.id,
             name: this.form.value.name,
@@ -103,6 +112,8 @@ export class DestinationFormComponent implements OnDestroy {
             description: this.form.value.description,
             updates: this.hasChanged ? this.batchUpdate : null
         }
+
+        // Emit the destination form accepted event with the constructed destination object
         this.onDestinationFormAccepted.emit(destination);
         event.stopPropagation();
     }

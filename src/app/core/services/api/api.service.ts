@@ -33,6 +33,14 @@ export abstract class ApiService {
 
   // CRUD methods
 
+  /**
+ * Makes an HTTP GET request to the specified URL.
+ * If the URL includes "https://firebasestorage.googleapis.com", it adds specific headers.
+ *
+ * @param {string} url - The URL to make the GET request to.
+ * @param {{ [query: string]: string }} [queries={}] - The query parameters to include in the request.
+ * @returns {Observable<T>} An observable of the response.
+ */
   public get<T>(
     url: string,
     queries: { [query: string]: string } = {}
@@ -43,6 +51,15 @@ export abstract class ApiService {
     return this.http.get<T>(url, queries, this.getHeader(url));
   }
 
+  /**
+ * Makes an HTTP POST request to the specified URL.
+ * If the URL includes the Firebase API URL, it adds specific headers.
+ *
+ * @param {string} url - The URL to make the POST request to.
+ * @param {any} body - The body of the POST request.
+ * @param {string} [token=''] - The token to include in the request headers.
+ * @returns {Observable<T>} An observable of the response.
+ */
   public post<T>(
     url: string,
     body: any,
@@ -54,6 +71,13 @@ export abstract class ApiService {
     return this.http.post<T>(url, body, this.getHeader(url));
   }
 
+  /**
+ * Makes an HTTP PUT request to the specified URL.
+ *
+ * @param {string} url - The URL to make the PUT request to.
+ * @param {any} body - The body of the PUT request.
+ * @returns {Observable<T>} An observable of the response.
+ */
   public put<T>(
     url: string,
     body: any,
@@ -62,6 +86,13 @@ export abstract class ApiService {
     return this.http.put<T>(url, body, this.getHeader(url));
   }
 
+  /**
+ * Makes an HTTP DELETE request to the specified URL.
+ *
+ * @param {string} url - The URL to make the DELETE request to.
+ * @param {{ [query: string]: string }} queries - The query parameters to include in the request.
+ * @returns {Observable<T>} An observable of the response.
+ */
   public delete<T>(
     url: string,
     queries: { [query: string]: string }

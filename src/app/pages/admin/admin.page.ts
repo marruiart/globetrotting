@@ -108,6 +108,14 @@ export class AdminPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+ * Downloads a CSV file for the given collection.
+ *
+ * This method generates a CSV file based on the provided collection and current user's ID.
+ * It then retrieves the download URLs for the generated files from Firebase storage and saves them locally.
+ *
+ * @param collection The collection for which the CSV file is to be generated.
+ */
   public downloadCsv(collection: Collection) {
     const body = {
       "user_id": this.currentUser!.user_id,
@@ -135,6 +143,14 @@ export class AdminPage implements OnInit, AfterViewInit, OnDestroy {
     })).subscribe();
   }
 
+  /**
+ * Initiates the download of a CSV file when triggered by an event.
+ *
+ * This method checks if the current user is authenticated and has the necessary role
+ * to download a CSV file. If the user meets the criteria, it calls the downloadCsv method.
+ *
+ * @param event The event that triggers the download.
+ */
   public onDownloadCsv(event: Event) {
     if (this.currentUser && this.token && ["ADMIN", "AGENT"].includes(this.currentUser.role)) {
       const collection = this.csvForm.value.collection;

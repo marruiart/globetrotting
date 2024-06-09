@@ -64,6 +64,12 @@ export class AppComponent implements OnDestroy {
     }
   }
 
+  /**
+ * Toggles the language between 'es' (Spanish) and 'en' (English).
+ * Updates the language using the translation service.
+ *
+ * @returns void
+ */
   public onTranslate() {
     if (this.language == 'es') {
       this.language = 'en';

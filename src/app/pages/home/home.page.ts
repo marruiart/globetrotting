@@ -19,12 +19,24 @@ export class HomePage {
     private router: Router
   ) { }
 
+  /**
+ * Changes the application's theme.
+ *
+ * This method switches the current theme of the application to the specified theme code.
+ *
+ * @param themeCode The code of the new theme to be applied.
+ */
   public changeTheme(themeCode: string) {
     if (themeCode) {
       this.themeSvc.switchTheme(themeCode);
     }
   }
 
+  /**
+ * Navigates to the destinations page.
+ *
+ * This method redirects the user to the destinations page using the Angular router.
+ */
   public async navigateDestinations() {
     this.router.navigate(['/destinations']);
   }

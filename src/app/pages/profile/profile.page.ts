@@ -28,6 +28,13 @@ export class ProfilePage {
     );
   }
 
+  /**
+ * Updates the user profile with the provided user information.
+ *
+ * @param _user - The user information including credentials and form changes.
+ * @returns void
+ * @throws Will log an error if the profile could not be updated.
+ */
   public async updateProfile(_user: User & UserCredentials & FormChanges | null) {
     if (_user?.user_id && _user.ext_id) {
       await lastValueFrom(this.userSvc.updateUser(_user)).catch(err => console.error(err));

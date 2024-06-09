@@ -61,18 +61,30 @@ export class ThemeSelectableComponent implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
+  /**
+ * Displays the theme selection UI.
+ *
+ * @returns void
+ */
   public showThemeSelectable() {
     this.showSelectable = true;
   }
 
+  /**
+ * Hides the theme selection UI.
+ *
+ * @returns void
+ */
   private hideThemeSelectable() {
     this.showSelectable = false;
   }
 
   /**
-  * Selects a theme by its bundle name.
-  * @param bundleName The bundleName of the theme to select.
-  */
+   * Selects a theme by its code and updates the UI accordingly.
+   *
+   * @param theme - The theme to select. If null, a default theme is selected.
+   * @returns void
+   */
   public selectTheme(theme: ThemeItem | null) {
     if (theme) {
       this.themeSvc.switchTheme(theme.code);

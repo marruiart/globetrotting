@@ -16,10 +16,25 @@ export class FirebaseAuthService extends AuthService {
   private firebaseSvc = inject(FirebaseService);
   private mappingSvc = inject(MappingService);
 
+  /**
+ * Placeholder method for retrieving roles. Currently not implemented.
+ *
+ * @returns {Observable<any>} - Throws an error indicating the method is not implemented.
+ */
   public getRoles(): Observable<any> {
     throw new Error('Method not implemented.');
   }
 
+  /**
+ * Logs in a user with the provided credentials.
+ *
+ * This function takes user credentials, verifies them, and if valid,
+ * logs the user in through Firebase authentication service. Upon successful
+ * login, it returns an observable containing the user's ID token.
+ *
+ * @param {UserCredentials} credentials - The credentials of the user attempting to log in.
+ * @returns {Observable<string>} - An observable containing the user's ID token upon successful login.
+ */
   public login(credentials: UserCredentials): Observable<string> {
     return new Observable<any>(observer => {
       if (!credentials.email || !credentials.password) {
@@ -39,6 +54,18 @@ export class FirebaseAuthService extends AuthService {
     });
   }
 
+  /**
+ * Registers a new user or agent with the provided registration information.
+ *
+ * This function takes registration information, determines whether the registration
+ * is for a user or an agent, and registers the user/agent through Firebase authentication
+ * service. Upon successful registration, it returns an observable containing the registered
+ * user information.
+ *
+ * @param {UserRegisterInfo | AgentRegisterInfo} registerInfo - The registration information of the user or agent.
+ * @param {boolean} [isAgent=false] - Flag indicating whether the registration is for an agent.
+ * @returns {Observable<any | null>} - An observable containing the registered user information upon successful registration.
+ */
   public register(registerInfo: UserRegisterInfo | AgentRegisterInfo, isAgent: boolean = false): Observable<any | null> {
 
     return new Observable<any>(observer => {
@@ -74,6 +101,11 @@ export class FirebaseAuthService extends AuthService {
     return from(this.firebaseSvc.createDocumentWithId(Collections.USERS, userInfo, `${userInfo.user_id}`));
   }
 
+  /**
+ * Retrieves the current user as an observable.
+ *
+ * @returns {Observable<AdminAgentOrClientUser>} An observable of the current user.
+ */
   public me(): Observable<AdminAgentOrClientUser> {
 
     return new Observable<AdminAgentOrClientUser>(observer => {
@@ -116,17 +148,44 @@ export class FirebaseAuthService extends AuthService {
     });
   }
 
+  /**
+ * Logs out the current user.
+ *
+ * @returns {Observable<any>} An observable indicating the logout process.
+ */
   public logout(): Observable<any> {
     return from(this.firebaseSvc.signOut(false));
   }
 
+  /**
+ * Updates the identifiers for a given user.
+ *
+ * @param {any} user - The user whose identifiers will be updated.
+ * @returns {Observable<FirebaseUserCredentials>} An observable of the updated user credentials.
+ * @throws {Error} Method not implemented.
+ */
   public override updateIdentifiers(user: any): Observable<FirebaseUserCredentials> {
     console.log("updateIdentifiers", user);
     throw new Error('Method not implemented.');
   }
+
+  /**
+ * Retrieves the identifiers for a given user by ID.
+ *
+ * @param {number} id - The ID of the user whose identifiers will be retrieved.
+ * @returns {Observable<FirebaseUserCredentials>} An observable of the user credentials.
+ * @throws {Error} Method not implemented.
+ */
   public override getUserIdentifiers(id: number): Observable<FirebaseUserCredentials> {
     throw new Error('Method not implemented.');
   }
+
+  /**
+ * Deletes a user by user ID.
+ *
+ * @param {string} user_id - The ID of the user to delete.
+ * @returns {Observable<void>} An observable indicating the delete process.
+ */
   public override deleteUser(user_id: string): Observable<void> {
     // TODO Update to delete clients when it is available
     return from(this.firebaseSvc.deleteDocument(Collections.USERS, user_id).then(_ => {

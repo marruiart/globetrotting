@@ -11,7 +11,7 @@ export class CustomTranslateService {
 
   constructor(
     private translate: TranslateService
-  ) { 
+  ) {
     this.init()
   }
 
@@ -20,12 +20,24 @@ export class CustomTranslateService {
     this.translate.setDefaultLang(this._language.value);
   }
 
-  public changeLanguage(language:string) {
+  /**
+ * Changes the current language used in the application.
+ *
+ * @param language The language code to switch to.
+ * @returns Observable that completes when the language is changed.
+ */
+  public changeLanguage(language: string) {
     return this.translate.use(language).pipe(tap(_ => {
       this._language.next(language);
     }))
   }
 
+  /**
+ * Retrieves the translation for the given key.
+ *
+ * @param key The translation key.
+ * @returns Observable with the translated string.
+ */
   public getTranslation(key: string) {
     return this.translate.get(key);
   }

@@ -31,17 +31,35 @@ export class DestinationCardComponent {
   @Output() onCreateBookingClicked: EventEmitter<any> = new EventEmitter<any>();
   @Output() onBookNowClicked: EventEmitter<any> = new EventEmitter<any>();
 
+  /**
+ * Updates the favorite status and emits an event.
+ *
+ * @param event - The event triggering the update.
+ * @returns void
+ */
   public updateFav(event: Event) {
     this.onFavClicked.emit({ fav: !this.fav });
     this.fav = !this.fav;
     event.stopPropagation();
   }
 
+  /**
+ * Emits an event to create a booking.
+ *
+ * @param event - The event triggering the creation.
+ * @returns void
+ */
   public createBooking(event: Event) {
     this.onCreateBookingClicked.emit();
     event.stopPropagation();
   }
 
+  /**
+ * Emits an event to initiate the booking process.
+ *
+ * @param event - The event triggering the booking.
+ * @returns void
+ */
   public onBookNowClick(event: Event) {
     this.onBookNowClicked.emit();
     event.stopPropagation();

@@ -18,14 +18,32 @@ export class LoginPage implements OnDestroy {
     private router: Router
   ) { }
 
+
+  /**
+ * Logs in a user with the provided credentials.
+ *
+ * This method uses the auth facade to log in a user using their credentials.
+ *
+ * @param credentials The user's login credentials including username and password.
+ */
   public login(credentials: UserCredentials) {
     this.authFacade.login(credentials);
   }
 
+  /**
+   * Navigates to the home page.
+   *
+   * This method redirects the user to the home page using the Angular router.
+   */
   public navigateHome() {
     this.router.navigate(['/home']);
   }
 
+  /**
+   * Navigates to the register page.
+   *
+   * This method redirects the user to the register page using the Angular router.
+   */
   public navigateToRegister() {
     this.router.navigate(['/register']);
   }

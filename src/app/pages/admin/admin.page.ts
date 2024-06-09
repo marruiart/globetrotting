@@ -54,7 +54,7 @@ export class AdminPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async initSubscriptions() {
-    await lastValueFrom(this.destinationsSvc.getAllDestinations());
+    //await lastValueFrom(this.destinationsSvc.getAllDestinations());
 
     this.subsSvc.addSubscriptions(this.COMPONENT,
       this.destsFacade.destinations$.subscribe(async destinations => {

@@ -2,8 +2,8 @@
   <app-header></app-header>
   <main>
     <div class="content">
-      <form [formGroup]="csvForm" (ngSubmit)="onDownloadCsv($event)">
-        <div *ngFor="let collection of collections" class="field-checkbox">
+      <form class="csv-form" [formGroup]="csvForm" (ngSubmit)="onDownloadCsv($event)">
+        <div class="download-selector" *ngFor="let collection of collections" class="field-checkbox">
           <p-radioButton
             [inputId]="collection"
             [value]="collection"
@@ -11,7 +11,7 @@
           />
           <label [for]="collection">
             <ng-template #radioButtonLabel [ngSwitch]="collection">
-              <span *ngSwitchCase="'all'"> 
+              <span *ngSwitchCase="'all'">
                 {{ "adminPage.all" | translate }}
               </span>
               <span *ngSwitchCase="'users'">
@@ -27,9 +27,9 @@
             <ng-container *ngTemplateOutlet="radioButtonLabel" />
           </label>
         </div>
-        <p-button type="submit"
-          >{{ "adminPage.download" | translate }}</p-button
-        >
+        <p-button type="submit" styleClass="p-button-raised p-button-rounded">
+          {{ "adminPage.download" | translate }}
+        </p-button>
       </form>
 
       <div class="map">

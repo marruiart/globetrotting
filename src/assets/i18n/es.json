@@ -37,6 +37,16 @@
       "bookings": "Mis reservas"
     }
   },
+  "profilePage": {
+    "uploadImageConfirmation": "Éxito",
+    "uploadImageMessageSuccess": "La imagen de perfil ha sido actualizada",
+    "uploadImageError": "Error",
+    "uploadImageMessageError": "Algo ha ido mal, no se ha podido actualizar la imagen",
+    "updateProfileConfirmation": "Éxito",
+    "updateProfileMessageSuccess": "Perfil actualizado",
+    "updateProfileError": "Error",
+    "updateProfileMessageError": "Algo ha ido mal, no se ha podido actualizar el perfil"
+  },
   "userForm": {
     "loginHeader": "Inicio de sesión",
     "registerHeader": "Registro",

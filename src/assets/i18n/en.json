@@ -37,6 +37,16 @@
       "bookings": "My bookings"
     }
   },
+  "profilePage": {
+    "uploadImageConfirmation": "Success",
+    "uploadImageMessageSuccess": "Your profile picture has been updated",
+    "uploadImageError": "Error",
+    "uploadImageMessageError": "Something went wrong, the profile picture could not be updated",
+    "updateProfileConfirmation": "Success",
+    "updateProfileMessageSuccess": "Your profile has been updated",
+    "updateProfileError": "Error",
+    "updateProfileMessageError": "Something went wrong, your profile could not be updated"
+  },
   "userForm": {
     "loginHeader": "Login",
     "registerHeader": "Register",
@@ -96,8 +106,8 @@
     "editDestinationHeader": "Edit destination information",
     "deleteMessage": "Do you wish to delete the destination?",
     "deleteConfirmationTitle": "Confirmation",
-    "deleteDetailMessage": "The destination has been deleted", 
-    "noDeletionMessage": "This destination cannot be deleted because it has reservations associated with it.", 
+    "deleteDetailMessage": "The destination has been deleted",
+    "noDeletionMessage": "This destination cannot be deleted because it has reservations associated with it.",
     "caution": "Deletion not possible"
   },
   "agentsManagement": {

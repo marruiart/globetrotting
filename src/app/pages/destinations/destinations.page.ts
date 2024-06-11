@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { ScrollerOptions } from 'primeng/api';
 import { VirtualScrollerLazyLoadEvent } from 'primeng/virtualscroller';
 import { lastValueFrom, map, of, switchMap } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
@@ -13,6 +14,8 @@ import { DestinationsService } from 'src/app/core/services/api/destinations.serv
 import { FavoritesService } from 'src/app/core/services/api/favorites.service';
 import { SubscriptionsService } from 'src/app/core/services/subscriptions.service';
 import { Roles, getUserName } from 'src/app/core/utilities/utilities';
+import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
+
 
 export interface FavClickedEvent {
   fav: boolean;
@@ -25,12 +28,16 @@ export interface FavClickedEvent {
 })
 export class DestinationsPage implements OnInit, OnDestroy {
   private readonly COMPONENT = 'DestinationsPage';
+  private renderer: Renderer2;
+
   public selectedDestination: Destination | null = null;
   public currentUser: AdminAgentOrClientUser | null = null;
   private _clientFavs: ClientFavDestination[] = [];
-  public itemSize = 600;
+  public itemSize = 300;
+  public scrollHeight = 1500
   public showDialog: boolean = false;
-Roles: any;
+  public scrollerOptions: ScrollerOptions = { showLoader: true, columns: [5], step: 10 }
+  Roles: any;
 
   constructor(
     public destinationsSvc: DestinationsService,
@@ -39,9 +46,29 @@ Roles: any;
     public favsFacade: FavoritesFacade,
     public destinationsFacade: DestinationsFacade,
     public favsSvc: FavoritesService,
-    public bookingsSvc: BookingsService
+    public bookingsSvc: BookingsService,
+    private rendererFactory: RendererFactory2,
+    private el: ElementRef
   ) {
+    this.renderer = this.rendererFactory.createRenderer(null, null);
+    this.scrollHeight = (window.innerHeight - 20);
+    let columns = window.innerWidth / 360
+    console.log(`columns: ${columns}`)
+    this.itemSize = (600 / (columns));
+    this.setHeightForVirtualScrollerItems('570px');
+    window.addEventListener('resize', this.updateScrollHeight);
     this.startSubscriptions();
+  }
+
+  private updateScrollHeight = () => {
+    this.scrollHeight = (window.innerHeight - 20);
+  }
+
+  setHeightForVirtualScrollerItems(newHeight: string): void {
+    const items = this.el.nativeElement.querySelectorAll('.p-virtualscroller-item');
+    items.forEach((item: HTMLElement) => {
+      this.renderer.setStyle(item, 'height', newHeight);
+    });
   }
 
   async ngOnInit() {
@@ -67,6 +94,7 @@ Roles: any;
       if (visibleEnd) {
         this.loadNextPage();
       }
+      this.setHeightForVirtualScrollerItems('570px');
     }
   }
 
@@ -124,6 +152,7 @@ Roles: any;
   }
 
   ngOnDestroy() {
-    this.subsSvc.unsubscribe('DestinationsPage');
+    window.removeEventListener('resize', this.updateScrollHeight);
+    this.subsSvc.unsubscribe(this.COMPONENT);
   }
 }

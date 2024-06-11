@@ -10,7 +10,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "compodoc": "npx compodoc -p tsconfig.doc.json"
+    "compodoc": "npx compodoc -p tsconfig.doc.json",
+    "compodoc:build": "compodoc -p tsconfig.doc.json",
+    "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -s",
+    "compodoc:serve": "compodoc -s"
   },
   "private": true,
   "dependencies": {
@@ -57,6 +60,7 @@
     "@angular/language-service": "^16.0.0",
     "@capacitor/assets": "^3.0.4",
     "@capacitor/cli": "5.5.1",
+    "@compodoc/compodoc": "^1.1.25",
     "@ionic/angular-toolkit": "^9.0.0",
     "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~4.3.0",

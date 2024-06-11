@@ -11,10 +11,22 @@
     height: 100%;
   }
 
+  .p-scroller-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    column-gap: 40px;
+  }
+
   .p-virtualscroller-list::-webkit-scrollbar {
     display: none;
   }
-  
+
+  .p-virtualscroller-list.p-scroller {
+    width: 100%;
+  }
+
   .booking-form {
     width: 100%;
     max-width: 500px;
@@ -30,10 +42,4 @@
     height: fit-content;
   }
 
-/*   .p-scroller-content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }  */
 }
-

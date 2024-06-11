@@ -11,6 +11,7 @@ import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Collections, Roles } from '../../utilities/utilities';
+import { FileUploadEvent } from 'primeng/fileupload';
 
 @Injectable({
   providedIn: 'root'
@@ -102,45 +103,24 @@ export class FirebaseService {
 
   // CREATE
 
-  public fileUpload(blob: Blob, mimeType: string, path: string, prefix: string, extension: string): Promise<FirebaseStorageFile> {
-    return new Promise(async (resolve, reject) => {
-      if (!this._webStorage || !this._auth)
-        reject({
-          msg: "Not connected to FireStorage"
-        });
-      var freeConnection = false;
-      if (this._auth && !this._auth.currentUser) {
-        try {
-          await signInAnonymously(this._auth);
-          freeConnection = true;
-        } catch (error) {
-          reject(error);
-        }
+  public async fileUpload(event: FileUploadEvent, filename: string): Promise<string | null> {
+    const file = event.files[0]; // Obteniendo el archivo del evento
+
+    if (file) {
+      try {
+        const storageRef = ref(this._webStorage, `${filename}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        console.log('File uploaded successfully:', downloadURL);
+        // Aquí puedes manejar la URL de descarga, como guardarla en tu base de datos
+
+        return downloadURL
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
-      const url = path + "/" + prefix + "-" + Date.now() + extension;
-      const storageRef = ref(this._webStorage!, url);
-      const metadata = {
-        contentType: mimeType,
-      };
-      uploadBytes(storageRef, blob).then(async (snapshot) => {
-        getDownloadURL(storageRef).then(async downloadURL => {
-          if (freeConnection)
-            await signOut(this._auth!);
-          resolve({
-            path,
-            file: downloadURL,
-          });
-        }).catch(async error => {
-          if (freeConnection)
-            await signOut(this._auth!);
-          reject(error);
-        });
-      }).catch(async (error) => {
-        if (freeConnection)
-          await signOut(this._auth!);
-        reject(error);
-      });
-    });
+    }
+    return null
   }
 
   public async getFileDownloadUrl(url: string): Promise<string> {
@@ -148,11 +128,6 @@ export class FirebaseService {
     const fileUrl = await getDownloadURL(fileRef)
     console.log(`Download file here: ${fileUrl}`)
     return fileUrl
-  }
-
-
-  public imageUpload(blob: Blob): Promise<any> {
-    return this.fileUpload(blob, 'image/jpeg', 'images', 'image', ".jpg");
   }
 
   /**

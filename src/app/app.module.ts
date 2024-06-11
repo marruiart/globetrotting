@@ -23,7 +23,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
-import { ButtonModule } from 'primeng/button';
 import { environment } from 'src/environments/environment';
 import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
@@ -55,7 +54,6 @@ import { MediaServiceFactory } from './core/factories/media-service.factory';
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),
-    ButtonModule,
     AppRoutingModule,
     HttpClientModule,
     StoreModule.forRoot({}),

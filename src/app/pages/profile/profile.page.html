@@ -1,11 +1,43 @@
 <ion-content>
   <app-header></app-header>
   <main>
-    <app-user-form
-      (onUpdateProfileClicked)="updateProfile($event)"
-      [formType]="'PROFILE'"
-      [actionUpdate]="true"
-      [user]="user"
-    />
+
+    <p-toast></p-toast>
+
+    <div class="profile-form">
+      <div class="form-container">
+        <div class="avatar-updater">
+          <img
+            class="form-avatar"
+            [src]="avatar ?? '/assets/profile.webp'"
+            alt=""
+          />
+          <p-fileUpload
+            styleClass="camera-button  p-button-rounded p-button-text p-button-raised  p-button-secondary"
+            mode="basic"
+            name=""
+            [auto]="true"
+            chooseIcon="pi pi-camera"
+            [fileLimit]="1"
+            [previewWidth]="50"
+            [customUpload]="true"
+            (uploadHandler)="uploadImage($event)"
+            accept="image/*"
+            [maxFileSize]="1000000"
+          ></p-fileUpload>
+        </div>
+        <h3 class="user-fullname">{{ fullname }}</h3>
+        <span class="user-id">{{ user?.nickname }}</span>
+      </div>
+
+      <div>
+        <app-user-form
+          (onUpdateProfileClicked)="updateProfile($event)"
+          [formType]="'PROFILE'"
+          [actionUpdate]="true"
+          [user]="user"
+        />
+      </div>
+    </div>
   </main>
 </ion-content>

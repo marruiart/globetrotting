@@ -62,24 +62,24 @@ export class DestinationsManagementPage implements OnDestroy {
   private getCols() {
     const name$ = this.translate.getTranslation("destManagement.tableName");
     const type$ = this.translate.getTranslation("destManagement.tableType");
-    const dimension$ = this.translate.getTranslation("destManagement.tableDimension");
+    const keywords$ = this.translate.getTranslation("destManagement.tableKeywords");
     const price$ = this.translate.getTranslation("destManagement.tablePrice");
     const description$ = this.translate.getTranslation("destManagement.tableDescription");
     const options$ = this.translate.getTranslation("destManagement.tableOptions");
 
-    const tableHeaders$ = zip(name$, type$, dimension$, price$, description$, options$).pipe(
-      tap(([name, type, dimension, price, description, options]) => {
-        this.cols = this.translateMenuItems(name, type, dimension, price, description, options);
+    const tableHeaders$ = zip(name$, type$, keywords$, price$, description$, options$).pipe(
+      tap(([name, type, keywords, price, description, options]) => {
+        this.cols = this.translateMenuItems(name, type, keywords, price, description, options);
       }), catchError(err => { throw new Error(err) }));
 
     return tableHeaders$;
   }
 
-  private translateMenuItems(name: string, type: string, dimension: string, price: string, description: string, options: string) {
+  private translateMenuItems(name: string, type: string, keywords: string, price: string, description: string, options: string) {
     return [
       { field: 'name', header: name },
       { field: 'type', header: type },
-      { field: 'dimension', header: dimension },
+      { field: 'keywords', header: keywords },
       { field: 'price', header: price },
       { field: 'description', header: description },
       { field: 'options', header: options }

@@ -1,0 +1,57 @@
+.profile-form {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  width: 90%;
+  gap: 10%;
+  row-gap: 50px;
+  flex-wrap: wrap;
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: min(300px, 100%);
+    border-radius: 20px;
+    background-color: var(--surface-ground);
+    padding: 32px;
+
+    .user-fullname {
+      color: var(--text-color);
+    }
+
+    .user-id {
+      font-size: 0.9rem;
+      display: block;
+    }
+
+    .avatar-updater {
+      position: relative;
+
+      .form-avatar {
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+        height: 150px;
+        width: 150px;
+        aspect-ratio: 1/1;
+      }
+    }
+  }
+}
+
+::ng-deep {
+  [styleClass="response-status-message"] {
+    position: absolute;
+  }
+
+  p-fileupload[styleClass*="camera-button"] {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background: var(--surface-50);
+    border-radius: 50%;
+  }
+}

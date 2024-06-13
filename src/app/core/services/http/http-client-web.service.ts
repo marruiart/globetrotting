@@ -78,8 +78,7 @@ export class HttpClientWebService extends HttpService {
     urlEncoded: boolean = false
   ): Observable<T> {
 
-    return this.httpClient.get<T>(url,
-      this.createOptions(headers, params, urlEncoded));
+    return this.httpClient.get<T>(url, this.createOptions(headers, params, urlEncoded));
   }
 
   /**

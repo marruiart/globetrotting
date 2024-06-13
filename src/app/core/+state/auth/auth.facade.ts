@@ -10,6 +10,7 @@ export class AuthFacade {
 
     private readonly store = inject(Store);
     isLogged$ = this.store.pipe(select(AuthSelector.selectLoggedState));
+    token$ = this.store.pipe(select(AuthSelector.token));
     currentUser$ = this.store.pipe(select(AuthSelector.selectCurrentUser));
     userId$ = this.store.pipe(select(AuthSelector.selectUserId));
     role$ = this.store.pipe(select(AuthSelector.selectRole));
@@ -25,6 +26,10 @@ export class AuthFacade {
 
     login(credentials: UserCredentials) {
         this.store.dispatch(AuthActions.login({ credentials }));
+    }
+
+    setToken(token: string) {
+        this.store.dispatch(AuthActions.setToken({ token }));
     }
 
     navigate(role: Role) {

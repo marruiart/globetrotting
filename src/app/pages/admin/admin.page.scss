@@ -16,6 +16,15 @@ main {
     background: transparent;
     padding: 10%;
 
+    form.csv-form {
+      padding: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+
     .map {
       display: flex;
       flex-direction: column;

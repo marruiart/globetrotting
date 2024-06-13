@@ -8,7 +8,7 @@ import { StrapiMedia } from "./strapi-media.interface"
 export interface StrapiDestination {
   name: string
   type?: string
-  dimension?: string
+  keywords?: string
   description?: string,
   coordinate?: LatLng,
   image?: StrapiResponse<StrapiMedia>

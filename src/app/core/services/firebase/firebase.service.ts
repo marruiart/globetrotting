@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Auth, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { Auth, UserCredential, createUserWithEmailAndPassword, indexedDBLocalPersistence, initializeAuth, signInAnonymously, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { DocumentData, DocumentReference, DocumentSnapshot, FieldPath, Firestore, QueryCompositeFilterConstraint, QueryConstraint, QueryNonFilterConstraint, Transaction, TransactionOptions, Unsubscribe, WhereFilterOp, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, query, runTransaction, setDoc, startAfter, updateDoc, where, writeBatch } from "firebase/firestore";
 import { FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { CollectionUpdates, FieldUpdate, FirebaseCollectionResponse, FirebaseDocument, FirebaseStorageFile, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { AuthFacade } from '../../+state/auth/auth.facade';
 import { DestinationsFacade } from '../../+state/destinations/destinations.facade';
@@ -11,6 +11,7 @@ import { FavoritesFacade } from '../../+state/favorites/favorites.facade';
 import { Sizes } from '../../+state/favorites/favorites.reducer';
 import { AdminAgentOrClientUser } from '../../models/globetrotting/user.interface';
 import { Collections, Roles } from '../../utilities/utilities';
+import { FileUploadEvent } from 'primeng/fileupload';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,8 @@ export class FirebaseService {
     let isFirstTime = true;
     this._auth.onAuthStateChanged(async user => {
       if (user?.uid && user?.email) {
+        let token = await user.getIdToken();
+        this.authFacade.setToken(token)
         const _user = new BehaviorSubject<AdminAgentOrClientUser | null>(null);
         this.unsubscribe = this.subscribeToDocument(Collections.USERS, `${user.uid}`, _user);
         _user.subscribe(user => {
@@ -100,49 +103,31 @@ export class FirebaseService {
 
   // CREATE
 
-  public fileUpload(blob: Blob, mimeType: string, path: string, prefix: string, extension: string): Promise<FirebaseStorageFile> {
-    return new Promise(async (resolve, reject) => {
-      if (!this._webStorage || !this._auth)
-        reject({
-          msg: "Not connected to FireStorage"
-        });
-      var freeConnection = false;
-      if (this._auth && !this._auth.currentUser) {
-        try {
-          await signInAnonymously(this._auth);
-          freeConnection = true;
-        } catch (error) {
-          reject(error);
-        }
+  public async fileUpload(event: FileUploadEvent, filename: string): Promise<string | null> {
+    const file = event.files[0]; // Obteniendo el archivo del evento
+
+    if (file) {
+      try {
+        const storageRef = ref(this._webStorage, `${filename}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        console.log('File uploaded successfully:', downloadURL);
+        // Aquí puedes manejar la URL de descarga, como guardarla en tu base de datos
+
+        return downloadURL
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
-      const url = path + "/" + prefix + "-" + Date.now() + extension;
-      const storageRef = ref(this._webStorage!, url);
-      const metadata = {
-        contentType: mimeType,
-      };
-      uploadBytes(storageRef, blob).then(async (snapshot) => {
-        getDownloadURL(storageRef).then(async downloadURL => {
-          if (freeConnection)
-            await signOut(this._auth!);
-          resolve({
-            path,
-            file: downloadURL,
-          });
-        }).catch(async error => {
-          if (freeConnection)
-            await signOut(this._auth!);
-          reject(error);
-        });
-      }).catch(async (error) => {
-        if (freeConnection)
-          await signOut(this._auth!);
-        reject(error);
-      });
-    });
+    }
+    return null
   }
 
-  public imageUpload(blob: Blob): Promise<any> {
-    return this.fileUpload(blob, 'image/jpeg', 'images', 'image', ".jpg");
+  public async getFileDownloadUrl(url: string): Promise<string> {
+    const fileRef = ref(this._webStorage!, url);
+    const fileUrl = await getDownloadURL(fileRef)
+    console.log(`Download file here: ${fileUrl}`)
+    return fileUrl
   }
 
   /**
@@ -528,11 +513,11 @@ export class FirebaseService {
     return response;
   }
 
-  public async connectUserWithEmailAndPassword(email: string, password: string): Promise<FirebaseUserCredential | null> {
-    return new Promise<FirebaseUserCredential | null>(async (resolve, _) => {
+  public async connectUserWithEmailAndPassword(email: string, password: string): Promise<UserCredential | null> {
+    return new Promise<UserCredential | null>(async (resolve, _) => {
       if (!this._auth)
         resolve(null);
-      resolve({ user: await signInWithEmailAndPassword(this._auth!, email, password) });
+      resolve(await signInWithEmailAndPassword(this._auth!, email, password));
     });
 
   }

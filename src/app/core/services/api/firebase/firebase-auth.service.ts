@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { deleteField } from 'firebase/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Observable, from, lastValueFrom, map } from 'rxjs';
 import { AuthFacade } from 'src/app/core/+state/auth/auth.facade';
 import { CollectionUpdates, FirebaseDocument, FirebaseUserCredential } from 'src/app/core/models/firebase-interfaces/firebase-data.interface';
 import { FirebaseUserCredentials } from 'src/app/core/models/firebase-interfaces/firebase-user.interface';
@@ -9,6 +9,7 @@ import { Collections, Role, Roles } from 'src/app/core/utilities/utilities';
 import { AuthService } from '../../auth/auth.service';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { MappingService } from '../mapping.service';
+import { UserCredential } from 'firebase/auth';
 
 export class FirebaseAuthService extends AuthService {
   private authFacade = inject(AuthFacade);
@@ -19,18 +20,20 @@ export class FirebaseAuthService extends AuthService {
     throw new Error('Method not implemented.');
   }
 
-  public login(credentials: UserCredentials): Observable<void> {
+  public login(credentials: UserCredentials): Observable<string> {
     return new Observable<any>(observer => {
       if (!credentials.email || !credentials.password) {
         observer.error('Error: The provided credentials are incorrect or incomplete.');
       }
       this.firebaseSvc.connectUserWithEmailAndPassword(credentials.email!, credentials.password!)
-        .then((credentials: FirebaseUserCredential | null) => {
-          if (!credentials || !credentials.user || !credentials.user.user || !credentials.user.user.uid) {
+        .then((credentials: UserCredential | null) => {
+          if (!credentials || !credentials.user || !credentials.user || !credentials.user.uid) {
             observer.error('Error: Login failed.');
           } else {
-            observer.next();
-            observer.complete();
+            credentials.user.getIdToken().then(token => {
+              observer.next(token);
+              observer.complete();
+            });
           }
         });
     });

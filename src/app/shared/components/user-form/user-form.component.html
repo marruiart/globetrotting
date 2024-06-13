@@ -1,5 +1,4 @@
 <form [formGroup]="userForm" (ngSubmit)="onSubmit($event)">
-  <ng-container *ngTemplateOutlet="formUpdateHeader" />
   <ng-container *ngTemplateOutlet="formRegisterHeader" />
 
   <!-- Header -->
@@ -18,15 +17,11 @@
     </h2>
   </ng-template>
 
-  <ng-template #formUpdateHeader [ngSwitch]="formType">
-    <ng-container *ngIf="actionUpdate">
-      <h2 *ngSwitchCase="'LOGIN'">//TODO CAMBIAR PRUEBA LOGIN</h2>
-      <h2 *ngSwitchCase="'REGISTER'">//TODO CAMBIAR PRUEBA REGISTRO</h2>
-    </ng-container>
-  </ng-template>
-
   <!-- Username -->
-  <div *ngIf="backend !== 'Firebase' || formType !== 'LOGIN'" class="p-inputgroup">
+  <div
+    *ngIf="backend !== 'Firebase' || formType !== 'LOGIN'"
+    class="p-inputgroup"
+  >
     <span class="p-inputgroup-addon">
       <i class="pi pi-user"></i>
     </span>
@@ -46,7 +41,7 @@
     </span>
   </div>
   <!-- Password -->
-  <div class="password" *ngIf="!actionUpdate || formType == 'PROFILE'">
+  <div class="password" *ngIf="!actionUpdate">
     <div class="p-inputgroup">
       <span class="p-inputgroup-addon">
         <i class="pi pi-key"></i>
@@ -66,9 +61,7 @@
   <div
     class="password"
     *ngIf="
-      ((formType == 'REGISTER' || formType == 'REGISTER_AGENT') &&
-        !actionUpdate) ||
-      formType == 'PROFILE'
+      (formType == 'REGISTER' || formType == 'REGISTER_AGENT') && !actionUpdate
     "
   >
     <div class="p-inputgroup">

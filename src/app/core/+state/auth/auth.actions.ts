@@ -7,6 +7,7 @@ export const init = createAction('[Auth API] Init');
 export const login = createAction('[Auth API] Login', props<{ credentials: UserCredentials }>());
 export const loginSuccess = createAction('[Auth API] Login Success');
 export const loginFailure = createAction('[Auth API] Login Failure', props<{ error: any }>());
+export const setToken = createAction('[Auth API] Token', props<{ token: string }>());
 
 export const navigate = createAction('[Auth API] Navigate', props<{ role: Role | number }>());
 export const navigateSuccess = createAction('[Auth API] Navigate Success');

@@ -5,6 +5,7 @@ import { ClientFavDestination } from "../../models/globetrotting/fav.interface";
 import { Roles } from "../../utilities/utilities";
 
 export const selectFeature = createFeatureSelector<AuthState>(AUTH_FEATURE_KEY);
+export const token = createSelector(selectFeature, (state: AuthState) => state.token);
 export const selectRole = createSelector(selectFeature, (state: AuthState) => state.role);
 export const selectUserId = createSelector(selectFeature, (state: AuthState) => state.user_id);
 export const selectLoggedState = createSelector(selectFeature, (state: AuthState) => state.isLogged);

@@ -23,7 +23,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { translateLoaderFactory } from './core/factories/translate-loader.factory';
 
-import { ButtonModule } from 'primeng/button';
 import { environment } from 'src/environments/environment';
 import { DataService } from './core/services/api/data.service';
 import { ApiService } from './core/services/api/api.service';
@@ -44,6 +43,8 @@ import { BookingsServiceFactory } from './core/factories/bookings-service.factor
 import { ClientsModule } from './core/+state/clients/clients.module';
 import { UsersService } from './core/services/api/users.service';
 import { UsersServiceFactory } from './core/factories/users-service.factory';
+import { MediaService } from './core/services/api/media.service';
+import { MediaServiceFactory } from './core/factories/media-service.factory';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,6 @@ import { UsersServiceFactory } from './core/factories/users-service.factory';
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),
-    ButtonModule,
     AppRoutingModule,
     HttpClientModule,
     StoreModule.forRoot({}),
@@ -130,6 +130,11 @@ import { UsersServiceFactory } from './core/factories/users-service.factory';
       provide: UsersService,
       deps: ['backend', DataService, MappingService],
       useFactory: UsersServiceFactory,
+    },
+    {
+      provide: MediaService,
+      deps: ['backend', ApiService],
+      useFactory: MediaServiceFactory,  
     },
     {
       provide: 'firebase-config',

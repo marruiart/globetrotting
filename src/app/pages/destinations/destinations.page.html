@@ -4,9 +4,10 @@
     class="content virtualScroller"
     [value]="(((destinationsFacade.destinations$ | async) ?? []) | fav:(favsFacade.clientFavs$ | async) | virtualItems | async) ?? []"
     [itemSize]="itemSize"
+    scrollHeight="scrollHeight"
     [lazy]="true"
     (onLazyLoad)="loadDestinations($event)"
-    [options]="{showLoader:true}"
+    [options]="scrollerOptions"
   >
     <ng-template let-destination pTemplate="item">
       <app-destination-card

@@ -4,6 +4,13 @@
     "heroDescription": "Explore stunning destinations, immerse yourself in unique cultures, and create unforgettable memories as you travel the world with us. Make your travel dreams come true with our expert guidance and personalized experiences!",
     "heroButton": "Book yours now"
   },
+  "adminPage": {
+    "download": "Download report",
+    "all": "All files",
+    "users": "Users",
+    "destinations": "Destinations",
+    "bookings": "Bookings"
+  },
   "destinationsPage": {
     "booking": "Booking details"
   },
@@ -29,6 +36,16 @@
       "logout": "Log out",
       "bookings": "My bookings"
     }
+  },
+  "profilePage": {
+    "uploadImageConfirmation": "Success",
+    "uploadImageMessageSuccess": "Your profile picture has been updated",
+    "uploadImageError": "Error",
+    "uploadImageMessageError": "Something went wrong, the profile picture could not be updated",
+    "updateProfileConfirmation": "Success",
+    "updateProfileMessageSuccess": "Your profile has been updated",
+    "updateProfileError": "Error",
+    "updateProfileMessageError": "Something went wrong, your profile could not be updated"
   },
   "userForm": {
     "loginHeader": "Login",
@@ -81,7 +98,7 @@
     "tableHeader": "Destinations management",
     "tableName": "Destination",
     "tableType": "Type",
-    "tableDimension": "Dimension",
+    "tableKeywords": "Keywords",
     "tablePrice": "Price/person/night",
     "tableDescription": "Description",
     "tableOptions": "Options",
@@ -89,8 +106,8 @@
     "editDestinationHeader": "Edit destination information",
     "deleteMessage": "Do you wish to delete the destination?",
     "deleteConfirmationTitle": "Confirmation",
-    "deleteDetailMessage": "The destination has been deleted", 
-    "noDeletionMessage": "This destination cannot be deleted because it has reservations associated with it.", 
+    "deleteDetailMessage": "The destination has been deleted",
+    "noDeletionMessage": "This destination cannot be deleted because it has reservations associated with it.",
     "caution": "Deletion not possible"
   },
   "agentsManagement": {
@@ -109,7 +126,7 @@
   "destinationForm": {
     "destination": "Destination place",
     "type": "Type of destination",
-    "dimension": "Dimension of destination",
+    "keywords": "Destination's keywords",
     "price": "Price/person/night",
     "description": "Description",
     "submitBtn": "Submit"

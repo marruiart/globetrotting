@@ -114,6 +114,12 @@ export const StrapiEndpoints = {
   FAVORITES: '/api/favorites'
 }
 
+export const FIREBASE_API_URL = 'https://europe-west9-globetrotting-80e83.cloudfunctions.net'
+
+export const FirebaseEndpoints = {
+  DOWNLOAD_CSV: '/function-export-to-csv'
+}
+
 export const FormTypes = {
   LOGIN: 'LOGIN' as 'LOGIN',
   REGISTER: 'REGISTER' as 'REGISTER',

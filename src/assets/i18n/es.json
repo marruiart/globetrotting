@@ -4,6 +4,13 @@
     "heroDescription": "Explora destinos asombrosos, sumérgete en culturas únicas y crea recuerdos inolvidables mientras viajas por el mundo con nosotros. ¡Haz realidad tus sueños de viaje con nuestra guía experta y nuestras experiencias personalizadas!",
     "heroButton": "Reserva ya la tuya"
   },
+  "adminPage": {
+    "download": "Descargar informe",
+    "all": "Todos los archivos",
+    "users": "Usuarios",
+    "destinations": "Destinos",
+    "bookings": "Reservas"
+  },
   "destinationsPage": {
     "booking": "Datos de la reserva"
   },
@@ -29,6 +36,16 @@
       "logout": "Salir",
       "bookings": "Mis reservas"
     }
+  },
+  "profilePage": {
+    "uploadImageConfirmation": "Éxito",
+    "uploadImageMessageSuccess": "La imagen de perfil ha sido actualizada",
+    "uploadImageError": "Error",
+    "uploadImageMessageError": "Algo ha ido mal, no se ha podido actualizar la imagen",
+    "updateProfileConfirmation": "Éxito",
+    "updateProfileMessageSuccess": "Perfil actualizado",
+    "updateProfileError": "Error",
+    "updateProfileMessageError": "Algo ha ido mal, no se ha podido actualizar el perfil"
   },
   "userForm": {
     "loginHeader": "Inicio de sesión",
@@ -81,7 +98,7 @@
     "tableHeader": "Gestión de destinos",
     "tableName": "Destino",
     "tableType": "Tipo",
-    "tableDimension": "Dimensión",
+    "tableKeywords": "Keywords",
     "tablePrice": "Precio/persona/noche",
     "tableDescription": "Descripción",
     "tableOptions": "Opciones",
@@ -109,7 +126,7 @@
   "destinationForm": {
     "destination": "Lugar de destino",
     "type": "Tipo de destino",
-    "dimension": "Dimensión del destino",
+    "keywords": "Keywords del destino",
     "price": "Precio/noche/persona",
     "description": "Descripción",
     "submitBtn": "Aceptar"

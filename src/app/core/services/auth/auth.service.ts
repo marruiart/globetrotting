@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { AgentRegisterInfo, AdminAgentOrClientUser, UserCredentials, UserCredentialsOptions, UserRegisterInfo } from '../../models/globetrotting/user.interface';
-import { StrapiRole } from '../../models/strapi-interfaces/strapi-user.interface';
 
 @Injectable({
   providedIn: 'root'

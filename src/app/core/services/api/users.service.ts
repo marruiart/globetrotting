@@ -97,6 +97,18 @@ export class UsersService {
     }), catchError((err) => { throw new Error(err) }));
   }
 
+
+  public updateUserAvatar(uid: string, avatar: string): Observable<User> {
+    const body = {
+      user_id: uid,
+      avatar: avatar
+    }
+    return this.dataSvc.update<User>(StrapiEndpoints.EXTENDED_USERS, uid, body, this.mappingSvc.mapUser).pipe(tap(_ => {
+
+    }), catchError((err) => { throw new Error(err) }));
+  }
+
+
   public deleteUser(id: number | string): Observable<User> {
     return this.dataSvc.delete<User>(StrapiEndpoints.EXTENDED_USERS, this.mappingSvc.mapUser, id, {}).pipe(tap(_ => {
       this.getAllUsers().subscribe();

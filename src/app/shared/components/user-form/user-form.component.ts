@@ -91,7 +91,6 @@ export class UserFormComponent implements OnDestroy {
       }
     }
     if (this._actionUpdate && this.backend === Backends.FIREBASE) {
-      // TODO add password change
       const fieldPath = this._user.role === Roles.AUTHENTICATED ? 'client_id' : 'agent_id';
       const fieldName = this._user.role === Roles.AUTHENTICATED ? 'clientName' : 'agentName';
       this.checkValueChanges({
@@ -155,13 +154,11 @@ export class UserFormComponent implements OnDestroy {
           _username: ['', [Validators.required]],
           email: [{ value: '', disabled: true }],
           _email: ['', [Validators.required, Validators.pattern(this.Pattern.EMAIL)]],
-          password: ['', [Validators.required, PasswordValidator.passwordProto('password')]],
-          passwordRepeat: ['', [Validators.required, PasswordValidator.passwordProto('passwordRepeat')]],
           name: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
           surname: ['', [Validators.required, Validators.pattern(this.Pattern.NAME)]],
           nickname: ['', [Validators.required, Validators.pattern(this.Pattern.NICKNAME)]],
           favorites: [[]]
-        }, { validator: [PasswordValidator.passwordMatch('password', 'passwordRepeat')] } as AbstractControlOptions);
+        });
         break;
       case FormTypes.UPDATE_AGENT:
         this.userForm = this.fb.group({
@@ -246,7 +243,7 @@ export class UserFormComponent implements OnDestroy {
       ext_id: this.userForm.value.id,
       username: this.userForm.value.username ?? this.userForm.value._username,
       email: this.userForm.value.email ?? this.userForm.value._email,
-      password: this.userForm.value.password,
+      password: '',
       nickname: this.userForm.value.nickname,
       name: this.userForm.value.name,
       surname: this.userForm.value.surname,

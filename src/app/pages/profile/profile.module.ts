@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 
 import { ProfilePageRoutingModule } from './profile-routing.module';
 
@@ -10,6 +10,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
     ProfilePageRoutingModule
   ],
-  declarations: [ProfilePage]
+  declarations: [ProfilePage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ProfilePageModule { }

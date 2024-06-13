@@ -52,7 +52,7 @@ export class DestinationsPage implements OnInit, OnDestroy {
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.scrollHeight = (window.innerHeight - 20);
-    let columns = window.innerWidth / 360
+    let columns = window.innerWidth / 330
     console.log(`columns: ${columns}`)
     this.itemSize = (600 / (columns));
     this.setHeightForVirtualScrollerItems('570px');

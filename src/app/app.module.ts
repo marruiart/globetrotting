@@ -45,12 +45,14 @@ import { UsersService } from './core/services/api/users.service';
 import { UsersServiceFactory } from './core/factories/users-service.factory';
 import { MediaService } from './core/services/api/media.service';
 import { MediaServiceFactory } from './core/factories/media-service.factory';
+import { ButtonModule } from 'primeng/button';
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+    ButtonModule, // required for translation floating button
     BrowserModule,
     BrowserAnimationsModule,
     IonicModule.forRoot(),

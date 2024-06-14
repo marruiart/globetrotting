@@ -18,9 +18,11 @@ Para ver una demostración de la aplicación y entender las diferentes acciones 
 - Ionic-Capacitor
 
 ### BackEnd
-- Strapi desplegado de forma pública en la red (no disponible en el despliegue público)
+- Strapi (no disponible actualmente en el despliegue público)
 - Render (alojamiento de la aplicación web con Strapi y Cloudinary)
-- Firebase
+- Firebase (base de datos no relacional)
+- Google Authenticator (registro de usuarios)
+- Google Cloud Functions (endpoint para la descarga de un archivo CSV)
 - Netlify (despliegue de la Aplicación web)
 
 La aplicación se encuentra desplegada públicamente en [Netlify](https://stately-pasca-b97506.netlify.app), y el backend está publicado usando Render.
@@ -28,7 +30,7 @@ La aplicación se encuentra desplegada públicamente en [Netlify](https://statel
 ## Estructura de la Aplicación
 
 ### Núcleo de la Aplicación
-Se ha creado un núcleo en la aplicación llamado `core`, donde se han añadido servicios y utilidades que no dependen de un módulo y pueden ser importados desde cualquier sitio.
+Se ha creado un núcleo en la aplicación llamado `core`, donde se han añadido servicios y utilidades que no dependen de un módulo y pueden ser importados desde cualquier sitio. En este núcleo se gestiona el sistema Redux de NgRx, manteniendo el estado de la aplicación actualizado en todo momento. Contiene además las guardas, que evitan el acceso a zonas privadas de la página a la que solo tienen acceso administradores y/o agentes de viajes. 
 
 ### Módulos
 Cada página es un módulo independiente. Se ha creado un módulo compartido llamado `SharedModule` que contiene componentes, directivas y pipes utilizables en otros módulos.
@@ -67,3 +69,25 @@ Las páginas están organizadas en el enrutador de la aplicación y aquellas que
 
 ### Interfaz de Usuario
 La app es responsiva y hace uso de los componentes de PrimeNG. El tema de PrimeNG ha sido configurado para ajustar los colores de manera dinámica.
+
+#### Página de inicio (landing page / home page)
+![image](https://github.com/marruiart/globetrotting/assets/88201067/5d985928-e559-428f-9958-40ab6455420a)
+#### Página de destinos 
+Vista de cliente:
+![image](https://github.com/marruiart/globetrotting/assets/88201067/2a4764f5-6cd8-45ed-85c2-cacdeb73eaf7)
+#### Página 'sobre mí'
+![image](https://github.com/marruiart/globetrotting/assets/88201067/f5b5c12c-4990-49be-bf53-e8a3cc6a78a5)
+#### Perfil de usuario
+![image](https://github.com/marruiart/globetrotting/assets/88201067/01523187-5cf3-4c5a-98e9-55f0ffecad85)
+#### Página de 'mis reservas'
+![image](https://github.com/marruiart/globetrotting/assets/88201067/2f9a3e43-e802-4877-a2e8-1dec66f21d6b)
+#### Página de panel de agentes de viajes y administradores
+![image](https://github.com/marruiart/globetrotting/assets/88201067/05f0cd39-599d-40bf-887d-27c582aa5e29)
+#### Gestión de destinos (administradores y agentes de viajes)
+![image](https://github.com/marruiart/globetrotting/assets/88201067/3161a0d3-586d-4a2d-b70e-31ec904e19f4)
+#### Gestión de agentes de viajes (solo administrador)
+![image](https://github.com/marruiart/globetrotting/assets/88201067/0be832aa-68ba-4d4b-8915-07b37fd738d9)
+
+
+
+

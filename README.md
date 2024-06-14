@@ -1,6 +1,6 @@
 # Globetrotting
 
-Este proyecto unifica todos los contenidos correspondientes a la formación inicial en Angular que se realiza durante el primer trimestre de segundo curso de Desarrollo de Aplicaciones Multiplataforma. 
+Este proyecto unifica todos los contenidos correspondientes a la formación inicial en Angular que se realiza durante el primer y segundo trimestre de segundo curso de Desarrollo de Aplicaciones Multiplataforma. 
 
 ## Descripción
 
@@ -8,19 +8,20 @@ Globetrotting es una aplicación Angular que permite a usuarios registrados como
 
 ## Demostración
 
-Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace](https://youtu.be/vboM-cc44aI).
+Para ver una demostración de la aplicación y entender las diferentes acciones que se pueden realizar, consulta este [enlace](https://www.youtube.com/watch?v=rMMr0vFxJJE).
 
 ## Tecnologías Utilizadas
 
 ### FrontEnd
 - Angular
 - PrimeNG
-- Capacitor
+- Ionic-Capacitor
 
 ### BackEnd
-- Strapi desplegado de forma pública en la red
-- PostgreSQL
-- Cloudinary
+- Strapi desplegado de forma pública en la red (no disponible en el despliegue público)
+- Render (alojamiento de la aplicación web con Strapi y Cloudinary)
+- Firebase
+- Netlify (despliegue de la Aplicación web)
 
 La aplicación se encuentra desplegada públicamente en [Netlify](https://stately-pasca-b97506.netlify.app), y el backend está publicado usando Render.
 
@@ -41,7 +42,7 @@ Se ha implementado un servicio de autenticación con opciones para login, logout
 Se ha creado un servicio por cada modelo de datos de la base de datos con métodos CRUD asociados a dicho modelo.
 
 #### ApiService
-Un servicio que contiene la lógica necesaria para comunicarse con el backend (en este caso, los endpoints de la API de Strapi).
+Un servicio que contiene la lógica necesaria para comunicarse con el backend. En el caso de la web desplegada, firebase, pero también preparado para conectarse a los endpoints de la API de Strapi.
 
 #### HttpClientWebProvider
 Un servicio de HTTP para el navegador que envuelve las llamadas a HttpClient.

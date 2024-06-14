@@ -4,7 +4,11 @@ Este proyecto unifica todos los contenidos correspondientes a la formación inic
 
 ## Descripción
 
-Globetrotting es una aplicación Angular que permite a usuarios registrados como clientes realizar reservas en la agencia de viajes y gestionar sus reservas. Los usuarios registrados como agentes de viajes tienen la capacidad de confirmar reservas existentes, crear nuevas y administrar destinos. Los usuarios registrados como administradores pueden gestionar los usuarios que son agentes de viajes y las mismas funciones que tienen estos.
+Globetrotting es una aplicación desarrollada en Angular destinada a la gestión de reservas en una agencia de viajes. Los usuarios registrados pueden interactuar con la aplicación en distintos roles: clientes, agentes de viajes y administradores.
+
+- Clientes: Pueden realizar y gestionar sus reservas.
+- Agentes de viajes: Tienen la capacidad de confirmar reservas existentes, crear nuevas reservas y administrar destinos.
+- Administradores: Pueden gestionar usuarios (especialmente agentes de viajes) y tienen acceso a todas las funcionalidades de los agentes de viajes.
 
 ## Demostración
 
@@ -25,7 +29,7 @@ Para ver una demostración de la aplicación y entender las diferentes acciones 
 - Google Cloud Functions (endpoint para la descarga de un archivo CSV)
 - Netlify (despliegue de la Aplicación web)
 
-La aplicación se encuentra desplegada públicamente en [Netlify](https://stately-pasca-b97506.netlify.app), y el backend está publicado usando Render.
+La aplicación se encuentra desplegada públicamente en [Netlify](https://stately-pasca-b97506.netlify.app), y el backend se encuentra publicado en Google Cloud (firebase, authenticator, google functions) y en Render.
 
 ## Estructura de la Aplicación
 
@@ -65,7 +69,7 @@ Se han creado pipes personalizados y se han utilizado otros pipes proporcionados
 La aplicación contiene componentes para las páginas, formularios reactivos para editar o añadir datos y diversas páginas, incluyendo páginas de login, registro, inicio, 'sobre mí' (con información sobre el desarrollador), y una página por cada modelo de datos.
 
 ### Enrutamiento y Seguridad
-Las páginas están organizadas en el enrutador de la aplicación y aquellas que necesitan autenticación están protegidas mediante dos guardas implementada, una que controla el acceso a zonas de administrador y otras a zonas restringidas para usuarios autenticados.
+Las páginas están organizadas en el enrutador de la aplicación y aquellas que necesitan autenticación están protegidas mediante dos guardas implementadas, una que controla el acceso a zonas de administrador y otras a zonas restringidas para usuarios autenticados.
 
 ### Interfaz de Usuario
 La app es responsiva y hace uso de los componentes de PrimeNG. El tema de PrimeNG ha sido configurado para ajustar los colores de manera dinámica.
